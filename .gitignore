@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+.gradle-home/
+.gradle-dist/
+.gradle-local/
+**/.gradle/
+**/.gradle-home/
+**/.gradle-dist/
+**/.gradle-local/
+
+# Build outputs
+build/
+**/build/
+
+# Android Studio
+.idea/
+*.iml
+
+# Local SDK
+local.properties
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,36 @@
+package com.sentinel.ai.ui.screens.alert
+
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+@HiltViewModel
+class AlertViewModel @Inject constructor() : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AlertUiState())
+    val uiState: StateFlow<AlertUiState> = _uiState.asStateFlow()
+
+    fun onAction(action: AlertUiAction) {
+        when (action) {
+            is AlertUiAction.SelectAlert -> selectAlert(action.alertId)
+            is AlertUiAction.FilterByRisk -> filterByRisk(action.level)
+            is AlertUiAction.DismissAlert -> dismissAlert(action.alertId)
+        }
+    }
+
+    private fun selectAlert(alertId: String) {
+        // Placeholder
+    }
+
+    private fun filterByRisk(level: com.sentinel.ai.core.model.RiskLevel?) {
+        _uiState.update { it.copy(filter = level) }
+    }
+
+    private fun dismissAlert(alertId: String) {
+        // Placeholder
+    }
+}
