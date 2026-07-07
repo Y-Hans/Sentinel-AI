@@ -21,9 +21,9 @@ data class FileHeuristicConfig(
     val weights: Map<String, Float> = mapOf(
         "dangerous_extension" to 40f,
         "double_extension" to 30f,
-        "misleading_filename" to 20f,
-        "random_filename" to 15f,
-        "suspicious_archive" to 15f,
+        "misleading_filename" to 10f,
+        "random_filename" to 10f,
+        "suspicious_archive" to 5f,
         "fake_document" to 25f
     ),
 

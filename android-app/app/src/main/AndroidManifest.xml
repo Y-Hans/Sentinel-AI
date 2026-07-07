@@ -67,9 +67,23 @@
                 <data android:mimeType="application/pdf" />
                 <data android:mimeType="application/vnd.android.package-archive" />
                 <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip" />
+                <data android:mimeType="application/x-zip-compressed" />
                 <data android:mimeType="application/msword" />
                 <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.sentinel.ai.protection.intent.TextSelectionProcessActivity"
+            android:exported="true"
+            android:label="@string/text_selection_analyze_label"
+            android:theme="@style/Theme.SentinelAI">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 

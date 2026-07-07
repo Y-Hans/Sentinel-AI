@@ -35,6 +35,24 @@ class LinkHeuristicRiskEngine @Inject constructor() {
         val score = results.sumOf { it.scoreContribution.toDouble() }.toFloat().coerceIn(0f, 100f)
         val triggered = results.filter { it.triggered }
 
+        // Calibration Debug Logging
+        try {
+            if (android.util.Log.isLoggable("SentinelCalibration", android.util.Log.DEBUG)) {
+                android.util.Log.d("SentinelCalibration", "--- Link Heuristic Scan: $url ---")
+                for (res in results) {
+                    if (res.triggered) {
+                        android.util.Log.d("SentinelCalibration", "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
+                    }
+                }
+                android.util.Log.d("SentinelCalibration", "Heuristic Total Score: $score")
+                android.util.Log.d("SentinelCalibration", "----------------------------------")
+            } else {
+                android.util.Log.i("SentinelCalibration", "Link: $url -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+            }
+        } catch (t: Throwable) {
+            println("SentinelCalibration - Link: $url -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+        }
+
         return LinkHeuristicAnalysis(
             score = score,
             riskLevel = score.toRiskLevel(),
@@ -72,13 +90,6 @@ class LinkHeuristicRiskEngine @Inject constructor() {
 
         val reasons = triggered.mapNotNull { it.explanation }.take(4).joinToString("; ")
         return "Detected ${triggered.size} link risk signal(s): $reasons."
-    }
-
-    private fun Float.toRiskLevel(): RiskLevel = when {
-        this >= 90f -> RiskLevel.CRITICAL
-        this >= 70f -> RiskLevel.RED
-        this >= 30f -> RiskLevel.YELLOW
-        else -> RiskLevel.GREEN
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package com.sentinel.ai.protection.intent
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -57,6 +58,7 @@ class ScanLoadingActivity : ComponentActivity() {
 
         val payloadType = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE)
         val payloadValue = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE)
+        val fromViewIntent = intent.getBooleanExtra(IntentPayloadExtras.EXTRA_FROM_VIEW_INTENT, false)
 
         val payload = when (payloadType) {
             IntentPayloadExtras.TYPE_URL -> payloadValue?.let { UrlPayload(it) }
@@ -100,7 +102,9 @@ class ScanLoadingActivity : ComponentActivity() {
                             ScanResultContent(
                                 result = state.result,
                                 payload = state.payload,
-                                onClose = { finish() }
+                                fromViewIntent = fromViewIntent,
+                                onClose = { finish() },
+                                onOpenUrl = { url -> openUrlInBrowser(url) }
                             )
                         }
                         is ScanUiState.Error -> {
@@ -112,6 +116,19 @@ class ScanLoadingActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun openUrlInBrowser(url: String) {
+        val uri = Uri.parse(url)
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        val activities = packageManager.queryIntentActivities(intent, 0)
+        val otherApp = activities.firstOrNull { it.activityInfo.packageName != packageName }
+        if (otherApp != null) {
+            intent.setPackage(otherApp.activityInfo.packageName)
+            startActivity(intent)
+        } else {
+            startActivity(Intent.createChooser(intent, "Open Link"))
         }
     }
 
@@ -167,7 +184,9 @@ private fun ScanLoadingContent(payloadType: String) {
 private fun ScanResultContent(
     result: ScanResult,
     payload: IntentPayload,
-    onClose: () -> Unit
+    fromViewIntent: Boolean,
+    onClose: () -> Unit,
+    onOpenUrl: (String) -> Unit
 ) {
     val (statusLabel, statusColor) = when (result.riskLevel) {
         RiskLevel.GREEN -> "Safe" to MaterialTheme.colorScheme.primary // Green
@@ -244,13 +263,22 @@ private fun ScanResultContent(
 
         Spacer(modifier = Modifier.height(48.dp))
 
+        val isSafeUrlFromView = payload is UrlPayload && result.riskLevel == RiskLevel.GREEN && fromViewIntent
+        val buttonText = if (isSafeUrlFromView) "Continue to Website" else "Close"
+        val buttonAction = {
+            if (isSafeUrlFromView) {
+                onOpenUrl((payload as UrlPayload).url)
+            }
+            onClose()
+        }
+
         Button(
-            onClick = onClose,
+            onClick = buttonAction,
             colors = ButtonDefaults.buttonColors(containerColor = statusColor),
             modifier = Modifier.fillMaxWidth().height(50.dp)
         ) {
             Text(
-                text = "Close",
+                text = buttonText,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary

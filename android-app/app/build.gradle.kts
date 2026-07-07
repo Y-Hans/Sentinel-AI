@@ -20,6 +20,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "API_BASE_URL", "\"https://api.sentinel.ai/\"")
+        buildConfigField("String", "OPENPHISH_FEED_URL", "\"https://openphish.com/feed.txt\"")
+        buildConfigField("String", "OPENPHISH_API_KEY", "\"\"")
+        buildConfigField("String", "REPUTATION_LOOKUP_TIMEOUT_MS", "\"10000\"")
     }
 
     buildFeatures {
@@ -61,6 +64,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

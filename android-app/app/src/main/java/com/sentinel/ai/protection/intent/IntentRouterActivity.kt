@@ -30,12 +30,17 @@ class IntentRouterActivity : ComponentActivity() {
         }
 
         Log.i(TAG, "Routing payload type: ${payload.payloadTypeLabel}")
-        startActivity(
-            Intent(this, ScanLoadingActivity::class.java).apply {
-                putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE, payload.payloadTypeKey)
-                putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE, payload.payloadValue)
-            }
-        )
+        val isViewIntent = intent.action == Intent.ACTION_VIEW
+        val scanIntent = Intent(this, ScanLoadingActivity::class.java).apply {
+            putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE, payload.payloadTypeKey)
+            putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE, payload.payloadValue)
+            putExtra(IntentPayloadExtras.EXTRA_FROM_VIEW_INTENT, isViewIntent)
+        }
+        if (payload is FilePayload) {
+            scanIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            scanIntent.data = payload.uri
+        }
+        startActivity(scanIntent)
         finish()
     }
 

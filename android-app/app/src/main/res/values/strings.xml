@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sentinel AI</string>
+    <string name="text_selection_analyze_label">Analyze with Sentinel AI</string>
     <string name="critical_alert_title">SUSPICIOUS MESSAGE DETECTED</string>
     <string name="critical_alert_score">Scam Score: %1$d</string>
     <string name="critical_alert_reasons_label">Reasons</string>

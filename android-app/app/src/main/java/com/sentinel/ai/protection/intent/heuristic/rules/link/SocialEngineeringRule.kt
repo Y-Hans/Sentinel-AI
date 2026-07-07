@@ -11,15 +11,40 @@ class SocialEngineeringRule : LinkHeuristicRule {
     override val name: String = "Social Engineering Keywords"
 
     override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val normalized = url.lowercase().replace('_', '-')
-        val matched = config.socialEngineeringKeywords.firstOrNull { keyword ->
-            normalized.contains(keyword)
+        val host = uri?.host?.lowercase() ?: ""
+        val matchedKeyword = config.socialEngineeringKeywords.firstOrNull { keyword ->
+            url.lowercase().replace('_', '-').contains(keyword)
         }
-        val triggered = matched != null
+
+        if (matchedKeyword == null) {
+            return RuleResult(
+                triggered = false,
+                scoreContribution = 0f,
+                explanation = null,
+                category = RuleCategory.SOCIAL_ENGINEERING
+            )
+        }
+
+        // Check if the keyword is present in the host (domain/subdomain)
+        val inHost = host.replace('_', '-').contains(matchedKeyword)
+        
+        val score = if (inHost) {
+            config.weights[id] ?: 20f
+        } else {
+            // Match is in the path/query parameters, apply heavily discounted weight
+            2f
+        }
+
+        val explanation = if (inHost) {
+            "Uses social engineering keyword in domain: $matchedKeyword"
+        } else {
+            "Uses social engineering keyword in path/query: $matchedKeyword"
+        }
+
         return RuleResult(
-            triggered = triggered,
-            scoreContribution = if (triggered) config.weights[id] ?: 0f else 0f,
-            explanation = if (triggered) "Uses social engineering keyword: $matched" else null,
+            triggered = true,
+            scoreContribution = score,
+            explanation = explanation,
             category = RuleCategory.SOCIAL_ENGINEERING
         )
     }
