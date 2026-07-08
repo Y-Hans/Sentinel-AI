@@ -22,6 +22,8 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"https://api.sentinel.ai/\"")
         buildConfigField("String", "OPENPHISH_FEED_URL", "\"https://openphish.com/feed.txt\"")
         buildConfigField("String", "OPENPHISH_API_KEY", "\"\"")
+        buildConfigField("String", "VIRUSTOTAL_API_KEY", "\"\"")
+        buildConfigField("String", "VIRUSTOTAL_LOOKUP_URL", "\"https://www.virustotal.com/api/v3/\"")
         buildConfigField("String", "REPUTATION_LOOKUP_TIMEOUT_MS", "\"10000\"")
     }
 
