@@ -20,6 +20,13 @@ abstract class ReputationModule {
         impl: ReputationManagerImpl
     ): ReputationManager
 
+    @Binds
+    @IntoSet
+    @Singleton
+    abstract fun bindOpenPhishReputationProvider(
+        impl: OpenPhishReputationProvider
+    ): ReputationProvider
+
     companion object {
         @Provides
         @Singleton
