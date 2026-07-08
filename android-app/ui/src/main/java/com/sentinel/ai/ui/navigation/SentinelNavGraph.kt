@@ -1,20 +1,19 @@
 package com.sentinel.ai.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -30,21 +29,21 @@ import com.sentinel.ai.ui.screens.history.HistoryScreen
 import com.sentinel.ai.ui.screens.scanner.ScannerScreen
 import com.sentinel.ai.ui.screens.settings.SettingsScreen
 import com.sentinel.ai.ui.screens.threat.ThreatDetailsScreen
-import com.sentinel.ai.ui.theme.SentinelSurface
+import com.sentinel.ai.ui.theme.rememberWindowWidthClass
+import kotlinx.coroutines.launch
 
-private data class BottomNavItem(
-    val screen: Screen,
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
-)
-
-private val bottomNavItems = listOf(
-    BottomNavItem(Screen.Dashboard, "Home", Icons.Filled.Home),
-    BottomNavItem(Screen.History, "History", Icons.Filled.History),
-    BottomNavItem(Screen.Settings, "Settings", Icons.Filled.Settings),
-    BottomNavItem(Screen.About, "About", Icons.Filled.Info)
-)
-
+/**
+ * Root Sentinel navigation shell.
+ *
+ * Assembles a premium, adaptive Material 3 application shell: a [ModalNavigationDrawer], a
+ * contextual top app bar, and an adaptive navigation surface (bottom bar on phones, navigation
+ * rail on tablets). It applies edge-to-edge-friendly window-inset handling and subtle Material
+ * Motion transitions between destinations. No routes, navigation logic or ViewModels are changed.
+ *
+ * @param navController the app's navigation controller.
+ * @param startDestination initial route, defaults to [Screen.Dashboard].
+ * @param appVersion version string forwarded to screens that display it.
+ */
 @Composable
 fun SentinelNavGraph(
     navController: NavHostController,
@@ -54,62 +53,76 @@ fun SentinelNavGraph(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    Scaffold(
-        bottomBar = {
-            val showBottomBar = currentRoute?.startsWith("threat_details") != true
-            if (showBottomBar) {
-                SentinelBottomBar(
-                    currentRoute = currentRoute ?: startDestination,
-                    onDestinationSelected = { screen ->
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+    val windowWidth = rememberWindowWidthClass()
+    val isCompact = windowWidth.isCompact
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    val onDestinationSelected: (Screen) -> Unit = { screen ->
+        scope.launch { drawerState.close() }
+        navController.navigate(screen.route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            SentinelNavDrawerContent(
+                currentRoute = currentRoute,
+                onDestinationSelected = onDestinationSelected
+            )
+        },
+        gesturesEnabled = true
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            if (!isCompact) {
+                SentinelNavRail(
+                    currentRoute = currentRoute,
+                    onDestinationSelected = onDestinationSelected,
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        SentinelNavHost(
-            navController = navController,
-            paddingValues = paddingValues,
-            startDestination = startDestination,
-            appVersion = appVersion
-        )
-    }
-}
 
-@Composable
-private fun SentinelBottomBar(
-    currentRoute: String,
-    onDestinationSelected: (Screen) -> Unit
-) {
-    NavigationBar(
-        containerColor = SentinelSurface.copy(alpha = 0.96f)
-    ) {
-        bottomNavItems.forEach { item ->
-            val selected = currentRoute == item.screen.route
-            NavigationBarItem(
-                selected = selected,
-                onClick = { onDestinationSelected(item.screen) },
-                icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.label
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    SentinelTopBar(
+                        currentRoute = currentRoute,
+                        onMenuClicked = { scope.launch { drawerState.open() } },
+                        onBackClicked = { navController.popBackStack() }
                     )
                 },
-                label = {
-                    Text(text = item.label)
-                }
-            )
+                bottomBar = {
+                    if (isCompact && currentRoute?.startsWith("threat_details") != true) {
+                        SentinelBottomNav(
+                            currentRoute = currentRoute,
+                            onDestinationSelected = onDestinationSelected
+                        )
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.background
+            ) { paddingValues ->
+                SentinelNavHost(
+                    navController = navController,
+                    paddingValues = paddingValues,
+                    startDestination = startDestination,
+                    appVersion = appVersion
+                )
+            }
         }
     }
 }
 
+/**
+ * Hosts every destination in the app. Each [composable] carries a subtle fade-through transition
+ * built from the shared [SentinelNavEnterTransition] family.
+ */
 @Composable
 private fun SentinelNavHost(
     navController: NavHostController,
@@ -120,9 +133,15 @@ private fun SentinelNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = androidx.compose.ui.Modifier.padding(paddingValues)
+        modifier = Modifier.padding(paddingValues)
     ) {
-        composable(Screen.Dashboard.route) {
+        composable(
+            route = Screen.Dashboard.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             DashboardScreen(
                 onThreatSelected = { threatId ->
                     navController.navigate(Screen.ThreatDetails.createRoute(threatId))
@@ -131,17 +150,33 @@ private fun SentinelNavHost(
         }
         composable(
             route = Screen.ThreatDetails.route,
-            arguments = listOf(navArgument(Screen.ThreatDetails.argumentName) { type = NavType.StringType })
+            arguments = listOf(navArgument(Screen.ThreatDetails.argumentName) { type = NavType.StringType }),
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
         ) { backStackEntry ->
             ThreatDetailsScreen(
                 threatId = backStackEntry.arguments?.getString(Screen.ThreatDetails.argumentName).orEmpty(),
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.History.route) {
+        composable(
+            route = Screen.History.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             HistoryScreen()
         }
-        composable(Screen.Settings.route) {
+        composable(
+            route = Screen.Settings.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             SettingsScreen(
                 appVersion = appVersion,
                 onNavigateToAbout = {
@@ -149,18 +184,42 @@ private fun SentinelNavHost(
                 }
             )
         }
-        composable(Screen.About.route) {
+        composable(
+            route = Screen.About.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             AboutScreen(
                 appVersion = appVersion
             )
         }
-        composable(Screen.Alerts.route) {
+        composable(
+            route = Screen.Alerts.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             AlertScreen()
         }
-        composable(Screen.Scanner.route) {
+        composable(
+            route = Screen.Scanner.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             ScannerScreen()
         }
-        composable(Screen.Copilot.route) {
+        composable(
+            route = Screen.Copilot.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
             CopilotScreen()
         }
     }
