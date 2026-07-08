@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,8 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.RiskLevel
-import com.sentinel.ai.ui.theme.SentinelCritical
 import com.sentinel.ai.ui.theme.SentinelCyan
+import com.sentinel.ai.ui.theme.SentinelCritical
 import com.sentinel.ai.ui.theme.SentinelGreen
 import com.sentinel.ai.ui.theme.SentinelOutline
 import com.sentinel.ai.ui.theme.SentinelRed
@@ -34,30 +35,21 @@ import com.sentinel.ai.ui.theme.SentinelSurface
 import com.sentinel.ai.ui.theme.SentinelSurfaceVariant
 import com.sentinel.ai.ui.theme.SentinelYellow
 
-@Composable
-fun SentinelCard(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-    val cardModifier = if (onClick != null) {
-        modifier.fillMaxWidth().clickable(onClick = onClick)
-    } else {
-        modifier.fillMaxWidth()
+internal fun riskColor(riskLevel: RiskLevel): Color {
+    return when (riskLevel) {
+        RiskLevel.GREEN -> SentinelGreen
+        RiskLevel.YELLOW -> SentinelYellow
+        RiskLevel.RED -> SentinelRed
+        RiskLevel.CRITICAL -> SentinelCritical
     }
+}
 
-    Card(
-        modifier = cardModifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = SentinelSurface.copy(alpha = 0.96f)
-        ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SentinelOutline.copy(alpha = 0.65f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            content()
-        }
+internal fun RiskLevel.displayLabel(): String {
+    return when (this) {
+        RiskLevel.GREEN -> "Low"
+        RiskLevel.YELLOW -> "Moderate"
+        RiskLevel.RED -> "High"
+        RiskLevel.CRITICAL -> "Critical"
     }
 }
 
@@ -160,28 +152,10 @@ fun SentinelIndicatorDot(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.foundation.layout.Box(
+    Box(
         modifier = modifier
             .size(10.dp)
             .clip(RoundedCornerShape(50.dp))
             .background(color)
     )
-}
-
-internal fun riskColor(riskLevel: RiskLevel): Color {
-    return when (riskLevel) {
-        RiskLevel.GREEN -> SentinelGreen
-        RiskLevel.YELLOW -> SentinelYellow
-        RiskLevel.RED -> SentinelRed
-        RiskLevel.CRITICAL -> SentinelCritical
-    }
-}
-
-internal fun RiskLevel.displayLabel(): String {
-    return when (this) {
-        RiskLevel.GREEN -> "Low"
-        RiskLevel.YELLOW -> "Moderate"
-        RiskLevel.RED -> "High"
-        RiskLevel.CRITICAL -> "Critical"
-    }
 }
