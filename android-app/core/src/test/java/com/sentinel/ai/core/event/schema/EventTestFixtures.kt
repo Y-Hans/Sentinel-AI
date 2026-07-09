@@ -68,7 +68,7 @@ object EventTestFixtures {
     )
 
     fun sampleAttachmentAnalysisItem(): AttachmentAnalysisItem = AttachmentAnalysisItem(
-        attachmentId = "b2c3d4e5-f6a7-8901-bc23-de45fa678901",
+        attachmentId = "b2c3d4e5-f6a7-4901-bc23-de45fa678901",
         filename = "notice.pdf",
         fileExtension = "pdf",
         mimeType = "application/pdf",

@@ -116,7 +116,7 @@ private class BaseEventAdapter : JsonSerializer<BaseEvent>, JsonDeserializer<Bas
             .registerTypeAdapter(UrlScheme::class.java, UrlSchemeAdapter())
             .create()
         val tree = baseGson.toJsonTree(src).asJsonObject
-        tree.add("channel_payload", context!!.serialize(src.channelPayload))
+        tree.add("channel_payload", context!!.serialize(src.channelPayload, ChannelPayloadData::class.java))
         return tree
     }
 
