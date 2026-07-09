@@ -1,5 +1,6 @@
 package com.sentinel.ai.ui.screens.history
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,12 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
@@ -48,6 +50,11 @@ import com.sentinel.ai.ui.util.toAppLabel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private sealed class HistoryListEntry {
+    data class DateHeader(val dateLabel: String) : HistoryListEntry()
+    data class ThreatItem(val item: ScanResult) : HistoryListEntry()
+}
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -135,22 +142,50 @@ fun HistoryScreen(
                 description = "The backend will populate this list as detections arrive."
             )
         } else {
-            val sortedItems = items.sortedByDescending { it.timestamp }
+            val sortedItems = remember(items) { items.sortedByDescending { it.timestamp } }
+            val grouped = remember(sortedItems) {
+                sortedItems.groupBy { formatter.format(Date(it.timestamp)) }
+                    .toList()
+                    .sortedByDescending { (dateLabel, _) -> dateLabel }
+            }
+            val flatEntries = remember(grouped) {
+                grouped.flatMap { (dateLabel, dateItems) ->
+                    listOf(HistoryListEntry.DateHeader(dateLabel)) + dateItems.map { HistoryListEntry.ThreatItem(it) }
+                }
+            }
+
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenItems)
             ) {
-                items(sortedItems, key = { it.id }) { item ->
-                    HistoryItemCard(
-                        item = item,
-                        appLabel = item.source.toAppLabel(context),
-                        senderPresentation = resolveSenderPresentation(
-                            context = context,
-                            senderDisplayName = item.senderDisplayName,
-                            senderIdentifier = item.senderIdentifier
-                        ),
-                        timestampLabel = formatter.format(Date(item.timestamp))
-                    )
+                items(flatEntries, key = { entry ->
+                    when (entry) {
+                        is HistoryListEntry.DateHeader -> "date-${entry.dateLabel}"
+                        is HistoryListEntry.ThreatItem -> entry.item.id
+                    }
+                }) { entry ->
+                    when (entry) {
+                        is HistoryListEntry.DateHeader -> {
+                            Text(
+                                text = entry.dateLabel,
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = SentinelSpacing.SM)
+                            )
+                        }
+                        is HistoryListEntry.ThreatItem -> {
+                            HistoryItemRow(
+                                item = entry.item,
+                                appLabel = entry.item.source.toAppLabel(context),
+                                senderPresentation = resolveSenderPresentation(
+                                    context = context,
+                                    senderDisplayName = entry.item.senderDisplayName,
+                                    senderIdentifier = entry.item.senderIdentifier
+                                ),
+                                timestampLabel = formatter.format(Date(entry.item.timestamp))
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -223,6 +258,60 @@ internal fun HistoryItemCard(
             value = item.riskScore.toInt().toString(),
             showDivider = false
         )
+    }
+}
+
+@Composable
+internal fun HistoryItemRow(
+    item: ScanResult,
+    appLabel: String,
+    senderPresentation: SenderPresentation,
+    timestampLabel: String,
+    onClick: (() -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                SentinelIndicatorDot(color = riskColor(item.riskLevel))
+                Spacer(modifier = Modifier.size(SentinelSpacing.XS))
+                Text(
+                    text = senderPresentation.primaryText,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            senderPresentation.secondaryText?.let { identifier ->
+                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                Text(
+                    text = identifier,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+            Text(
+                text = appLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            RiskBadge(riskLevel = item.riskLevel)
+            if (timestampLabel.isNotBlank()) {
+                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                Text(
+                    text = timestampLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

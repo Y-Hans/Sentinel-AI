@@ -1,14 +1,11 @@
 package com.sentinel.ai.ui.screens.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
@@ -29,13 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -50,11 +43,11 @@ import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.QuickActionCard
 import com.sentinel.ai.ui.components.RiskState
 import com.sentinel.ai.ui.components.ScoreCard
-import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
 import com.sentinel.ai.ui.components.ShieldState
-import com.sentinel.ai.ui.components.StatisticCard
 import com.sentinel.ai.ui.components.StatusChip
+import com.sentinel.ai.ui.components.MetricCard
+import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.ThreatCard
 import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.protection.ProtectionSnapshot
@@ -146,6 +139,13 @@ fun DashboardContent(
         }
 
         item {
+            QuickActions(
+                onRunScan = onNavigateToScanner,
+                onReviewHistory = onNavigateToHistory
+            )
+        }
+
+        item {
             SentinelSectionHeader(
                 title = "At a glance",
                 subtitle = "What Sentinel is watching right now"
@@ -157,20 +157,6 @@ fun DashboardContent(
                 threatCount = alerts.size,
                 highCount = alerts.count { it.riskLevel == RiskLevel.RED },
                 criticalCount = alerts.count { it.riskLevel == RiskLevel.CRITICAL }
-            )
-        }
-
-        item {
-            SentinelSectionHeader(
-                title = "Quick actions",
-                subtitle = "Start a scan or review past activity"
-            )
-        }
-
-        item {
-            QuickActions(
-                onRunScan = onNavigateToScanner,
-                onReviewHistory = onNavigateToHistory
             )
         }
 
@@ -320,39 +306,30 @@ private fun StatisticsRow(
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
         maxItemsInEachRow = 3
     ) {
-        StatisticCard(
+        MetricCard(
             modifier = Modifier.weight(1f),
-            title = "Detections",
+            label = "Detections",
             value = threatCount.toString(),
-            subtitle = "Total threats found",
-            icon = { StatisticIcon(Icons.Filled.Warning, riskColor(RiskState.Suspicious)) }
+            state = RiskState.Suspicious,
+            supportingText = "Total threats found"
         )
-        StatisticCard(
+        MetricCard(
             modifier = Modifier.weight(1f),
-            title = "High risk",
+            label = "High risk",
             value = highCount.toString(),
-            subtitle = "Needs review",
-            icon = { StatisticIcon(Icons.Filled.PriorityHigh, riskColor(RiskState.Dangerous)) }
+            state = RiskState.Dangerous,
+            supportingText = "Needs review"
         )
-        StatisticCard(
+        MetricCard(
             modifier = Modifier.weight(1f),
-            title = "Critical",
+            label = "Critical",
             value = criticalCount.toString(),
-            subtitle = "Immediate action",
-            icon = { StatisticIcon(Icons.Filled.Block, riskColor(RiskState.Dangerous)) }
+            state = RiskState.Dangerous,
+            supportingText = "Immediate action"
         )
     }
 }
 
-@Composable
-private fun StatisticIcon(imageVector: ImageVector, tint: Color) {
-    Icon(
-        imageVector = imageVector,
-        contentDescription = null,
-        tint = tint,
-        modifier = Modifier.size(SentinelSize.IconMedium)
-    )
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -400,52 +377,44 @@ private fun QuickActions(
 @Composable
 private fun ProtectionSummaryCard(snapshot: ProtectionSnapshot) {
     val missing = snapshot.missingPermissions
-    SentinelCard {
-        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)) {
-            Text(
-                text = "Protection summary",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-            InfoRow(
-                label = "Shield",
-                value = if (snapshot.protectionEnabled) "Active" else "Disabled",
-                icon = {
-                    Icon(
-                        Icons.Filled.Shield,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                }
-            )
-            InfoRow(
-                label = "Notification listener",
-                value = if (snapshot.notificationListenerEnabled) "Available" else "Unavailable",
-                icon = {
-                    Icon(
-                        Icons.Filled.Warning,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                }
-            )
-            InfoRow(
-                label = "Permissions",
-                value = if (missing.isEmpty()) "All granted" else "${missing.size} missing",
-                icon = {
-                    Icon(
-                        Icons.Filled.Block,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                showDivider = false
-            )
-        }
+    Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)) {
+        InfoRow(
+            label = "Shield",
+            value = if (snapshot.protectionEnabled) "Active" else "Disabled",
+            icon = {
+                Icon(
+                    Icons.Filled.Shield,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            }
+        )
+        InfoRow(
+            label = "Notification listener",
+            value = if (snapshot.notificationListenerEnabled) "Available" else "Unavailable",
+            icon = {
+                Icon(
+                    Icons.Filled.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            }
+        )
+        InfoRow(
+            label = "Permissions",
+            value = if (missing.isEmpty()) "All granted" else "${missing.size} missing",
+            icon = {
+                Icon(
+                    Icons.Filled.Block,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            showDivider = false
+        )
     }
 }
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -116,13 +117,11 @@ fun AlertContent(
             }
         } else {
             items(alerts, key = { it.id }) { alert ->
-                ThreatCard(
-                    title = senderPresentationResolver(alert.senderDisplayName, alert.senderIdentifier).primaryText,
-                    source = appLabelResolver(alert.title),
-                    riskLevel = alert.riskLevel,
-                    timestampLabel = "",
-                    description = alert.summary,
-                    onClick = {
+                AlertListItem(
+                    alert = alert,
+                    appLabel = appLabelResolver(alert.title),
+                    senderPresentation = senderPresentationResolver(alert.senderDisplayName, alert.senderIdentifier),
+                    onSelected = {
                         onAction(AlertUiAction.SelectAlert(alert.id))
                         selected = alert
                     }
@@ -246,6 +245,37 @@ fun NotificationScanSheetContent(
                 leadingIcon = Icons.Filled.Visibility
             )
         }
+    }
+}
+
+@Composable
+private fun AlertListItem(
+    alert: Alert,
+    appLabel: String,
+    senderPresentation: SenderPresentation,
+    onSelected: () -> Unit
+) {
+    val state = riskStateOfAlert(alert.riskLevel)
+    val accent = riskColor(state)
+    val isHighRisk = alert.riskLevel == RiskLevel.CRITICAL || alert.riskLevel == RiskLevel.RED
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (isHighRisk) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(accent, MaterialTheme.shapes.extraLarge)
+            )
+        }
+        ThreatCard(
+            title = senderPresentation.primaryText,
+            source = appLabel,
+            riskLevel = alert.riskLevel,
+            timestampLabel = "",
+            description = alert.summary,
+            onClick = onSelected
+        )
     }
 }
 

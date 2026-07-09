@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,10 +49,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.ui.components.ActionButton
-import com.sentinel.ai.ui.components.InfoRow
+import com.sentinel.ai.ui.components.ElevatedSentinelCard
 import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
-import com.sentinel.ai.ui.components.StatisticCard
 import com.sentinel.ai.ui.components.SettingRow
 import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.protection.ProtectionSnapshot
@@ -106,7 +106,7 @@ fun SettingsScreen(
             )
         }
 
-        SentinelCard {
+        ElevatedSentinelCard {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -126,7 +126,7 @@ fun SettingsScreen(
                             } else {
                                 "The shield is paused and the backend services are stopped."
                             },
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -147,44 +147,37 @@ fun SettingsScreen(
             title = "Notification permissions",
             subtitle = "Status is read-only here; the actual permission flow remains in the activity"
         )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
-        ) {
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "Listener",
-                value = if (protection.notificationListenerEnabled) "Available" else "Unavailable",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Security,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = "Notification listener access for the live backend"
-            )
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "Permissions",
-                value = if (protection.missingPermissions.isEmpty()) "Granted" else "Missing",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = if (protection.missingPermissions.isEmpty()) {
-                    "Notifications, overlay, contacts, and full-screen alerts are available"
-                } else {
-                    protection.missingPermissions.joinToString()
-                }
-            )
-        }
+
+        SettingRow(
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Security,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            title = "Notification listener",
+            description = if (protection.notificationListenerEnabled) "Available" else "Unavailable",
+            trailing = null
+        )
+        SettingRow(
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            title = "Permissions",
+            description = if (protection.missingPermissions.isEmpty()) {
+                "Notifications, overlay, contacts, and full-screen alerts are available"
+            } else {
+                protection.missingPermissions.joinToString()
+            }
+        )
+
         SentinelCard {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
@@ -266,68 +259,38 @@ fun SettingsScreen(
             title = "More",
             subtitle = "Navigation and version information for the app shell"
         )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
-        ) {
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "Version",
-                value = appVersion,
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Build,
-                        contentDescription = null,
-                        tint = riskColor(RiskLevel.GREEN),
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = "Matches the Compose shell build"
-            )
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "About",
-                value = "Open",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = null,
-                        tint = riskColor(RiskLevel.CRITICAL),
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = "Mission, credits, and project context"
-            )
-        }
-        SentinelCard {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "About Sentinel AI",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                        Text(
-                            text = "The About screen explains the mission statement, hackathon framing, and credits.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    ActionButton(
-                        text = "Open About",
-                        onClick = onNavigateToAbout,
-                        modifier = Modifier.height(SentinelSize.ButtonHeight)
-                    )
-                }
+        SettingRow(
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Build,
+                    contentDescription = null,
+                    tint = riskColor(RiskLevel.GREEN),
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            title = appVersion,
+            description = "Matches the Compose shell build"
+        )
+        SettingRow(
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            title = "About Sentinel AI",
+            description = "Mission, credits, and project context",
+            onClick = onNavigateToAbout,
+            trailing = {
+                Icon(
+                    imageVector = Icons.Filled.Visibility,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-        }
+        )
     }
 }
 
