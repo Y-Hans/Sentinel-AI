@@ -38,6 +38,7 @@ import com.sentinel.ai.core.model.Alert
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.ui.components.ActionButton
 import com.sentinel.ai.ui.components.AnimatedSentinelShield
+import com.sentinel.ai.ui.components.EmptyState
 import com.sentinel.ai.ui.components.ElevatedSentinelCard
 import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.QuickActionCard
@@ -175,14 +176,18 @@ fun DashboardContent(
 
         if (alerts.isEmpty()) {
             item {
-                SentinelCard {
-                    Text(
-                        text = "No detections yet. Sentinel will surface suspicious messages and links here as they arrive.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                EmptyState(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(SentinelSize.IconLarge)
+                        )
+                    },
+                    title = "No detections yet",
+                    description = "Sentinel will surface suspicious messages and links here as they arrive."
+                )
             }
         } else {
             items(alerts.take(3), key = { it.threatId }) { alert ->

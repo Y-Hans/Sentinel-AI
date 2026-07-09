@@ -78,8 +78,7 @@ fun CopilotContent(
                 Icon(
                     imageVector = Icons.Filled.Psychology,
                     contentDescription = "AI Assistant",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(SentinelSize.IconXL)
+                    tint = MaterialTheme.colorScheme.primary
                 )
             },
             title = "AI Security Copilot coming soon",

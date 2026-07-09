@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.History
@@ -56,6 +55,7 @@ import com.sentinel.ai.ui.components.SentinelShield
 import com.sentinel.ai.ui.components.SentinelTopAppBar
 import com.sentinel.ai.ui.components.TopAppBarVariant
 import com.sentinel.ai.ui.theme.SentinelMotion
+import com.sentinel.ai.ui.theme.SentinelShapes
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 
@@ -277,7 +277,7 @@ private fun SentinelNavItemIcon(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(SentinelSize.IconLarge)
-            .clip(RoundedCornerShape(SentinelSize.IconMedium))
+            .clip(SentinelShapes.small)
     ) {
         AnimatedVisibility(
             visible = selected,
@@ -297,7 +297,7 @@ private fun SentinelNavItemIcon(
                     .size(SentinelSize.IconLarge)
                     .background(
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(SentinelSize.IconMedium)
+                        shape = SentinelShapes.small
                     )
             )
         }
@@ -403,7 +403,7 @@ fun SentinelNavDrawerContent(
             Box(
                 modifier = Modifier
                     .size(SentinelSize.AvatarSizeLarge)
-                    .clip(RoundedCornerShape(SentinelSize.IconMedium))
+                    .clip(SentinelShapes.small)
                     .background(shieldGradient),
                 contentAlignment = Alignment.Center
             ) {

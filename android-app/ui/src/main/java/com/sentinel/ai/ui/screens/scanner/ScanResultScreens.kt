@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +33,7 @@ import com.sentinel.ai.ui.components.ShieldState
 import com.sentinel.ai.ui.components.ThreatExplanationCard
 import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 
@@ -106,14 +106,14 @@ private fun ScanVerdictContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.XL),
+            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.ScreenVertical),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
     ) {
         Box(
             modifier = Modifier
-                .size(160.dp)
-                .clip(CircleShape)
+                .size(SentinelSize.IconXL * 2)
+                .clip(SentinelFull)
                 .background(accent.copy(alpha = 0.10f)),
             contentAlignment = Alignment.Center
         ) {

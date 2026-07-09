@@ -112,8 +112,8 @@ fun SentinelMetricCard(
 ) {
     Surface(
         modifier = modifier
-            .clip(MaterialTheme.shapes.extraLarge)
-            .border(com.sentinel.ai.ui.theme.SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), MaterialTheme.shapes.extraLarge),
+            .clip(MaterialTheme.shapes.large)
+            .border(SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), MaterialTheme.shapes.large),
         color = SentinelSurfaceVariant.copy(alpha = 0.8f)
     ) {
         Column(modifier = Modifier.padding(SentinelSpacing.MD)) {
@@ -151,7 +151,7 @@ fun SentinelPill(
         modifier = modifier
             .clip(SentinelShapes.small)
             .background(accent.copy(alpha = 0.15f))
-            .border(com.sentinel.ai.ui.theme.SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), SentinelShapes.small)
+            .border(SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), SentinelShapes.small)
             .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         color = accent,
         style = MaterialTheme.typography.labelLarge

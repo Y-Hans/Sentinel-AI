@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
@@ -48,6 +47,7 @@ import com.sentinel.ai.ui.components.ThreatCard
 import com.sentinel.ai.ui.components.ThreatExplanationCard
 import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
@@ -107,8 +107,7 @@ fun AlertContent(
                         Icon(
                             imageVector = Icons.Filled.Notifications,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(SentinelSize.IconLarge)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     title = "No notifications scanned yet",
@@ -192,7 +191,7 @@ fun NotificationScanSheetContent(
             Box(
                 modifier = Modifier
                     .size(SentinelSize.IconXL * 2)
-                    .clip(CircleShape)
+                     .clip(SentinelFull)
                     .background(accent.copy(alpha = 0.10f)),
                 contentAlignment = Alignment.Center
             ) {

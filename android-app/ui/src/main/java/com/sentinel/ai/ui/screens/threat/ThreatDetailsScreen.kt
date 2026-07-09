@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.Threat
 import com.sentinel.ai.core.event.ThreatJournal
+import com.sentinel.ai.ui.components.ErrorState
 import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.RiskBadge
 import com.sentinel.ai.ui.components.SentinelCard
@@ -48,6 +49,7 @@ import com.sentinel.ai.ui.components.ThreatExplanationCard
 import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelShapes
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
 import com.sentinel.ai.ui.util.resolveSenderPresentation
@@ -136,25 +138,11 @@ internal fun ThreatDetailsContent(
         }
 
         if (threat == null) {
-            SentinelCard {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "No threat details are available for this item yet.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
-                    OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier.fillMaxWidth(),
-                        content = { Text(text = "Return to dashboard") }
-                    )
-                }
-            }
+            ErrorState(
+                title = "Threat details unavailable",
+                description = "No threat details are available for this item yet.",
+                onRetry = onBack
+            )
             return
         }
 
@@ -202,7 +190,7 @@ internal fun ThreatDetailsContent(
                         CircularProgressIndicator(
                             progress = { (selectedThreat.riskScore / 100f).coerceIn(0f, 1f) },
                             modifier = Modifier.fillMaxSize(),
-                            strokeWidth = 6.dp,
+                             strokeWidth = SentinelSize.BorderThickness * 2,
                             trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                             color = accent,
                             strokeCap = androidx.compose.ui.graphics.StrokeCap.Round

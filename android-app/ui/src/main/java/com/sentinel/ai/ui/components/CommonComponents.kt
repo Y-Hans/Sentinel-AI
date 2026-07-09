@@ -78,7 +78,7 @@ fun ActionButton(
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(SentinelSize.IconSmall),
-                strokeWidth = 2.dp,
+                strokeWidth = SentinelSize.BorderThickness,
                 color = MaterialTheme.colorScheme.onPrimary
             )
         } else {
@@ -136,7 +136,7 @@ fun SecondaryButton(
                 if (loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(SentinelSize.IconSmall),
-                        strokeWidth = 2.dp,
+                        strokeWidth = SentinelSize.BorderThickness,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {
@@ -178,7 +178,7 @@ fun SecondaryButton(
                 if (loading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(SentinelSize.IconSmall),
-                        strokeWidth = 2.dp,
+                        strokeWidth = SentinelSize.BorderThickness,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {

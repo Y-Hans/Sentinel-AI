@@ -134,8 +134,7 @@ fun HistoryScreen(
                     Icon(
                         imageVector = Icons.Filled.History,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconLarge)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 title = "No threat history yet",

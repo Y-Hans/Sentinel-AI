@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -88,7 +87,7 @@ fun ScoreCard(
                 CircularProgressIndicator(
                     progress = { animatedScore / 100f },
                     modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 8.dp,
+                    strokeWidth = SentinelSize.BorderThickness * 2,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     color = scoreColor,
                     strokeCap = StrokeCap.Round
@@ -192,7 +191,7 @@ fun MetricCard(
             .clip(MaterialTheme.shapes.large),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         shape = MaterialTheme.shapes.large,
-        tonalElevation = 0.dp
+        tonalElevation = SentinelElevation.None
     ) {
         Column(modifier = Modifier.padding(SentinelSpacing.MD)) {
             Text(

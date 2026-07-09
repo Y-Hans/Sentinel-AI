@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
@@ -50,6 +49,7 @@ import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.screens.scanner.ScanType.FILE
 import com.sentinel.ai.ui.screens.scanner.ScanType.LINK
 import com.sentinel.ai.ui.screens.scanner.ScanType.TEXT
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelMotion
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
@@ -256,14 +256,14 @@ internal fun LiveScanContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.XL),
+            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.ScreenVertical),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
     ) {
             Box(
                 modifier = Modifier
                     .size(SentinelSize.IconXL * 2)
-                    .clip(CircleShape)
+                    .clip(SentinelFull)
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)),
                 contentAlignment = Alignment.Center
             ) {

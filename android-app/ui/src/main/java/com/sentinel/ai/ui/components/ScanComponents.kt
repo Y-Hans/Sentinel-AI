@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sentinel.ai.ui.theme.SentinelElevation
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelMotion
+import com.sentinel.ai.ui.theme.SentinelShapes
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelSize
 
@@ -72,14 +74,14 @@ fun LoadingShield(
                 CircularProgressIndicator(
                     progress = { clampedProgress },
                     modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 6.dp,
+                    strokeWidth = SentinelSize.BorderThickness,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     color = MaterialTheme.colorScheme.primary
                 )
             } else {
                 CircularProgressIndicator(
                     modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 6.dp,
+                    strokeWidth = SentinelSize.BorderThickness,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -133,7 +135,7 @@ fun ScanProgressIndicator(
                 CircularProgressIndicator(
                     progress = { clampedProgress },
                     modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 8.dp,
+                    strokeWidth = SentinelSize.BorderThickness * 2,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -203,7 +205,7 @@ fun ScanChecklistItem(
                 ScanStepState.Pending -> SentinelIndicatorDot(color = indicatorColor)
                 ScanStepState.Active -> CircularProgressIndicator(
                     modifier = Modifier.size(SentinelSize.IconSmall),
-                    strokeWidth = 2.dp,
+                    strokeWidth = SentinelSize.BorderThickness,
                     color = indicatorColor
                 )
                 ScanStepState.Completed -> SentinelIndicatorDot(color = indicatorColor)
@@ -270,9 +272,9 @@ fun ScanStep(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                shape = CircleShape,
+                shape = SentinelFull,
                 color = if (isActive) circleColor.copy(alpha = 0.16f) else Color.Transparent,
-                tonalElevation = 0.dp
+                tonalElevation = SentinelElevation.None
             ) {}
 
             Text(

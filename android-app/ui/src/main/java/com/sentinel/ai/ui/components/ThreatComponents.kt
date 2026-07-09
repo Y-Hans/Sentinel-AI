@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelMotion
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelSize
@@ -131,11 +131,11 @@ fun ThreatTimelineItem(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(24.dp)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(SentinelSize.IconMedium)) {
             Box(
                 modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
+                    .size(SentinelSize.IconSmall)
+                    .clip(SentinelFull)
                     .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {}
@@ -143,8 +143,8 @@ fun ThreatTimelineItem(
                 Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
                 Box(
                     modifier = Modifier
-                        .width(2.dp)
-                        .height(40.dp)
+                        .width(SentinelSize.BorderThickness)
+                        .height(SentinelSize.IconLarge)
                         .background(MaterialTheme.colorScheme.outlineVariant)
                 )
             }
