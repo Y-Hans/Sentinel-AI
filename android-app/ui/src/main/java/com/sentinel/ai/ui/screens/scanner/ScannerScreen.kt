@@ -40,6 +40,7 @@ import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.ui.components.ActionButton
 import com.sentinel.ai.ui.components.AnimatedSentinelShield
+import com.sentinel.ai.ui.components.ElevatedSentinelCard
 import com.sentinel.ai.ui.components.ScanProgressIndicator
 import com.sentinel.ai.ui.components.ScanStep
 import com.sentinel.ai.ui.components.ScanStepState
@@ -148,10 +149,19 @@ internal fun ScanInputContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.XL),
-        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XL)
+            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.ScreenVertical),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Icon(
+                Icons.Filled.Radar,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(SentinelSize.IconLarge)
+            )
             Text(
                 text = "Live scan",
                 style = MaterialTheme.typography.displaySmall,
@@ -165,53 +175,60 @@ internal fun ScanInputContent(
             )
         }
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM),
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
-        ) {
-            FilterChip(
-                selected = scanType == LINK,
-                onClick = { onTypeChange(LINK) },
-                label = { Text("Link") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Link,
-                        contentDescription = null,
-                        modifier = Modifier.size(SentinelSize.IconSmall)
+        ElevatedSentinelCard {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            ) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM),
+                    verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
+                ) {
+                    FilterChip(
+                        selected = scanType == LINK,
+                        onClick = { onTypeChange(LINK) },
+                        label = { Text("Link") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Filled.Link,
+                                contentDescription = null,
+                                modifier = Modifier.size(SentinelSize.IconSmall)
+                            )
+                        }
+                    )
+                    FilterChip(
+                        selected = scanType == FILE,
+                        onClick = { onTypeChange(FILE) },
+                        label = { Text("File") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Filled.Radar,
+                                contentDescription = null,
+                                modifier = Modifier.size(SentinelSize.IconSmall)
+                            )
+                        }
                     )
                 }
-            )
-            FilterChip(
-                selected = scanType == FILE,
-                onClick = { onTypeChange(FILE) },
-                label = { Text("File") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Radar,
-                        contentDescription = null,
-                        modifier = Modifier.size(SentinelSize.IconSmall)
-                    )
-                }
-            )
+
+                OutlinedTextField(
+                    value = scanInput,
+                    onValueChange = onInputChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(if (scanType == FILE) "File path or name" else "Paste a link") },
+                    placeholder = { Text(if (scanType == FILE) "document.apk" else "https://example.com") },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.large
+                )
+
+                ActionButton(
+                    text = "Run live scan",
+                    onClick = onRunScan,
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = Icons.Filled.Radar
+                )
+            }
         }
-
-        OutlinedTextField(
-            value = scanInput,
-            onValueChange = onInputChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(if (scanType == FILE) "File path or name" else "Paste a link") },
-            placeholder = { Text(if (scanType == FILE) "document.apk" else "https://example.com") },
-            singleLine = true,
-            shape = MaterialTheme.shapes.large
-        )
-
-        ActionButton(
-            text = "Run live scan",
-            onClick = onRunScan,
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = Icons.Filled.Radar
-        )
     }
 }
 

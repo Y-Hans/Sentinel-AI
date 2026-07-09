@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.ui.components.ActionButton
+import com.sentinel.ai.ui.components.EmptyState
 import com.sentinel.ai.ui.components.SecondaryButton
 import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
@@ -72,31 +73,18 @@ fun CopilotContent(
             )
         }
 
-        SentinelCard {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
-            ) {
+        EmptyState(
+            icon = {
                 Icon(
                     imageVector = Icons.Filled.Psychology,
                     contentDescription = "AI Assistant",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SentinelSize.IconXL)
                 )
-                Text(
-                    text = "Coming soon",
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = "The AI Security Copilot is not yet available. It will let you ask follow-up questions about threats and receive contextual safety advice.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+            },
+            title = "AI Security Copilot coming soon",
+            description = "Ask follow-up questions about threats and get instant, privacy-first safety guidance. It will be available in a later phase."
+        )
 
         SentinelSectionHeader(
             title = "What to expect",

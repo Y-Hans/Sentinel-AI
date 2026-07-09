@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.ui.components.EmptyState
 import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.RiskBadge
 import com.sentinel.ai.ui.components.SentinelCard
@@ -121,32 +122,18 @@ fun HistoryScreen(
         )
 
         if (items.isEmpty()) {
-            SentinelCard {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            EmptyState(
+                icon = {
                     Icon(
                         imageVector = Icons.Filled.History,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(SentinelSize.IconLarge)
                     )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
-                    Text(
-                        text = "No threat history yet",
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.XS))
-                    Text(
-                        text = "The backend will populate this list as detections arrive.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+                },
+                title = "No threat history yet",
+                description = "The backend will populate this list as detections arrive."
+            )
         } else {
             val sortedItems = items.sortedByDescending { it.timestamp }
             LazyColumn(

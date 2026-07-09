@@ -1,6 +1,5 @@
 package com.sentinel.ai.ui.screens.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
@@ -31,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +54,7 @@ import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
 import com.sentinel.ai.ui.components.ShieldState
 import com.sentinel.ai.ui.components.StatisticCard
+import com.sentinel.ai.ui.components.StatusChip
 import com.sentinel.ai.ui.components.ThreatCard
 import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.protection.ProtectionSnapshot
@@ -219,14 +217,14 @@ private fun DashboardGreeting() {
     Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
         Text(
             text = greeting,
-            style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.semantics { heading() }
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = "Here is your protection at a glance.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() }
         )
     }
 }
@@ -245,7 +243,6 @@ private fun ProtectionHero(
         RiskState.Neutral -> ShieldState.Idle
         RiskState.Scanning -> ShieldState.Scanning
     }
-    val accent = riskColor(state)
     val headline = when (state) {
         RiskState.Safe -> "You're protected"
         RiskState.Suspicious -> "Protection paused"
@@ -269,23 +266,17 @@ private fun ProtectionHero(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(160.dp)
-                    .clip(CircleShape)
-                    .background(accent.copy(alpha = 0.10f)),
-                contentAlignment = Alignment.Center
-            ) {
-                AnimatedSentinelShield(
-                    state = shieldState,
-                    modifier = Modifier.size(SentinelSize.IconXL * 2),
-                    contentDescription = null
-                )
-            }
+            StatusChip(state = state)
+
+            AnimatedSentinelShield(
+                state = shieldState,
+                modifier = Modifier.size(SentinelSize.IconXL * 2),
+                contentDescription = null
+            )
 
             Text(
                 text = headline,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
             Text(

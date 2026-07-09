@@ -390,14 +390,14 @@ fun EmptyState(
     title: String,
     description: String,
     modifier: Modifier = Modifier,
-    action: (@Composable () -> Unit)? = null
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(SentinelSpacing.XL),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+        action: (@Composable () -> Unit)? = null
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(SentinelSpacing.XL),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
     ) {
         Box(
             modifier = Modifier.size(SentinelSize.IconXL * 1.5f),

@@ -40,7 +40,7 @@ import com.sentinel.ai.ui.components.ActionButton
 import com.sentinel.ai.ui.components.AnimatedSentinelShield
 import com.sentinel.ai.ui.components.RiskState
 import com.sentinel.ai.ui.components.SecondaryButton
-import com.sentinel.ai.ui.components.SentinelCard
+import com.sentinel.ai.ui.components.EmptyState
 import com.sentinel.ai.ui.components.SentinelSectionHeader
 import com.sentinel.ai.ui.components.ShieldState
 import com.sentinel.ai.ui.components.ThreatCard
@@ -101,14 +101,18 @@ fun AlertContent(
 
         if (alerts.isEmpty()) {
             item {
-                SentinelCard {
-                    Text(
-                        text = "No notifications scanned yet. Sentinel will list scanned messages here as they arrive.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                EmptyState(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Notifications,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(SentinelSize.IconLarge)
+                        )
+                    },
+                    title = "No notifications scanned yet",
+                    description = "Sentinel will list scanned messages here as they arrive."
+                )
             }
         } else {
             items(alerts, key = { it.id }) { alert ->
