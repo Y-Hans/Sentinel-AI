@@ -13,26 +13,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.RiskBadge
 import com.sentinel.ai.ui.components.SentinelCard
 import com.sentinel.ai.ui.components.SentinelIndicatorDot
-import com.sentinel.ai.ui.components.SentinelMetricCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
+import com.sentinel.ai.ui.components.StatisticCard
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
 import com.sentinel.ai.ui.util.resolveSenderPresentation
 import com.sentinel.ai.ui.util.toAppLabel
@@ -48,61 +54,103 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val items = uiState.history
     val formatter = rememberHistoryFormatter()
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .padding(
+                horizontal = SentinelSpacing.ScreenHorizontal,
+                vertical = SentinelSpacing.ScreenVertical
+            ),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
-        Text(
-            text = "History",
-            style = MaterialTheme.typography.displaySmall
-        )
-        Text(
-            text = "A clean audit trail of previous detections and review outcomes.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
+            Text(
+                text = "History",
+                style = MaterialTheme.typography.displaySmall
+            )
+            Text(
+                text = "A clean audit trail of previous detections and review outcomes.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
         ) {
-            SentinelMetricCard(
-                label = "Entries",
+            StatisticCard(
+                modifier = Modifier.weight(1f),
+                title = "Entries",
                 value = items.size.toString(),
-                accent = riskColor(RiskLevel.GREEN),
-                supportingText = "Stored detections currently visible in memory."
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.History,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(SentinelSize.IconMedium)
+                    )
+                },
+                subtitle = "Stored detections currently visible in memory"
             )
-            SentinelMetricCard(
-                label = "Critical",
+            StatisticCard(
+                modifier = Modifier.weight(1f),
+                title = "Critical",
                 value = items.count { it.riskLevel == RiskLevel.CRITICAL }.toString(),
-                accent = riskColor(RiskLevel.CRITICAL),
-                supportingText = "Requires urgent user attention."
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.History,
+                        contentDescription = null,
+                        tint = riskColor(RiskLevel.CRITICAL),
+                        modifier = Modifier.size(SentinelSize.IconMedium)
+                    )
+                },
+                subtitle = "Requires urgent user attention"
             )
         }
 
         SentinelSectionHeader(
             title = "Detection log",
-            subtitle = "Most recent items appear first."
+            subtitle = "Most recent items appear first"
         )
 
         if (items.isEmpty()) {
             SentinelCard {
-                Text(
-                    text = "No threat history yet. The backend will populate this list as detections arrive.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.History,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(SentinelSize.IconLarge)
+                    )
+                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+                    Text(
+                        text = "No threat history yet",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+                    Text(
+                        text = "The backend will populate this list as detections arrive.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         } else {
+            val sortedItems = items.sortedByDescending { it.timestamp }
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenItems)
             ) {
-                items(items.sortedByDescending { it.timestamp }) { item ->
+                items(sortedItems, key = { it.id }) { item ->
                     HistoryItemCard(
                         item = item,
                         appLabel = item.source.toAppLabel(context),
@@ -120,69 +168,74 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun HistoryItemCard(
+internal fun HistoryItemCard(
     item: ScanResult,
     appLabel: String,
     senderPresentation: SenderPresentation,
     timestampLabel: String
 ) {
     SentinelCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SentinelIndicatorDot(color = riskColor(item.riskLevel))
-                    Spacer(modifier = Modifier.size(10.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        SentinelIndicatorDot(color = riskColor(item.riskLevel))
+                        Spacer(modifier = Modifier.size(SentinelSpacing.XS))
+                        Text(
+                            text = senderPresentation.primaryText,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    senderPresentation.secondaryText?.let { identifier ->
+                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                        Text(
+                            text = identifier,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
                     Text(
-                        text = senderPresentation.primaryText,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-                senderPresentation.secondaryText?.let { identifier ->
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = identifier,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = appLabel,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = appLabel,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = item.explanation,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = timestampLabel,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                RiskBadge(riskLevel = item.riskLevel)
             }
-            RiskBadge(riskLevel = item.riskLevel)
+
+            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+            Text(
+                text = item.explanation,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+            Text(
+                text = timestampLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Risk score: ${item.riskScore.toInt()}",
-            style = MaterialTheme.typography.titleMedium
+        Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+        Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+        InfoRow(
+            label = "Risk score",
+            value = item.riskScore.toInt().toString(),
+            showDivider = false
         )
     }
 }
 
-private fun rememberHistoryFormatter(): SimpleDateFormat {
+internal fun rememberHistoryFormatter(): SimpleDateFormat {
     return SimpleDateFormat("MMM d, yyyy - h:mm a", Locale.getDefault())
 }

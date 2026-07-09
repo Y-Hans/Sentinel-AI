@@ -1,6 +1,8 @@
 package com.sentinel.ai.ui.screens.threat
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -13,9 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,20 +26,27 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.Threat
 import com.sentinel.ai.core.event.ThreatJournal
+import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.RiskBadge
 import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.SentinelPill
 import com.sentinel.ai.ui.components.SentinelSectionHeader
+import com.sentinel.ai.ui.components.ThreatExplanationCard
+import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
 import com.sentinel.ai.ui.util.resolveSenderPresentation
 import com.sentinel.ai.ui.util.toAppLabel
@@ -44,8 +54,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun ThreatDetailsScreen(
     threatId: String,
     onBack: () -> Unit
@@ -67,58 +77,79 @@ fun ThreatDetailsScreen(
         onBack = onBack
     )
 }
-@OptIn(ExperimentalLayoutApi::class)
+
 @Composable
-private fun ThreatDetailsContent(
+@OptIn(ExperimentalLayoutApi::class)
+internal fun ThreatDetailsContent(
     threat: Threat?,
     sourceLabelResolver: (String) -> String,
     senderPresentationResolver: (String?, String?) -> SenderPresentation,
     onBack: () -> Unit
 ) {
     val formatter = rememberTimestampFormatter()
-    val threatRiskLevel = threat?.riskLevel ?: RiskLevel.GREEN
+    val accent = threat?.riskLevel?.let { riskColor(it) } ?: Color.Unspecified
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .padding(
+                horizontal = SentinelSpacing.ScreenHorizontal,
+                vertical = SentinelSpacing.ScreenVertical
+            ),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                contentDescription = "Back"
-                )
-            }
-            RiskBadge(riskLevel = threatRiskLevel)
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .size(SentinelSize.MinTouchTarget)
+                    .padding(SentinelSpacing.None),
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            )
+            val currentRisk = threat?.riskLevel ?: RiskLevel.GREEN
+            RiskBadge(riskLevel = currentRisk)
         }
 
-        Text(
-            text = "Threat details",
-            style = MaterialTheme.typography.displaySmall
-        )
-        Text(
-            text = "Deep-dive view of the selected detection with guidance for response.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
+            Text(
+                text = "Threat details",
+                style = MaterialTheme.typography.displaySmall
+            )
+            Text(
+                text = "Deep-dive view of the selected detection with guidance for response.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         if (threat == null) {
             SentinelCard {
-                Text(
-                    text = "No threat details are available for this item yet.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedButton(onClick = onBack) {
-                    Text(text = "Return to dashboard")
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "No threat details are available for this item yet.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+                    OutlinedButton(
+                        onClick = onBack,
+                        modifier = Modifier.fillMaxWidth(),
+                        content = { Text(text = "Return to dashboard") }
+                    )
                 }
             }
             return
@@ -132,67 +163,74 @@ private fun ThreatDetailsContent(
         )
 
         SentinelCard {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    SentinelPill(
-                        label = "Risk score ${selectedThreat.riskScore.toInt()}",
-                        accent = riskColor(selectedThreat.riskLevel)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = senderPresentation.primaryText,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    senderPresentation.secondaryText?.let { identifier ->
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        ThreatLevelChip(state = riskStateOf(selectedThreat.riskLevel))
+                        Spacer(modifier = Modifier.height(SentinelSpacing.MD))
                         Text(
-                            text = identifier,
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = senderPresentation.primaryText,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        senderPresentation.secondaryText?.let { identifier ->
+                            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                            Text(
+                                text = identifier,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                        Text(
+                            text = sourceLabelResolver(selectedThreat.source),
+                            style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
                     }
-                    Text(
-                        text = sourceLabelResolver(selectedThreat.source),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Box(
+                        modifier = Modifier.size(SentinelSize.IconXL),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            progress = { (selectedThreat.riskScore / 100f).coerceIn(0f, 1f) },
+                            modifier = Modifier.fillMaxSize(),
+                            strokeWidth = 6.dp,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            color = accent,
+                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                        )
+                        Text(
+                            text = selectedThreat.riskScore.toInt().toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
-                CircularProgressIndicator(
-                    progress = selectedThreat.riskScore / 100f,
-                    modifier = Modifier.size(74.dp),
-                    color = riskColor(selectedThreat.riskLevel)
+
+                Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+                InfoRow(
+                    label = "Message preview",
+                    value = selectedThreat.content,
+                    showDivider = false
+                )
+                Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+                Text(
+                    text = formatter.format(Date(selectedThreat.timestamp)),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            Spacer(modifier = Modifier.height(18.dp))
-            Text(
-                text = "Message preview",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = selectedThreat.content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = formatter.format(Date(selectedThreat.timestamp)),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
 
         SentinelSectionHeader(
             title = "Threat explanation",
-            subtitle = "Why this message was flagged by the security pipeline."
+            subtitle = "Why this message was flagged by the security pipeline"
         )
         SentinelCard {
             Text(
@@ -204,17 +242,18 @@ private fun ThreatDetailsContent(
 
         SentinelSectionHeader(
             title = "Suspicious indicators",
-            subtitle = "Signals that contributed to the risk score."
+            subtitle = "Signals that contributed to the risk score"
         )
         SentinelCard {
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM),
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
             ) {
                 suspiciousIndicators.forEach { indicator ->
-                    SentinelPill(
-                        label = indicator,
-                        accent = riskColor(selectedThreat.riskLevel)
+                    ThreatLevelChip(
+                        state = riskStateOf(selectedThreat.riskLevel),
+                        modifier = Modifier.padding(vertical = SentinelSpacing.XXS)
                     )
                 }
             }
@@ -222,7 +261,7 @@ private fun ThreatDetailsContent(
 
         SentinelSectionHeader(
             title = "Recommended action",
-            subtitle = "A practical next step for the user."
+            subtitle = "A practical next step for the user"
         )
         SentinelCard {
             Text(
@@ -230,10 +269,12 @@ private fun ThreatDetailsContent(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(onClick = onBack) {
-                Text(text = "Return to dashboard")
-            }
+            Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth(),
+                content = { Text(text = "Return to dashboard") }
+            )
         }
     }
 }
@@ -255,7 +296,13 @@ private fun suspiciousIndicatorsFor(threat: Threat): List<String> {
         .ifEmpty { listOf("Risk scoring triggered", "Message review recommended", "User verification needed") }
 }
 
+private fun riskStateOf(level: RiskLevel): com.sentinel.ai.ui.components.RiskState = when (level) {
+    RiskLevel.GREEN -> com.sentinel.ai.ui.components.RiskState.Safe
+    RiskLevel.YELLOW -> com.sentinel.ai.ui.components.RiskState.Suspicious
+    RiskLevel.RED -> com.sentinel.ai.ui.components.RiskState.Dangerous
+    RiskLevel.CRITICAL -> com.sentinel.ai.ui.components.RiskState.Dangerous
+}
+
 private fun rememberTimestampFormatter(): SimpleDateFormat {
-    // Kept local to the screen so the UI stays self-contained and backend-free.
     return SimpleDateFormat("MMM d, yyyy - h:mm a", Locale.getDefault())
 }

@@ -9,19 +9,36 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.SentinelMetricCard
-import com.sentinel.ai.ui.components.SentinelPill
-import com.sentinel.ai.ui.components.SentinelSectionHeader
-import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.ui.components.SentinelCard
+import com.sentinel.ai.ui.components.SentinelSectionHeader
+import com.sentinel.ai.ui.components.StatisticCard
+import com.sentinel.ai.ui.components.ThreatLevelChip
+import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
+
+private fun riskState(level: RiskLevel): com.sentinel.ai.ui.components.RiskState = when (level) {
+    RiskLevel.GREEN -> com.sentinel.ai.ui.components.RiskState.Safe
+    RiskLevel.YELLOW -> com.sentinel.ai.ui.components.RiskState.Suspicious
+    RiskLevel.RED -> com.sentinel.ai.ui.components.RiskState.Dangerous
+    RiskLevel.CRITICAL -> com.sentinel.ai.ui.components.RiskState.Dangerous
+}
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -32,83 +49,117 @@ fun AboutScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .padding(
+                horizontal = SentinelSpacing.ScreenHorizontal,
+                vertical = SentinelSpacing.ScreenVertical
+            ),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
-        Text(
-            text = "About Sentinel AI",
-            style = MaterialTheme.typography.displaySmall
-        )
-        Text(
-            text = "Hackathon project built to help users spot scams early and respond with confidence.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        SentinelCard {
-            SentinelPill(
-                label = "Sentinel AI",
-                accent = riskColor(RiskLevel.GREEN)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
             Text(
-                text = "Mission statement",
-                style = MaterialTheme.typography.titleLarge
+                text = "About Sentinel AI",
+                style = MaterialTheme.typography.displaySmall
             )
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Protect people from social engineering by turning risky messages into clear, actionable security guidance.",
+                text = "Hackathon project built to help users spot scams early and respond with confidence.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
+        SentinelCard {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ThreatLevelChip(state = riskState(RiskLevel.GREEN))
+                Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+                Text(
+                    text = "Mission statement",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+                Text(
+                    text = "Protect people from social engineering by turning risky messages into clear, actionable security guidance.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
         SentinelSectionHeader(
             title = "Project details",
-            subtitle = "A compact view of the app identity and source of this prototype."
+            subtitle = "A compact view of the app identity and source of this prototype"
         )
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
         ) {
-            SentinelMetricCard(
-                label = "Version",
+            StatisticCard(
+                modifier = Modifier.weight(1f),
+                title = "Version",
                 value = appVersion,
-                accent = riskColor(RiskLevel.GREEN),
-                supportingText = "UI build identifier for this release."
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Code,
+                        contentDescription = null,
+                        tint = riskColor(RiskLevel.GREEN),
+                        modifier = Modifier.size(SentinelSize.IconMedium)
+                    )
+                },
+                subtitle = "UI build identifier for this release"
             )
-            SentinelMetricCard(
-                label = "Type",
+            StatisticCard(
+                modifier = Modifier.weight(1f),
+                title = "Type",
                 value = "Hackathon",
-                accent = riskColor(RiskLevel.YELLOW),
-                supportingText = "Prototype focused on cybersecurity messaging."
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Security,
+                        contentDescription = null,
+                        tint = riskColor(RiskLevel.YELLOW),
+                        modifier = Modifier.size(SentinelSize.IconMedium)
+                    )
+                },
+                subtitle = "Prototype focused on cybersecurity messaging"
             )
-            SentinelMetricCard(
-                label = "Focus",
+            StatisticCard(
+                modifier = Modifier.weight(1f),
+                title = "Focus",
                 value = "Scam detection",
-                accent = riskColor(RiskLevel.RED),
-                supportingText = "Threat triage, guidance, and user safety."
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Shield,
+                        contentDescription = null,
+                        tint = riskColor(RiskLevel.RED),
+                        modifier = Modifier.size(SentinelSize.IconMedium)
+                    )
+                },
+                subtitle = "Threat triage, guidance, and user safety"
             )
         }
 
         SentinelSectionHeader(
             title = "Credits",
-            subtitle = "Built with the frozen backend and a Compose-first UI layer."
+            subtitle = "Built with the frozen backend and a Compose-first UI layer"
         )
         SentinelCard {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
+            ) {
                 Text(
                     text = "Android UI and product design",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Sentinel engineering workflow, backend integration, and threat scoring pipeline",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "Material 3 and Jetpack Compose",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
