@@ -145,6 +145,12 @@ private fun SentinelNavHost(
             DashboardScreen(
                 onThreatSelected = { threatId ->
                     navController.navigate(Screen.ThreatDetails.createRoute(threatId))
+                },
+                onNavigateToScanner = {
+                    navController.navigate(Screen.Scanner.route)
+                },
+                onNavigateToHistory = {
+                    navController.navigate(Screen.History.route)
                 }
             )
         }
@@ -202,7 +208,11 @@ private fun SentinelNavHost(
             popEnterTransition = { SentinelNavPopEnterTransition },
             popExitTransition = { SentinelNavPopExitTransition }
         ) {
-            AlertScreen()
+            AlertScreen(
+                onNavigateToDetails = { threatId ->
+                    navController.navigate(Screen.ThreatDetails.createRoute(threatId))
+                }
+            )
         }
         composable(
             route = Screen.Scanner.route,
