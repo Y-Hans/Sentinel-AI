@@ -2,6 +2,8 @@ package com.sentinel.ai.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,14 +89,14 @@ fun ActionButton(
                     modifier = Modifier.size(SentinelSize.IconSmall)
                 )
             }
-            Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) 8.dp else 0.dp))
+            Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) SentinelSpacing.XS else 0.dp))
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
             )
             if (trailingIcon != null) {
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(SentinelSpacing.XS))
                 Icon(
                     imageVector = trailingIcon,
                     contentDescription = null,
@@ -142,14 +147,14 @@ fun SecondaryButton(
                             modifier = Modifier.size(SentinelSize.IconSmall)
                         )
                     }
-                    Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) 8.dp else 0.dp))
+                    Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) SentinelSpacing.XS else 0.dp))
                     Text(
                         text = text,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
                     if (trailingIcon != null) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(SentinelSpacing.XS))
                         Icon(
                             imageVector = trailingIcon,
                             contentDescription = null,
@@ -184,14 +189,14 @@ fun SecondaryButton(
                             modifier = Modifier.size(SentinelSize.IconSmall)
                         )
                     }
-                    Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) 8.dp else 0.dp))
+                    Spacer(modifier = Modifier.width(if (leadingIcon != null || trailingIcon != null) SentinelSpacing.XS else 0.dp))
                     Text(
                         text = text,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
                     if (trailingIcon != null) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(SentinelSpacing.XS))
                         Icon(
                             imageVector = trailingIcon,
                             contentDescription = null,
@@ -218,6 +223,9 @@ fun IconTextRow(
     trailing: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     val semanticsModifier = modifier.semantics(mergeDescendants = true) {
         val desc = if (subtitle != null) "$title. $subtitle" else title
         contentDescription = desc
@@ -227,15 +235,21 @@ fun IconTextRow(
     }
 
     val rowModifier = if (onClick != null) {
-        semanticsModifier.clickable(onClick = onClick)
+        semanticsModifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
     } else {
         semanticsModifier
     }
 
     Row(
-        modifier = rowModifier
-            .fillMaxWidth()
-            .padding(vertical = SentinelSpacing.XS),
+        modifier = if (isPressed) {
+            rowModifier.padding(SentinelSpacing.SM)
+        } else {
+            rowModifier.padding(vertical = SentinelSpacing.XS)
+        },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
     ) {
@@ -314,7 +328,7 @@ fun InfoRow(
         if (showDivider) {
             Spacer(modifier = Modifier.height(SentinelSpacing.XS))
             androidx.compose.material3.HorizontalDivider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                color = MaterialTheme.colorScheme.outline.copy(alpha = SentinelSpacing.DividerAlpha)
             )
         }
     }
@@ -329,6 +343,9 @@ fun SettingRow(
     trailing: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     val semanticsModifier = modifier.semantics(mergeDescendants = true) {
         val desc = if (description != null) "$title. $description" else title
         contentDescription = desc
@@ -338,15 +355,21 @@ fun SettingRow(
     }
 
     val rowModifier = if (onClick != null) {
-        semanticsModifier.clickable(onClick = onClick)
+        semanticsModifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
     } else {
         semanticsModifier
     }
 
     Row(
-        modifier = rowModifier
-            .fillMaxWidth()
-            .padding(vertical = SentinelSpacing.SM),
+        modifier = if (isPressed) {
+            rowModifier.padding(SentinelSpacing.SM)
+        } else {
+            rowModifier.padding(vertical = SentinelSpacing.SM)
+        },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
     ) {

@@ -1,7 +1,9 @@
 package com.sentinel.ai.ui.components
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +19,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -28,6 +32,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.ui.theme.SentinelElevation
+import com.sentinel.ai.ui.theme.SentinelMotion
+import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 
 enum class CardVariant {
@@ -85,34 +91,25 @@ private fun BaseSentinelCard(
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val cardModifier = if (onClick != null) {
-        modifier.fillMaxWidth().clickable(onClick = onClick)
-    } else {
-        modifier.fillMaxWidth()
-    }
-
-    val animatedContainerColor by animateColorAsState(
-        targetValue = MaterialTheme.colorScheme.surface,
-        label = "card-container-color"
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.98f else 1f,
+        animationSpec = SentinelMotion.ShortTween,
+        label = "card-scale"
     )
 
     val colors = CardDefaults.cardColors(
         containerColor = if (variant == CardVariant.Outlined) {
             Color.Unspecified
         } else {
-            animatedContainerColor
+            MaterialTheme.colorScheme.surface
         }
     )
 
-    val elevation = if (variant == CardVariant.Elevated) {
-        CardDefaults.cardElevation(defaultElevation = SentinelElevation.CardRaised)
-    } else {
-        CardDefaults.cardElevation(defaultElevation = SentinelElevation.CardResting)
-    }
-
     val border = if (variant == CardVariant.Outlined) {
         androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
+            width = SentinelSize.BorderThickness,
             color = MaterialTheme.colorScheme.outline
         )
     } else {
@@ -120,14 +117,23 @@ private fun BaseSentinelCard(
     }
 
     Card(
-        modifier = cardModifier,
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = colors,
-        elevation = elevation,
-        border = border
+        elevation = CardDefaults.cardElevation(
+            when (variant) {
+                CardVariant.Elevated -> SentinelElevation.CardRaised
+                else -> SentinelElevation.CardResting
+            }
+        ),
+        border = border,
+        onClick = onClick ?: {},
+        interactionSource = interactionSource
     ) {
         Column(
-            modifier = Modifier.padding(SentinelSpacing.CardPadding)
+            modifier = Modifier
+                .padding(SentinelSpacing.CardPadding)
+                .scale(animatedScale)
         ) {
             content()
         }

@@ -3,6 +3,8 @@ package com.sentinel.ai.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +58,8 @@ fun StatusChip(
     onClick: (() -> Unit)? = null
 ) {
     val baseColor = riskColor(state)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
     val semanticsModifier = modifier.semantics(mergeDescendants = true) {
         contentDescription = state.semanticLabel()
@@ -64,13 +69,17 @@ fun StatusChip(
     }
 
     val chipModifier = if (onClick != null) {
-        semanticsModifier.clickable(onClick = onClick)
+        semanticsModifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
     } else {
         semanticsModifier
     }
 
     val animatedContainerColor by animateColorAsState(
-        targetValue = baseColor.copy(alpha = 0.16f),
+        targetValue = baseColor.copy(alpha = if (isPressed) 0.24f else 0.16f),
         label = "status-chip-container"
     )
     val animatedContentColor by animateColorAsState(
@@ -82,7 +91,10 @@ fun StatusChip(
         modifier = chipModifier
             .clip(MaterialTheme.shapes.small)
             .background(animatedContainerColor)
-            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
+            .padding(
+                horizontal = SentinelSpacing.SM,
+                vertical = if (isPressed) SentinelSpacing.XXS + SentinelSpacing.XXS else SentinelSpacing.XXS
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -109,7 +121,7 @@ fun SecurityIndicator(
                 this.contentDescription = description
             },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)
     ) {
         SentinelIndicatorDot(color = baseColor)
         Text(
@@ -128,6 +140,8 @@ fun ThreatLevelChip(
 ) {
     val baseColor = riskColor(state)
     val icon = state.threatIcon()
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
     val semanticsModifier = modifier.semantics(mergeDescendants = true) {
         contentDescription = state.semanticLabel()
@@ -137,13 +151,17 @@ fun ThreatLevelChip(
     }
 
     val chipModifier = if (onClick != null) {
-        semanticsModifier.clickable(onClick = onClick)
+        semanticsModifier.clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
     } else {
         semanticsModifier
     }
 
     val animatedContainerColor by animateColorAsState(
-        targetValue = baseColor.copy(alpha = 0.16f),
+        targetValue = baseColor.copy(alpha = if (isPressed) 0.24f else 0.16f),
         label = "threat-chip-container"
     )
     val animatedContentColor by animateColorAsState(
@@ -155,7 +173,10 @@ fun ThreatLevelChip(
         modifier = chipModifier
             .clip(MaterialTheme.shapes.small)
             .background(animatedContainerColor)
-            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
+            .padding(
+                horizontal = SentinelSpacing.SM,
+                vertical = if (isPressed) SentinelSpacing.XXS + SentinelSpacing.XXS else SentinelSpacing.XXS
+            ),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -197,7 +218,7 @@ private fun BadgeContent(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
             .background(animatedContainerColor)
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         style = MaterialTheme.typography.labelLarge,
         color = animatedContentColor
     )

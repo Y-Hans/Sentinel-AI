@@ -1,10 +1,8 @@
 package com.sentinel.ai.ui.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -31,11 +29,6 @@ import com.sentinel.ai.ui.theme.SentinelMotion
 import com.sentinel.ai.ui.theme.SentinelRed
 import com.sentinel.ai.ui.theme.SentinelYellow
 
-/**
- * Visual states supported by [AnimatedSentinelShield].
- *
- * Each state carries a calm, premium animation profile built from the UI-1 motion tokens.
- */
 enum class ShieldState {
     Idle,
     Scanning,
@@ -44,16 +37,6 @@ enum class ShieldState {
     Dangerous
 }
 
-/**
- * Signature branding component drawn purely with Compose [Path] (no image assets).
- *
- * Stateless, theme-aware, scalable and accessible. Uses ONLY UI-1 design tokens — no hardcoded
- * colors except the brand palette, which itself is a UI-1 token.
- *
- * @param modifier standard Compose modifier
- * @param tint shield color, defaults to the theme primary token
- * @param contentDescription when null the shield is marked decorative (hidden from accessibility)
- */
 @Composable
 fun SentinelShield(
     modifier: Modifier = Modifier,
@@ -79,12 +62,6 @@ fun SentinelShield(
     }
 }
 
-/**
- * Animated variant of [SentinelShield] responsible for every animated shield state across the app.
- *
- * Builds on top of [SentinelShield] by layering a soft glow halo and applying motion (breathing,
- * pulse, scale) driven entirely by the UI-1 [SentinelMotion] tokens.
- */
 @Composable
 fun AnimatedSentinelShield(
     state: ShieldState,
@@ -92,15 +69,14 @@ fun AnimatedSentinelShield(
     tint: Color? = null,
     contentDescription: String? = null
 ) {
-    val requestedTint = tint ?: shieldTintFor(state)
     val animatedTint by animateColorAsState(
-        targetValue = requestedTint,
+        targetValue = tint ?: shieldTintFor(state),
         animationSpec = tween(SentinelMotion.DurationMedium, easing = SentinelMotion.StandardEasing),
         label = "shield-tint"
     )
 
     val infinite = rememberInfiniteTransition(label = "shield-pulse")
-    val safeSettle = remember { Animatable(1f) }
+    val safeSettle = remember { androidx.compose.animation.core.Animatable(1f) }
 
     LaunchedEffect(state) {
         if (state == ShieldState.Safe) {
@@ -221,10 +197,6 @@ private fun pulseConfig(state: ShieldState): PulseConfig = when (state) {
     ShieldState.Safe -> PulseConfig(1f, 1f, 0f, 0f, SentinelMotion.DurationMedium)
 }
 
-/**
- * Static, normalized shield outline in a 100x100 coordinate space. Built once and reused by every
- * draw to avoid allocating paths on each frame. Scaling/centering is handled by the draw transform.
- */
 private val ShieldPathBase: Path = createShieldPath(100f)
 
 private fun createShieldPath(size: Float = 100f): Path {

@@ -170,7 +170,8 @@ fun HistoryScreen(
                                 text = entry.dateLabel,
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(vertical = SentinelSpacing.SM)
+                                modifier = Modifier
+                                    .padding(vertical = SentinelSpacing.SM)
                             )
                         }
                         is HistoryListEntry.ThreatItem -> {
@@ -182,7 +183,8 @@ fun HistoryScreen(
                                     senderDisplayName = entry.item.senderDisplayName,
                                     senderIdentifier = entry.item.senderIdentifier
                                 ),
-                                timestampLabel = formatter.format(Date(entry.item.timestamp))
+                                timestampLabel = formatter.format(Date(entry.item.timestamp)),
+                                modifier = Modifier
                             )
                         }
                     }
@@ -193,84 +195,16 @@ fun HistoryScreen(
 }
 
 @Composable
-internal fun HistoryItemCard(
-    item: ScanResult,
-    appLabel: String,
-    senderPresentation: SenderPresentation,
-    timestampLabel: String
-) {
-    SentinelCard {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        SentinelIndicatorDot(color = riskColor(item.riskLevel))
-                        Spacer(modifier = Modifier.size(SentinelSpacing.XS))
-                        Text(
-                            text = senderPresentation.primaryText,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    senderPresentation.secondaryText?.let { identifier ->
-                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                        Text(
-                            text = identifier,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                    Text(
-                        text = appLabel,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                RiskBadge(riskLevel = item.riskLevel)
-            }
-
-            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-            Text(
-                text = item.explanation,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-            Text(
-                text = timestampLabel,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
-        Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-        InfoRow(
-            label = "Risk score",
-            value = item.riskScore.toInt().toString(),
-            showDivider = false
-        )
-    }
-}
-
-@Composable
 internal fun HistoryItemRow(
     item: ScanResult,
     appLabel: String,
     senderPresentation: SenderPresentation,
     timestampLabel: String,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         verticalAlignment = Alignment.CenterVertically,

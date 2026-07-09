@@ -124,7 +124,8 @@ fun AlertContent(
                     onSelected = {
                         onAction(AlertUiAction.SelectAlert(alert.id))
                         selected = alert
-                    }
+                    },
+                    modifier = Modifier
                 )
             }
         }
@@ -190,7 +191,7 @@ fun NotificationScanSheetContent(
         ) {
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(SentinelSize.IconXL * 2)
                     .clip(CircleShape)
                     .background(accent.copy(alpha = 0.10f)),
                 contentAlignment = Alignment.Center
@@ -253,18 +254,19 @@ private fun AlertListItem(
     alert: Alert,
     appLabel: String,
     senderPresentation: SenderPresentation,
-    onSelected: () -> Unit
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val state = riskStateOfAlert(alert.riskLevel)
     val accent = riskColor(state)
     val isHighRisk = alert.riskLevel == RiskLevel.CRITICAL || alert.riskLevel == RiskLevel.RED
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         if (isHighRisk) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
+                    .height(com.sentinel.ai.ui.theme.SentinelSize.BorderThickness)
                     .background(accent, MaterialTheme.shapes.extraLarge)
             )
         }

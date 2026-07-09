@@ -29,4 +29,5 @@ object SentinelSpacing {
     val BetweenItems = XS       // gap between related items
     val CardPadding = MD        // internal card padding
     val ListItemGap = XS        // gap between list rows
+    val DividerAlpha = 0.2f     // standard divider alpha
 }

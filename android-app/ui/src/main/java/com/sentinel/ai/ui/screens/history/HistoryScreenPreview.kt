@@ -95,7 +95,7 @@ private fun LazyColumnShim(
         modifier = Modifier.fillMaxSize()
     ) {
         history.take(5).forEach { item ->
-            HistoryItemCard(
+            HistoryItemRow(
                 item = item,
                 appLabel = item.source.toAppLabel(context),
                 senderPresentation = resolveSenderPresentation(

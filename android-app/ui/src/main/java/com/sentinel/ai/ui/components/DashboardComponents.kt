@@ -3,6 +3,8 @@ package com.sentinel.ai.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sentinel.ai.ui.theme.SentinelElevation
 import com.sentinel.ai.ui.theme.SentinelMotion
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelSize
@@ -238,20 +241,15 @@ fun ProtectionStatusCard(
         RiskState.Scanning -> ShieldState.Scanning
     }
 
-    val semanticsModifier = modifier.semantics(mergeDescendants = true) {
-        contentDescription = "${state.displayLabel()} protection status. $title. $description"
-        if (onClick != null) {
-            role = Role.Button
-        }
-    }
-
-    val cardModifier = if (onClick != null) {
-        semanticsModifier.clickable(onClick = onClick)
-    } else {
-        semanticsModifier
-    }
-
-    ElevatedSentinelCard(modifier = cardModifier) {
+    ElevatedSentinelCard(
+        modifier = modifier.semantics(mergeDescendants = true) {
+            contentDescription = "${state.displayLabel()} protection status. $title. $description"
+            if (onClick != null) {
+                role = Role.Button
+            }
+        },
+        onClick = onClick
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

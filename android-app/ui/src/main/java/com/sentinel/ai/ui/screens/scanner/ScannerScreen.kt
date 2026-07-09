@@ -260,13 +260,13 @@ internal fun LiveScanContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
     ) {
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)),
-            contentAlignment = Alignment.Center
-        ) {
+            Box(
+                modifier = Modifier
+                    .size(SentinelSize.IconXL * 2)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+            ) {
             AnimatedSentinelShield(
                 state = ShieldState.Scanning,
                 modifier = Modifier.size(SentinelSize.IconXL * 2),

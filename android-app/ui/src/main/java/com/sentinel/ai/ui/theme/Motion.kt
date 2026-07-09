@@ -29,7 +29,9 @@ object SentinelMotion {
     // Tween specs
     val ShortTween = tween<Float>(DurationShort, easing = StandardEasing)
     val MediumTween = tween<Float>(DurationMedium, easing = StandardEasing)
-    val LongTween = tween<Float>(DurationLong, easing = EmphasizedEasing)
+    val LongTween = tween<Float>(DurationLong, easing = StandardEasing)
+
+    val StaggeredFadeIn = tween<Float>(DurationShort, easing = StandardEasing)
 
     // Spring specs for expressive, natural motion
     val StandardSpring = spring<Float>(

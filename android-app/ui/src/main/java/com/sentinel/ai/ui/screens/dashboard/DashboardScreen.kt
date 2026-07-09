@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Radar
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -190,7 +190,8 @@ fun DashboardContent(
                     alert = alert,
                     appLabel = appLabelResolver(alert.title),
                     senderPresentation = senderPresentationResolver(alert.senderDisplayName, alert.senderIdentifier),
-                    onClick = { onThreatSelected(alert.threatId) }
+                    onClick = { onThreatSelected(alert.threatId) },
+                    modifier = Modifier
                 )
             }
         }
@@ -347,7 +348,7 @@ private fun QuickActions(
             modifier = Modifier.weight(1f),
             icon = {
                 Icon(
-                    Icons.Filled.Radar,
+                    Icons.Filled.Search,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SentinelSize.IconLarge)
@@ -361,7 +362,7 @@ private fun QuickActions(
             modifier = Modifier.weight(1f),
             icon = {
                 Icon(
-                    Icons.Filled.History,
+                    Icons.Filled.AccessTime,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SentinelSize.IconLarge)
@@ -395,7 +396,7 @@ private fun ProtectionSummaryCard(snapshot: ProtectionSnapshot) {
             value = if (snapshot.notificationListenerEnabled) "Available" else "Unavailable",
             icon = {
                 Icon(
-                    Icons.Filled.Warning,
+                    Icons.Filled.Error,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(SentinelSize.IconMedium)
@@ -407,7 +408,7 @@ private fun ProtectionSummaryCard(snapshot: ProtectionSnapshot) {
             value = if (missing.isEmpty()) "All granted" else "${missing.size} missing",
             icon = {
                 Icon(
-                    Icons.Filled.Block,
+                    Icons.Filled.Cancel,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(SentinelSize.IconMedium)
@@ -423,9 +424,11 @@ private fun RecentActivityItem(
     alert: Alert,
     appLabel: String,
     senderPresentation: SenderPresentation,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     ThreatCard(
+        modifier = modifier,
         title = senderPresentation.primaryText,
         source = appLabel,
         riskLevel = alert.riskLevel,

@@ -1,6 +1,5 @@
 package com.sentinel.ai.ui.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn

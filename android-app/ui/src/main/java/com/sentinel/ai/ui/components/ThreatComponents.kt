@@ -8,6 +8,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -137,7 +140,7 @@ fun ThreatTimelineItem(
                 contentAlignment = Alignment.Center
             ) {}
             if (!isLast) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
                 Box(
                     modifier = Modifier
                         .width(2.dp)
@@ -214,7 +217,7 @@ fun ThreatHistoryCard(
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = SentinelSpacing.DividerAlpha))
                     Spacer(modifier = Modifier.height(SentinelSpacing.SM))
                     Text(
                         text = supportingInfo,
@@ -230,9 +233,12 @@ fun ThreatHistoryCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .semantics { role = Role.Button }
+                    .semantics { 
+                        role = Role.Button
+                        stateDescription = if (expanded) "Expanded" else "Collapsed"
+                    }
                     .clickable { expanded = !expanded }
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = SentinelSpacing.XXS)
                     .fillMaxWidth(),
                 textAlign = TextAlign.End
             )
@@ -333,7 +339,7 @@ fun ExpandableThreatCard(
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(SentinelSpacing.SM))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = SentinelSpacing.DividerAlpha))
                     Spacer(modifier = Modifier.height(SentinelSpacing.SM))
                     expandedContent()
                 }
@@ -345,9 +351,12 @@ fun ExpandableThreatCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .semantics { role = Role.Button }
+                    .semantics { 
+                        role = Role.Button
+                        stateDescription = if (isExpanded) "Expanded" else "Collapsed"
+                    }
                     .clickable { onExpandedChange(!isExpanded) }
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = SentinelSpacing.XXS)
                     .fillMaxWidth(),
                 textAlign = TextAlign.End
             )

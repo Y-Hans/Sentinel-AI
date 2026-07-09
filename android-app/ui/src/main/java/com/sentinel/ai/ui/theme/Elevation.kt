@@ -23,6 +23,7 @@ object SentinelElevation {
     val SurfaceRaised = Level2
     val CardResting = Level2
     val CardRaised = Level3
+    val CardPress = Level1
     val Dialog = Level4
     val Modal = Level5
 }

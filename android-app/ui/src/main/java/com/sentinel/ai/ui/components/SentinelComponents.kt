@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,10 +77,11 @@ fun SentinelSectionHeader(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() }
             )
             if (subtitle != null) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
@@ -110,8 +112,8 @@ fun SentinelMetricCard(
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(20.dp)),
+            .clip(MaterialTheme.shapes.extraLarge)
+            .border(com.sentinel.ai.ui.theme.SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), MaterialTheme.shapes.extraLarge),
         color = SentinelSurfaceVariant.copy(alpha = 0.8f)
     ) {
         Column(modifier = Modifier.padding(SentinelSpacing.MD)) {
@@ -147,10 +149,10 @@ fun SentinelPill(
     Text(
         text = label,
         modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(SentinelShapes.small)
             .background(accent.copy(alpha = 0.15f))
-            .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(999.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .border(com.sentinel.ai.ui.theme.SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), SentinelShapes.small)
+            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         color = accent,
         style = MaterialTheme.typography.labelLarge
     )
