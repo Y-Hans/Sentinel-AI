@@ -230,6 +230,7 @@ fun ThreatHistoryCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
+                    .semantics { role = Role.Button }
                     .clickable { expanded = !expanded }
                     .padding(vertical = 4.dp)
                     .fillMaxWidth(),
@@ -344,6 +345,7 @@ fun ExpandableThreatCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
+                    .semantics { role = Role.Button }
                     .clickable { onExpandedChange(!isExpanded) }
                     .padding(vertical = 4.dp)
                     .fillMaxWidth(),

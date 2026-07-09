@@ -2,7 +2,6 @@ package com.sentinel.ai.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +17,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.RiskLevel
@@ -31,6 +35,10 @@ import com.sentinel.ai.ui.theme.SentinelCritical
 import com.sentinel.ai.ui.theme.SentinelGreen
 import com.sentinel.ai.ui.theme.SentinelOutline
 import com.sentinel.ai.ui.theme.SentinelRed
+import com.sentinel.ai.ui.theme.SentinelFull
+import com.sentinel.ai.ui.theme.SentinelShapes
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelSurface
 import com.sentinel.ai.ui.theme.SentinelSurfaceVariant
 import com.sentinel.ai.ui.theme.SentinelYellow
@@ -81,12 +89,13 @@ fun SentinelSectionHeader(
         }
 
         if (actionLabel != null && onAction != null) {
-            Text(
-                text = actionLabel,
-                style = MaterialTheme.typography.labelLarge,
-                color = SentinelCyan,
-                modifier = Modifier.clickable(onClick = onAction)
-            )
+            TextButton(onClick = onAction) {
+                Text(
+                    text = actionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = SentinelCyan
+                )
+            }
         }
     }
 }
@@ -105,19 +114,19 @@ fun SentinelMetricCard(
             .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(20.dp)),
         color = SentinelSurfaceVariant.copy(alpha = 0.8f)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(SentinelSpacing.MD)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
             Text(
                 text = supportingText,
                 style = MaterialTheme.typography.bodyMedium,
@@ -154,8 +163,8 @@ fun SentinelIndicatorDot(
 ) {
     Box(
         modifier = modifier
-            .size(10.dp)
-            .clip(RoundedCornerShape(50.dp))
+            .size(SentinelSize.IndicatorDot)
+            .clip(SentinelFull)
             .background(color)
     )
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sentinel.ai.ui.theme.SentinelElevation
 import com.sentinel.ai.ui.theme.SentinelSpacing
 
 enum class CardVariant {
@@ -104,9 +105,9 @@ private fun BaseSentinelCard(
     )
 
     val elevation = if (variant == CardVariant.Elevated) {
-        CardDefaults.cardElevation(defaultElevation = 3.dp)
+        CardDefaults.cardElevation(defaultElevation = SentinelElevation.CardRaised)
     } else {
-        CardDefaults.cardElevation(defaultElevation = 1.dp)
+        CardDefaults.cardElevation(defaultElevation = SentinelElevation.CardResting)
     }
 
     val border = if (variant == CardVariant.Outlined) {

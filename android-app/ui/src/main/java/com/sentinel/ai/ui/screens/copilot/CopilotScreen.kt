@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,7 +62,8 @@ fun CopilotContent(
         Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
             Text(
                 text = "AI Security Copilot",
-                style = MaterialTheme.typography.displaySmall
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.semantics { heading() }
             )
             Text(
                 text = "Ask questions about suspicious messages and get instant, privacy-first guidance.",

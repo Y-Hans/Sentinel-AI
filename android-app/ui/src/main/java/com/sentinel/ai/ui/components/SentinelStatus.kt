@@ -24,6 +24,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sentinel.ai.ui.theme.SentinelShapes
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 
 @Composable
 fun RiskBadge(
@@ -79,7 +82,7 @@ fun StatusChip(
         modifier = chipModifier
             .clip(MaterialTheme.shapes.small)
             .background(animatedContainerColor)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -152,16 +155,16 @@ fun ThreatLevelChip(
         modifier = chipModifier
             .clip(MaterialTheme.shapes.small)
             .background(animatedContainerColor)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         contentAlignment = Alignment.Center
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)
         ) {
             Surface(
                 color = animatedContentColor,
-                modifier = Modifier.size(10.dp),
+                modifier = Modifier.size(SentinelSize.IndicatorDot),
                 shape = CircleShape
             ) {}
             Text(
