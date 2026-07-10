@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -26,8 +27,10 @@ import com.sentinel.ai.ui.screens.alert.AlertScreen
 import com.sentinel.ai.ui.screens.copilot.CopilotScreen
 import com.sentinel.ai.ui.screens.dashboard.DashboardScreen
 import com.sentinel.ai.ui.screens.history.HistoryScreen
+import com.sentinel.ai.ui.screens.permissions.PermissionOnboardingScreen
 import com.sentinel.ai.ui.screens.scanner.ScannerScreen
 import com.sentinel.ai.ui.screens.settings.SettingsScreen
+import com.sentinel.ai.ui.theme.SentinelThemeMode
 import com.sentinel.ai.ui.screens.threat.ThreatDetailsScreen
 import com.sentinel.ai.ui.theme.rememberWindowWidthClass
 import kotlinx.coroutines.launch
@@ -48,6 +51,8 @@ import kotlinx.coroutines.launch
 fun SentinelNavGraph(
     navController: NavHostController,
     startDestination: String = Screen.Dashboard.route,
+    themeMode: SentinelThemeMode = SentinelThemeMode.Dark,
+    onThemeModeSelected: (SentinelThemeMode) -> Unit = {},
     appVersion: String = "1.0.0"
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -73,12 +78,17 @@ fun SentinelNavGraph(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            SentinelNavDrawerContent(
-                currentRoute = currentRoute,
-                onDestinationSelected = onDestinationSelected
-            )
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
+                drawerContentColor = MaterialTheme.colorScheme.onSurface
+            ) {
+                SentinelNavDrawerContent(
+                    currentRoute = currentRoute,
+                    onDestinationSelected = onDestinationSelected
+                )
+            }
         },
-        gesturesEnabled = true
+        gesturesEnabled = false
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             if (!isCompact) {
@@ -112,6 +122,8 @@ fun SentinelNavGraph(
                     navController = navController,
                     paddingValues = paddingValues,
                     startDestination = startDestination,
+                    themeMode = themeMode,
+                    onThemeModeSelected = onThemeModeSelected,
                     appVersion = appVersion
                 )
             }
@@ -128,6 +140,8 @@ private fun SentinelNavHost(
     navController: NavHostController,
     paddingValues: PaddingValues,
     startDestination: String,
+    themeMode: SentinelThemeMode,
+    onThemeModeSelected: (SentinelThemeMode) -> Unit,
     appVersion: String
 ) {
     NavHost(
@@ -185,8 +199,26 @@ private fun SentinelNavHost(
         ) {
             SettingsScreen(
                 appVersion = appVersion,
+                selectedTheme = themeMode,
+                onThemeSelected = onThemeModeSelected,
                 onNavigateToAbout = {
                     navController.navigate(Screen.About.route)
+                }
+            )
+        }
+        composable(
+            route = Screen.PermissionSetup.route,
+            enterTransition = { SentinelNavEnterTransition },
+            exitTransition = { SentinelNavExitTransition },
+            popEnterTransition = { SentinelNavPopEnterTransition },
+            popExitTransition = { SentinelNavPopExitTransition }
+        ) {
+            PermissionOnboardingScreen(
+                onPermissionsComplete = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.PermissionSetup.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

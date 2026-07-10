@@ -1,9 +1,17 @@
 package com.sentinel.ai.ui.screens.dashboard
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +26,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -25,10 +34,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.CircleShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -43,7 +56,6 @@ import com.sentinel.ai.ui.components.ElevatedSentinelCard
 import com.sentinel.ai.ui.components.InfoRow
 import com.sentinel.ai.ui.components.QuickActionCard
 import com.sentinel.ai.ui.components.RiskState
-import com.sentinel.ai.ui.components.ScoreCard
 import com.sentinel.ai.ui.components.SentinelSectionHeader
 import com.sentinel.ai.ui.components.ShieldState
 import com.sentinel.ai.ui.components.StatusChip
@@ -236,66 +248,154 @@ private fun ProtectionHero(
         RiskState.Scanning -> ShieldState.Scanning
     }
     val headline = when (state) {
-        RiskState.Safe -> "You're protected"
+        RiskState.Safe -> "Active protection"
         RiskState.Suspicious -> "Protection paused"
-        RiskState.Dangerous -> "Protection off"
-        RiskState.Neutral -> "Starting up"
-        RiskState.Scanning -> "Scanning"
+        RiskState.Dangerous -> "Protection needs attention"
+        RiskState.Neutral -> "Preparing protection"
+        RiskState.Scanning -> "Protection scan in progress"
     }
     val description = when (state) {
-        RiskState.Safe -> "Sentinel is actively watching your notifications and messages."
-        RiskState.Suspicious -> "Turn protection back on to resume live monitoring."
-        RiskState.Dangerous -> "Enable protection to start shielding your device."
-        RiskState.Neutral -> "Services are syncing with the protection backend."
-        RiskState.Scanning -> "Inspecting recent activity for threats."
+        RiskState.Safe -> "Monitoring incoming notifications and messages in real time."
+        RiskState.Suspicious -> "Live monitoring is paused until you resume protection."
+        RiskState.Dangerous -> "Enable protection to resume monitoring your device."
+        RiskState.Neutral -> "Checking that Sentinel services are ready to monitor threats."
+        RiskState.Scanning -> "Scanning recent activity for suspicious behavior."
     }
 
     ElevatedSentinelCard(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
-        ) {
-            StatusChip(state = state)
+        val breathingTransition = rememberInfiniteTransition(label = "hero-shield-breathing")
+        val shieldScale by breathingTransition.animateFloat(
+            initialValue = 0.97f,
+            targetValue = 1.03f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 2800),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "hero-shield-scale"
+        )
 
-            AnimatedSentinelShield(
-                state = shieldState,
-                modifier = Modifier.size(SentinelSize.IconXL * 2),
-                contentDescription = null
-            )
-
-            Text(
-                text = headline,
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-
-            ScoreCard(
-                score = score,
-                trend = when (state) {
-                    RiskState.Safe -> "Strong posture"
-                    RiskState.Suspicious -> "Needs attention"
-                    RiskState.Dangerous -> "At risk"
-                    else -> null
-                },
-                supportingText = "Overall protection score"
-            )
-
-            ActionButton(
-                text = if (protectionEnabled) "Pause protection" else "Resume protection",
-                onClick = onToggle,
+        Box(modifier = Modifier.fillMaxWidth()) {
+            HeroSecurityPattern()
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                leadingIcon = Icons.Filled.Shield
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                    shape = CircleShape
+                ) {
+                    Box(
+                        modifier = Modifier.size(SentinelSize.IconXL * 3),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedSentinelShield(
+                            state = shieldState,
+                            modifier = Modifier
+                                .size(SentinelSize.IconXL * 2)
+                                .scale(shieldScale),
+                            contentDescription = headline
+                        )
+                    }
+                }
+                StatusChip(state = state)
+                Text(
+                    text = headline,
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                HeroInformationStrip(
+                    score = score,
+                    protectionEnabled = protectionEnabled,
+                    state = state
+                )
+                ActionButton(
+                    text = if (protectionEnabled) "Pause protection" else "Resume protection",
+                    onClick = onToggle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SentinelSpacing.XS),
+                    leadingIcon = Icons.Filled.Shield
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeroSecurityPattern() {
+    val accent = MaterialTheme.colorScheme.primary.copy(alpha = 0.045f)
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val baseRadius = size.minDimension * 0.24f
+        repeat(3) { index ->
+            drawCircle(
+                color = accent,
+                radius = baseRadius * (index + 1),
+                center = center,
+                style = Stroke(width = 1.dp.toPx())
             )
         }
+    }
+}
+
+@Composable
+private fun HeroInformationStrip(
+    score: Int,
+    protectionEnabled: Boolean,
+    state: RiskState
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        HeroMetric(
+            label = "Protection score",
+            value = "$score/100",
+            modifier = Modifier.weight(1f)
+        )
+        HeroMetric(
+            label = "Monitoring",
+            value = if (protectionEnabled) "Active" else "Paused",
+            modifier = Modifier.weight(1f)
+        )
+        HeroMetric(
+            label = "Engine",
+            value = if (state == RiskState.Safe) "Online" else "Checking",
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun HeroMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XXS)
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

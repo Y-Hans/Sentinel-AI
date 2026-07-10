@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.Role
@@ -55,7 +56,11 @@ fun SentinelShield(
     Canvas(modifier = semanticsModifier.fillMaxSize()) {
         val scaleFactor = size.minDimension / 100f
         withTransform({
-            scale(scaleFactor, scaleFactor, center)
+            translate(
+                left = center.x - 50f * scaleFactor,
+                top = center.y - 50f * scaleFactor
+            )
+            scale(scaleFactor, scaleFactor, pivot = Offset.Zero)
         }) {
             drawPath(path = ShieldPathBase, color = tint)
         }
@@ -122,17 +127,18 @@ fun AnimatedSentinelShield(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val haloScale = size.minDimension / 100f
                 repeat(3) { layer ->
-                    val layerFactor = 1f + (layer + 1) * 0.07f
-                    val layerAlpha = glow * (1f - layer / 4f) * 0.5f
-                    withTransform({
-                        scale(
-                            haloScale * scale * layerFactor,
-                            haloScale * scale * layerFactor,
-                            center
-                        )
-                    }) {
-                        drawPath(path = ShieldPathBase, color = animatedTint, alpha = layerAlpha)
-                    }
+                val layerFactor = 1f + (layer + 1) * 0.07f
+                val layerAlpha = glow * (1f - layer / 4f) * 0.5f
+                val pathScale = haloScale * scale * layerFactor
+                withTransform({
+                    translate(
+                        left = center.x - 50f * pathScale,
+                        top = center.y - 50f * pathScale
+                    )
+                    scale(pathScale, pathScale, pivot = Offset.Zero)
+                }) {
+                    drawPath(path = ShieldPathBase, color = animatedTint, alpha = layerAlpha)
+                }
                 }
             }
         }

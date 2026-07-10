@@ -32,9 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +39,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -57,18 +53,22 @@ import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.protection.ProtectionSnapshot
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
+import com.sentinel.ai.ui.theme.SentinelThemeMode
+import com.sentinel.ai.ui.theme.rememberWindowWidthClass
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
 fun SettingsScreen(
     appVersion: String,
+    selectedTheme: SentinelThemeMode,
+    onThemeSelected: (SentinelThemeMode) -> Unit,
     onNavigateToAbout: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedTheme by rememberSaveable { mutableStateOf("Dark") }
     val context = LocalContext.current
     val protection = uiState.protection
+    val isCompact = rememberWindowWidthClass().isCompact
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -100,7 +100,7 @@ fun SettingsScreen(
                 modifier = Modifier.semantics { heading() }
             )
             Text(
-                text = "App controls and informational preferences for the UI layer only.",
+                text = "Control protection, permissions, and the app-wide appearance.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -178,34 +178,7 @@ fun SettingsScreen(
             }
         )
 
-        SentinelCard {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Open system notification settings",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                        Text(
-                            text = "Review runtime permissions in system settings",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    ActionButton(
-                        text = "Open app settings",
-                        onClick = { openAppSettings(context) },
-                        modifier = Modifier.height(SentinelSize.ButtonHeight)
-                    )
-                }
-            }
-        }
+        PermissionSettingsCard(context = context, isCompact = isCompact)
         if (!protection.fullScreenIntentPermissionGranted) {
             SentinelCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -234,7 +207,7 @@ fun SettingsScreen(
 
         SentinelSectionHeader(
             title = "Theme",
-            subtitle = "UI-only theme chooser. The app remains dark by design"
+            subtitle = "Choose one appearance for the entire app"
         )
         SentinelCard {
             FlowRow(
@@ -242,13 +215,13 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM),
                 verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
             ) {
-                listOf("Dark", "Neon", "System").forEach { option ->
+                SentinelThemeMode.entries.forEach { option ->
                     FilterChip(
                         selected = selectedTheme == option,
                         onClick = {
-                            selectedTheme = option
+                            onThemeSelected(option)
                         },
-                        label = { Text(option) },
+                        label = { Text(option.name) },
                         modifier = Modifier.height(SentinelSize.MinTouchTarget)
                     )
                 }
@@ -292,6 +265,55 @@ fun SettingsScreen(
             }
         )
     }
+}
+
+@Composable
+private fun PermissionSettingsCard(context: Context, isCompact: Boolean) {
+    SentinelCard {
+        if (isCompact) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            ) {
+                PermissionSettingsCopy()
+                ActionButton(
+                    text = "Open app settings",
+                    onClick = { openAppSettings(context) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    PermissionSettingsCopy()
+                }
+                ActionButton(
+                    text = "Open app settings",
+                    onClick = { openAppSettings(context) },
+                    modifier = Modifier.height(SentinelSize.ButtonHeight)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PermissionSettingsCopy() {
+    Text(
+        text = "Open system notification settings",
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+    Text(
+        text = "Review runtime permissions in system settings",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 private fun openAppSettings(context: Context) {

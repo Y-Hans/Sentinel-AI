@@ -25,8 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -75,18 +73,11 @@ fun HistoryScreen(
             ),
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
-            Text(
-                text = "History",
-                style = MaterialTheme.typography.displaySmall,
-                modifier = Modifier.semantics { heading() }
-            )
-            Text(
-                text = "A clean audit trail of previous detections and review outcomes.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = "A clean audit trail of previous detections and review outcomes.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
