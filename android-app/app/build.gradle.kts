@@ -22,6 +22,8 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"https://api.sentinel.ai/\"")
         buildConfigField("String", "OPENPHISH_FEED_URL", "\"https://openphish.com/feed.txt\"")
         buildConfigField("String", "OPENPHISH_API_KEY", "\"\"")
+        buildConfigField("String", "VIRUSTOTAL_API_KEY", "\"\"")
+        buildConfigField("String", "VIRUSTOTAL_LOOKUP_URL", "\"https://www.virustotal.com/api/v3/\"")
         buildConfigField("String", "REPUTATION_LOOKUP_TIMEOUT_MS", "\"10000\"")
     }
 
@@ -59,12 +61,19 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.okhttp)
+    implementation(libs.timber)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
 
     testImplementation(libs.junit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation(libs.okhttp)
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation(libs.gson)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

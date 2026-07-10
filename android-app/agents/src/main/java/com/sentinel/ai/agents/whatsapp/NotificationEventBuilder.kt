@@ -190,10 +190,10 @@ class NotificationEventBuilder @Inject constructor() {
 
     private fun extractUrls(body: String, analyzedAt: String): List<UrlAnalysisItem> {
         val rawUrls = LinkedHashSet<String>()
-        URL_REGEX.findAll(body).forEach { match ->
-            rawUrls.add(match.value.trimEnd('.', ',', ';', ':', '!', '?', ')', ']', '}', '"', '\''))
-        }
-        WWW_REGEX.findAll(body).forEach { match ->
+        val matches = (URL_REGEX.findAll(body) + WWW_REGEX.findAll(body))
+            .sortedBy { it.range.first }
+
+        matches.forEach { match ->
             rawUrls.add(match.value.trimEnd('.', ',', ';', ':', '!', '?', ')', ']', '}', '"', '\''))
         }
 

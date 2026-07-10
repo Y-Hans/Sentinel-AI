@@ -20,6 +20,20 @@ abstract class ReputationModule {
         impl: ReputationManagerImpl
     ): ReputationManager
 
+    @Binds
+    @IntoSet
+    @Singleton
+    abstract fun bindOpenPhishReputationProvider(
+        impl: OpenPhishReputationProvider
+    ): ReputationProvider
+
+    @Binds
+    @IntoSet
+    @Singleton
+    abstract fun bindVirusTotalReputationProvider(
+        impl: VirusTotalReputationProvider
+    ): ReputationProvider
+
     companion object {
         @Provides
         @Singleton
@@ -27,6 +41,8 @@ abstract class ReputationModule {
             return ReputationConfig(
                 openPhishFeedUrl = BuildConfig.OPENPHISH_FEED_URL,
                 openPhishApiKey = BuildConfig.OPENPHISH_API_KEY,
+                virusTotalApiKey = BuildConfig.VIRUSTOTAL_API_KEY,
+                virusTotalLookupUrl = BuildConfig.VIRUSTOTAL_LOOKUP_URL,
                 lookupTimeoutMs = BuildConfig.REPUTATION_LOOKUP_TIMEOUT_MS.toLongOrNull() ?: 10_000L
             )
         }

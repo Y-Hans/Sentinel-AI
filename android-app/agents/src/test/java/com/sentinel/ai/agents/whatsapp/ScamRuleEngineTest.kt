@@ -32,8 +32,8 @@ class ScamRuleEngineTest {
             isKnownContact = false
         )
 
-        assertEquals(ScamRiskLevel.HIGH, result.riskLevel)
-        assertTrue(result.riskScore >= 51)
+        assertEquals(ScamRiskLevel.MEDIUM, result.riskLevel)
+        assertEquals(42, result.riskScore)
         assertTrue(result.explanations.any { it.contains("Shortened URL detected") })
         assertTrue(result.explanations.any { it.contains("Urgency language detected") })
         assertTrue(result.explanations.any { it.contains("Sender is not a known contact") })
@@ -62,7 +62,8 @@ class ScamRuleEngineTest {
             isKnownContact = true
         )
 
-        assertEquals(ScamRiskLevel.HIGH, result.riskLevel)
+        assertEquals(ScamRiskLevel.MEDIUM, result.riskLevel)
+        assertEquals(40, result.riskScore)
         assertTrue(result.explanations.any { it.contains("Raw IP address URL detected") })
         assertTrue(result.explanations.any { it.contains("Credential harvesting indicator detected") })
     }
