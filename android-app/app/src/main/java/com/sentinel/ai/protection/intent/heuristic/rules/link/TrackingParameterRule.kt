@@ -4,14 +4,14 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class TrackingParameterRule : LinkHeuristicRule {
     override val id: String = "tracking_parameters"
     override val name: String = "Tracking Parameters"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val names = queryParameterNames(uri)
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val names = url.queryParameters.map { it.rawName.lowercase() }
         val triggered = names.any { name ->
             name in config.trackingParameters || config.trackingParameterPrefixes.any { name.startsWith(it) }
         }
@@ -23,9 +23,4 @@ class TrackingParameterRule : LinkHeuristicRule {
         )
     }
 
-    private fun queryParameterNames(uri: URI?): List<String> {
-        return uri?.rawQuery.orEmpty()
-            .split('&')
-            .mapNotNull { it.substringBefore('=', "").lowercase().takeIf(String::isNotBlank) }
-    }
 }

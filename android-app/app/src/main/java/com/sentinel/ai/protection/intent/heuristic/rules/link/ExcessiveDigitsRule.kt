@@ -4,14 +4,14 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class ExcessiveDigitsRule : LinkHeuristicRule {
     override val id: String = "excessive_digits"
     override val name: String = "Excessive Digits"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val host = url.originalHost.orEmpty()
         val weight = config.weights[id] ?: 0f
         
         val digitCount = host.count { it.isDigit() }

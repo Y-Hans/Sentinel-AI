@@ -4,23 +4,21 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class RedirectParameterRule : LinkHeuristicRule {
     override val id: String = "suspicious_redirect"
     override val name: String = "Redirect Parameter"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val query = uri?.rawQuery.orEmpty()
-        val triggered = query.split('&').any { part ->
-            val name = part.substringBefore('=', "").lowercase()
-            val value = part.substringAfter('=', "")
-            name in config.redirectParameters && (value.contains("http%3a", true) || value.contains("https%3a", true) || value.contains("http", true))
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val triggered = url.queryParameters.any { parameter ->
+            parameter.decodedName.lowercase() in config.redirectParameters &&
+                parameter.isPlausibleHttpDestination
         }
         return RuleResult(
             triggered = triggered,
             scoreContribution = if (triggered) config.weights[id] ?: 0f else 0f,
-            explanation = if (triggered) "URL contains a redirect parameter placeholder signal" else null,
+            explanation = if (triggered) "URL uses a redirect parameter pointing to another destination" else null,
             category = RuleCategory.URL_STRUCTURE
         )
     }

@@ -4,22 +4,25 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class BrandImpersonationRule : LinkHeuristicRule {
     override val id: String = "brand_impersonation"
     override val name: String = "Brand Impersonation"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host?.removePrefix("www.")?.lowercase().orEmpty()
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val host = url.host?.removePrefix("www.").orEmpty()
         if (host.isBlank()) {
             return clean()
         }
 
+        val registrableLabel = host.substringBeforeLast('.', missingDelimiterValue = host)
+            .substringAfterLast('.')
+
         config.brandOfficialDomains.forEach { (brand, officialDomains) ->
             val official = officialDomains.any { host == it || host.endsWith(".$it") }
-            if (!official && host.contains(brand)) {
-                val weight = if (hasExtraWord(host, brand, config)) {
+            if (!official && containsBrandToken(registrableLabel, brand, config)) {
+                val weight = if (hasExtraWord(registrableLabel, brand, config)) {
                     config.weights["brand_impersonation"] ?: 0f
                 } else {
                     config.weights["brand_lookalike"] ?: 0f
@@ -32,7 +35,7 @@ class BrandImpersonationRule : LinkHeuristicRule {
                 )
             }
 
-            if (!official && looksLikeBrand(host, brand, config)) {
+            if (!official && looksLikeBrand(registrableLabel, brand, config)) {
                 return RuleResult(
                     triggered = true,
                     scoreContribution = config.weights["brand_lookalike"] ?: 0f,
@@ -45,12 +48,17 @@ class BrandImpersonationRule : LinkHeuristicRule {
         return clean()
     }
 
-    private fun hasExtraWord(host: String, brand: String, config: LinkHeuristicConfig): Boolean {
-        return config.brandExtraWords.any { word -> host.contains("$brand-$word") || host.contains("$word-$brand") || host.contains("$brand$word") }
+    private fun containsBrandToken(label: String, brand: String, config: LinkHeuristicConfig): Boolean {
+        return label == brand || hasExtraWord(label, brand, config)
     }
 
-    private fun looksLikeBrand(host: String, brand: String, config: LinkHeuristicConfig): Boolean {
-        val label = host.substringBefore('.')
+    private fun hasExtraWord(label: String, brand: String, config: LinkHeuristicConfig): Boolean {
+        return config.brandExtraWords.any { word ->
+            label.contains("$brand-$word") || label.contains("$word-$brand") || label.contains("$brand$word")
+        }
+    }
+
+    private fun looksLikeBrand(label: String, brand: String, config: LinkHeuristicConfig): Boolean {
         if (kotlin.math.abs(label.length - brand.length) > 1) return false
 
         var differences = 0

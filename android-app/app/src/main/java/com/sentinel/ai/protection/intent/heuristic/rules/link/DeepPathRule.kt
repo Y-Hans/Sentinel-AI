@@ -4,14 +4,14 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class DeepPathRule : LinkHeuristicRule {
     override val id: String = "deep_nesting"
     override val name: String = "Deep Path"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val segments = uri?.path.orEmpty().split('/').filter { it.isNotBlank() }
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val segments = url.path.split('/').filter { it.isNotBlank() }
         val triggered = segments.size > config.nestingThreshold
         return RuleResult(
             triggered = triggered,

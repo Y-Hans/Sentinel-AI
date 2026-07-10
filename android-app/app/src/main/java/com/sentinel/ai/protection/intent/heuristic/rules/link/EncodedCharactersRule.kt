@@ -4,7 +4,7 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class EncodedCharactersRule : LinkHeuristicRule {
     override val id: String = "encoded_chars"
@@ -12,8 +12,8 @@ class EncodedCharactersRule : LinkHeuristicRule {
 
     private val encodedCharacter = Regex("%[0-9a-fA-F]{2}")
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val count = encodedCharacter.findAll(url).count()
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val count = encodedCharacter.findAll(url.original).count()
         val triggered = count >= 3
         return RuleResult(
             triggered = triggered,

@@ -4,14 +4,14 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class SuspiciousTldRule : LinkHeuristicRule {
     override val id: String = "suspicious_tld"
     override val name: String = "Suspicious TLD"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host?.lowercase() ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val host = url.host.orEmpty()
         val weight = config.weights[id] ?: 0f
         
         val matchedTld = config.suspiciousTlds.firstOrNull { tld ->

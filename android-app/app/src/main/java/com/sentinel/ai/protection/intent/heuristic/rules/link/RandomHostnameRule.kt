@@ -4,15 +4,15 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 import kotlin.math.log2
 
 class RandomHostnameRule : LinkHeuristicRule {
     override val id: String = "random_hostname"
     override val name: String = "Random Hostname"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val host = url.originalHost.orEmpty()
         val weight = config.weights[id] ?: 0f
         
         // Remove standard dots so dots don't artificially reduce/increase entropy

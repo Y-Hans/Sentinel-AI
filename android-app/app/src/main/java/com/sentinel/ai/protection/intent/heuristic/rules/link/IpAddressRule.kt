@@ -4,20 +4,16 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class IpAddressRule : LinkHeuristicRule {
     override val id: String = "ip_address"
     override val name: String = "IP Address Host"
 
-    private val ipv4Regex = Regex("""^(\d{1,3}\.){3}\d{1,3}$""")
-    private val ipv6Regex = Regex("""^\[?[0-9a-fA-F:]+]?$""")
-
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
         val weight = config.weights[id] ?: 0f
         
-        val triggered = ipv4Regex.matches(host) || (host.contains(":") && ipv6Regex.matches(host))
+        val triggered = url.isIpv4 || url.isIpv6
         
         return RuleResult(
             triggered = triggered,

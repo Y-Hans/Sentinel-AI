@@ -5,7 +5,6 @@ import com.sentinel.ai.core.network.HttpMethod
 import com.sentinel.ai.core.network.JsonParser
 import com.sentinel.ai.core.network.NetworkRequest
 import com.sentinel.ai.core.network.NetworkResponse
-import com.sentinel.ai.protection.intent.link.UrlNormalizer
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import timber.log.Timber
 import javax.inject.Inject
@@ -148,8 +147,7 @@ class OpenPhishReputationProvider @Inject constructor(
         }
 
         private fun normalizeUrl(url: String): String {
-            val normalized = UrlNormalizer.normalize(url)
-            var u = normalized.trim().lowercase()
+            var u = url.trim().lowercase()
             if (u.startsWith("https://")) {
                 u = u.substring(8)
             } else if (u.startsWith("http://")) {

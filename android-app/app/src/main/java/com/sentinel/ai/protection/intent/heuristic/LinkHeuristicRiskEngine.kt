@@ -4,13 +4,16 @@ import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.protection.intent.heuristic.rules.link.BrandImpersonationRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.DeepPathRule
+import com.sentinel.ai.protection.intent.heuristic.rules.link.EmbeddedUrlRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.EncodedCharactersRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.ExcessiveDigitsRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.ExcessiveQueryParametersRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.ExcessiveSubdomainsRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.IpAddressRule
+import com.sentinel.ai.protection.intent.heuristic.rules.link.InsecureHttpRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.LongFilenameRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.LongUrlRule
+import com.sentinel.ai.protection.intent.heuristic.rules.link.NonStandardPortRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.PunycodeRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.RandomHostnameRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.RedirectParameterRule
@@ -18,7 +21,8 @@ import com.sentinel.ai.protection.intent.heuristic.rules.link.RepeatedHyphensRul
 import com.sentinel.ai.protection.intent.heuristic.rules.link.SocialEngineeringRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.SuspiciousTldRule
 import com.sentinel.ai.protection.intent.heuristic.rules.link.TrackingParameterRule
-import java.net.URI
+import com.sentinel.ai.protection.intent.heuristic.rules.link.UserinfoDeceptionRule
+import com.sentinel.ai.protection.intent.link.UrlNormalizer
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,15 +34,15 @@ class LinkHeuristicRiskEngine @Inject constructor() {
     private val rules: Collection<LinkHeuristicRule> = defaultRules()
 
     fun analyze(url: String): LinkHeuristicAnalysis {
-        val uri = parseUri(url)
-        val results = rules.map { rule -> rule.evaluate(url, uri, config) }
+        val parsedUrl = UrlNormalizer.parse(url)
+        val results = rules.map { rule -> rule.evaluate(parsedUrl, config) }
         val score = results.sumOf { it.scoreContribution.toDouble() }.toFloat().coerceIn(0f, 100f)
         val triggered = results.filter { it.triggered }
 
         // Calibration Debug Logging
         try {
             if (android.util.Log.isLoggable("SentinelCalibration", android.util.Log.DEBUG)) {
-                android.util.Log.d("SentinelCalibration", "--- Link Heuristic Scan: $url ---")
+                android.util.Log.d("SentinelCalibration", "--- Link Heuristic Scan: host=${parsedUrl.host.orEmpty()} ---")
                 for (res in results) {
                     if (res.triggered) {
                         android.util.Log.d("SentinelCalibration", "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
@@ -47,10 +51,10 @@ class LinkHeuristicRiskEngine @Inject constructor() {
                 android.util.Log.d("SentinelCalibration", "Heuristic Total Score: $score")
                 android.util.Log.d("SentinelCalibration", "----------------------------------")
             } else {
-                android.util.Log.i("SentinelCalibration", "Link: $url -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+                android.util.Log.i("SentinelCalibration", "Link host=${parsedUrl.host.orEmpty()} -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
             }
         } catch (t: Throwable) {
-            println("SentinelCalibration - Link: $url -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+            println("SentinelCalibration - Link host=${parsedUrl.host.orEmpty()} -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
         }
 
         return LinkHeuristicAnalysis(
@@ -74,13 +78,6 @@ class LinkHeuristicRiskEngine @Inject constructor() {
             explanation = analysis.explanation,
             timestamp = System.currentTimeMillis()
         )
-    }
-
-    private fun parseUri(url: String): URI? {
-        return runCatching { URI(url) }
-            .getOrNull()
-            ?.takeIf { it.host != null }
-            ?: runCatching { URI("https://$url") }.getOrNull()
     }
 
     private fun buildExplanation(triggered: List<RuleResult>): String {
@@ -109,7 +106,11 @@ class LinkHeuristicRiskEngine @Inject constructor() {
             TrackingParameterRule(),
             RedirectParameterRule(),
             BrandImpersonationRule(),
-            SocialEngineeringRule()
+            SocialEngineeringRule(),
+            InsecureHttpRule(),
+            NonStandardPortRule(),
+            UserinfoDeceptionRule(),
+            EmbeddedUrlRule()
         )
     }
 }

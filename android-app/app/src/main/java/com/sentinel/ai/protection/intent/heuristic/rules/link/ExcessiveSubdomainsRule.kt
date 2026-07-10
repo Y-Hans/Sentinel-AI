@@ -4,18 +4,16 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class ExcessiveSubdomainsRule : LinkHeuristicRule {
     override val id: String = "excessive_subdomains"
     override val name: String = "Excessive Subdomains"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
         val weight = config.weights[id] ?: 0f
         
-        val dotCount = host.count { it == '.' }
-        val triggered = dotCount > config.subdomainThreshold
+        val triggered = url.subdomainCount > config.subdomainThreshold
         
         return RuleResult(
             triggered = triggered,

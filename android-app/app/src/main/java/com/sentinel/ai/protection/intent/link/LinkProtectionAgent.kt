@@ -16,7 +16,6 @@ class LinkProtectionAgent @Inject constructor(
 ) : LinkScanner {
 
     override suspend fun scan(url: String): ScanResult {
-        val normalized = UrlNormalizer.normalize(url)
-        return riskEngine.toScanResult(normalized)
+        return riskEngine.toScanResult(url)
     }
 }

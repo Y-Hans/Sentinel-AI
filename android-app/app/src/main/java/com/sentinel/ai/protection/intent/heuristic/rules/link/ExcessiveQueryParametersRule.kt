@@ -4,15 +4,14 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class ExcessiveQueryParametersRule : LinkHeuristicRule {
     override val id: String = "excessive_query"
     override val name: String = "Excessive Query Parameters"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val count = uri?.rawQuery.orEmpty().split('&').count { it.isNotBlank() }
-        val triggered = count > config.queryParamsThreshold
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
+        val triggered = url.rawQueryParameterCount > config.queryParamsThreshold
         return RuleResult(
             triggered = triggered,
             scoreContribution = if (triggered) config.weights[id] ?: 0f else 0f,

@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.sentinel.ai.protection.intent.link.UrlNormalizer
 
 /**
  * Android text-selection entry point for selected web links.
@@ -31,7 +30,7 @@ class TextSelectionProcessActivity : ComponentActivity() {
             return
         }
 
-        val normalizedUrl = UrlNormalizer.normalize(extractedUrl).trim()
+        val normalizedUrl = extractedUrl.trim()
         startActivity(
             Intent(this, ScanLoadingActivity::class.java).apply {
                 putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE, IntentPayloadExtras.TYPE_URL)

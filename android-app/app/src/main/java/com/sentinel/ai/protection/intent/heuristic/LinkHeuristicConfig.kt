@@ -36,7 +36,8 @@ data class LinkHeuristicConfig(
     ),
 
     val redirectParameters: Set<String> = setOf(
-        "redirect", "redirect_url", "redirect_uri", "return", "return_url", "next", "url", "target", "to"
+        "redirect", "redirect_url", "redirect_uri", "return", "return_url", "next", "continue",
+        "target", "destination", "dest", "goto", "out", "link", "url", "to"
     ),
 
     val brandExtraWords: Set<String> = setOf(
@@ -68,6 +69,10 @@ data class LinkHeuristicConfig(
         "encoded_chars" to 10f,
         "multiple_fragments" to 15f,
         "suspicious_redirect" to 15f,
+        "insecure_http" to 5f,
+        "non_standard_port" to 10f,
+        "userinfo_deception" to 30f,
+        "embedded_url" to 15f,
         "tracking_parameters" to 0f,
         "social_engineering" to 20f,
         "brand_impersonation" to 30f,

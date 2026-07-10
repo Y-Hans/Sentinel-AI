@@ -4,17 +4,16 @@ import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicConfig
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRule
 import com.sentinel.ai.protection.intent.heuristic.RuleCategory
 import com.sentinel.ai.protection.intent.heuristic.RuleResult
-import java.net.URI
+import com.sentinel.ai.protection.intent.link.ParsedUrl
 
 class PunycodeRule : LinkHeuristicRule {
     override val id: String = "punycode"
     override val name: String = "Punycode Detection"
 
-    override fun evaluate(url: String, uri: URI?, config: LinkHeuristicConfig): RuleResult {
-        val host = uri?.host?.lowercase() ?: ""
+    override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
         val weight = config.weights[id] ?: 0f
         
-        val triggered = host.startsWith("xn--") || host.contains(".xn--")
+        val triggered = url.isPunycode
         
         return RuleResult(
             triggered = triggered,
