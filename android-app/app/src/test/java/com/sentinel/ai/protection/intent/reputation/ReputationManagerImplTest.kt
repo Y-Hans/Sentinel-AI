@@ -1,10 +1,14 @@
 package com.sentinel.ai.protection.intent.reputation
 
 import com.sentinel.ai.core.coroutines.DispatcherProvider
+import com.sentinel.ai.core.model.EvidenceSourceStatus
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -13,6 +17,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.IOException
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReputationManagerImplTest {
 
     private val testDispatcher = StandardTestDispatcher()
@@ -58,7 +63,9 @@ class ReputationManagerImplTest {
         )
 
         val result = manager.enrich(baseResult, ReputationTarget.Url("https://malicious.com"))
-        assertEquals(baseResult, result)
+        assertEquals(ProtectionDecision.ALLOW, result.decision)
+        assertTrue(result.providerFindings.isEmpty())
+        assertTrue(result.summary.contains("no online reputation result"))
     }
 
     @Test
@@ -79,7 +86,9 @@ class ReputationManagerImplTest {
 
         val result = manager.enrich(baseResult, ReputationTarget.Url("https://malicious.com"))
         assertTrue(result.riskScore > 0f)
-        assertTrue(result.explanation.contains("ProviderA=malicious"))
+        assertEquals(ProtectionDecision.BLOCK, result.decision)
+        assertEquals("ProviderA", result.providerFindings.single().providerName)
+        assertEquals("MALICIOUS", result.providerFindings.single().verdict)
     }
 
     @Test
@@ -107,9 +116,15 @@ class ReputationManagerImplTest {
         val result = manager.enrich(baseResult, ReputationTarget.Url("https://malicious.com"))
         // The buggy provider fails but the good provider result is still integrated successfully
         assertTrue(result.riskScore > 0f)
-        assertTrue(result.explanation.contains("GoodProvider=malicious"))
-        // Buggy provider explanation shouldn't be in the combined description
-        assertTrue(!result.explanation.contains("BuggyProvider"))
+        assertEquals(ProtectionDecision.BLOCK, result.decision)
+        assertEquals(
+            EvidenceSourceStatus.FAILED,
+            result.providerFindings.single { it.providerName == "BuggyProvider" }.status
+        )
+        assertEquals(
+            "MALICIOUS",
+            result.providerFindings.single { it.providerName == "GoodProvider" }.verdict
+        )
     }
 
     @Test
@@ -146,8 +161,79 @@ class ReputationManagerImplTest {
 
         val result = resultDeferred.await()
 
-        // Only FastProvider is combined, SlowProvider was timed out
-        assertTrue(result.explanation.contains("FastProvider=suspicious"))
-        assertTrue(!result.explanation.contains("SlowProvider"))
+        assertEquals(ProtectionDecision.WARN, result.decision)
+        assertEquals(
+            EvidenceSourceStatus.TIMED_OUT,
+            result.providerFindings.single { it.providerName == "SlowProvider" }.status
+        )
+        assertEquals(
+            "SUSPICIOUS",
+            result.providerFindings.single { it.providerName == "FastProvider" }.verdict
+        )
     }
+
+    @Test
+    fun recordsNullProviderResultAsUnavailable() = runTest(testDispatcher) {
+        val provider = object : ReputationProvider {
+            override val providerName = "UnavailableProvider"
+            override suspend fun evaluate(target: ReputationTarget): ReputationResult? = null
+        }
+        val manager = manager(setOf(provider))
+
+        val result = manager.enrich(baseResult, ReputationTarget.Url("https://example.com"))
+
+        assertEquals(ProtectionDecision.ALLOW, result.decision)
+        assertEquals(EvidenceSourceStatus.UNAVAILABLE, result.providerFindings.single().status)
+        assertTrue(result.summary.contains("incomplete"))
+    }
+
+    @Test
+    fun recordsExplicitUnknownSeparatelyFromProviderFailure() = runTest(testDispatcher) {
+        val provider = object : ReputationProvider {
+            override val providerName = "UnknownProvider"
+            override suspend fun evaluate(target: ReputationTarget) = ReputationResult(
+                providerName = providerName,
+                confidence = 0f,
+                reputation = ReputationVerdict.UNKNOWN,
+                reason = "No conclusive verdict.",
+                timestamp = 1L
+            )
+        }
+        val manager = manager(setOf(provider))
+
+        val result = manager.enrich(baseResult, ReputationTarget.Url("https://example.com"))
+
+        assertEquals(EvidenceSourceStatus.UNKNOWN, result.providerFindings.single().status)
+        assertEquals("UNKNOWN", result.providerFindings.single().verdict)
+    }
+
+    @Test
+    fun externalCancellationIsNotSwallowed() = runTest(testDispatcher) {
+        val provider = object : ReputationProvider {
+            override val providerName = "CancellableProvider"
+            override suspend fun evaluate(target: ReputationTarget): ReputationResult? {
+                awaitCancellation()
+            }
+        }
+        val manager = manager(setOf(provider), timeoutMs = 60_000L)
+        val result = async {
+            manager.enrich(baseResult, ReputationTarget.Url("https://example.com"))
+        }
+        testDispatcher.scheduler.runCurrent()
+
+        result.cancel()
+        testDispatcher.scheduler.runCurrent()
+
+        assertTrue(result.isCancelled)
+    }
+
+    private fun manager(
+        providers: Set<ReputationProvider>,
+        timeoutMs: Long = 5_000L
+    ) = ReputationManagerImpl(
+        providers = providers,
+        combiner = combiner,
+        dispatcherProvider = mockDispatcherProvider,
+        config = ReputationConfig("", "", timeoutMs)
+    )
 }

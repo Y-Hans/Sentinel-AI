@@ -4,6 +4,7 @@ import com.sentinel.ai.core.coroutines.DispatcherProvider
 import com.sentinel.ai.core.model.ScanResult
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -22,27 +23,51 @@ class ReputationManagerImpl @Inject constructor(
         heuristicResult: ScanResult,
         target: ReputationTarget?
     ): ScanResult {
-        if (target == null || providers.isEmpty()) {
+        if (target == null) {
             return heuristicResult
         }
 
-        val evidence = coroutineScope {
-            providers.asSequence()
-                .filter { it.supports(target) }
+        val supportedProviders = providers
+            .filter { it.supports(target) }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.providerName })
+
+        val evidence = if (supportedProviders.isEmpty()) {
+            emptyList()
+        } else {
+            coroutineScope {
+                supportedProviders
                 .map { provider ->
                     async(dispatcherProvider.io) {
-                        runCatching {
-                            withTimeoutOrNull(config.lookupTimeoutMs) {
-                                provider.evaluate(target)
-                            }
-                        }.getOrNull()
+                        evaluateProvider(provider, target)
                     }
                 }
-                .toList()
                 .awaitAll()
-                .filterNotNull()
+            }
         }
 
         return combiner.combine(heuristicResult, evidence)
     }
+
+    private suspend fun evaluateProvider(
+        provider: ReputationProvider,
+        target: ReputationTarget
+    ): ReputationEvidence {
+        return try {
+            val completed = withTimeoutOrNull(config.lookupTimeoutMs) {
+                CompletedProviderCall(provider.evaluate(target))
+            } ?: return ReputationEvidence.timedOut(provider.providerName)
+
+            completed.result
+                ?.let(ReputationEvidence::completed)
+                ?: ReputationEvidence.unavailable(provider.providerName)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (_: Throwable) {
+            ReputationEvidence.failed(provider.providerName)
+        }
+    }
 }
+
+private data class CompletedProviderCall(
+    val result: ReputationResult?
+)
