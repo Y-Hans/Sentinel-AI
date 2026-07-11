@@ -1,6 +1,5 @@
 package com.sentinel.ai.protection.intent
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,9 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.protection.intent.link.BrowserLauncher
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
 import com.sentinel.ai.protection.intent.model.UrlPayload
@@ -119,18 +122,7 @@ class ScanLoadingActivity : ComponentActivity() {
         }
     }
 
-    private fun openUrlInBrowser(url: String) {
-        val uri = Uri.parse(url)
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        val activities = packageManager.queryIntentActivities(intent, 0)
-        val otherApp = activities.firstOrNull { it.activityInfo.packageName != packageName }
-        if (otherApp != null) {
-            intent.setPackage(otherApp.activityInfo.packageName)
-            startActivity(intent)
-        } else {
-            startActivity(Intent.createChooser(intent, "Open Link"))
-        }
-    }
+    private fun openUrlInBrowser(url: String) = BrowserLauncher().launch(this, url)
 
     private companion object {
         const val TAG = "ScanLoadingActivity"
@@ -186,12 +178,12 @@ private fun ScanResultContent(
     payload: IntentPayload,
     fromViewIntent: Boolean,
     onClose: () -> Unit,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Boolean
 ) {
-    val (statusLabel, statusColor) = when (result.riskLevel) {
-        RiskLevel.GREEN -> "Safe" to MaterialTheme.colorScheme.primary // Green
-        RiskLevel.YELLOW -> "Suspicious" to MaterialTheme.colorScheme.secondary // Yellow
-        RiskLevel.RED, RiskLevel.CRITICAL -> "Malicious" to MaterialTheme.colorScheme.tertiary // Red
+    val (statusLabel, statusColor) = when (result.decision) {
+        ProtectionDecision.ALLOW -> "No high-risk evidence" to MaterialTheme.colorScheme.primary
+        ProtectionDecision.WARN -> "Suspicious" to MaterialTheme.colorScheme.secondary
+        ProtectionDecision.BLOCK -> "Blocked" to MaterialTheme.colorScheme.tertiary
     }
 
     val itemLabel = when (payload) {
@@ -207,7 +199,8 @@ private fun ScanResultContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -239,7 +232,7 @@ private fun ScanResultContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = result.explanation,
+            text = result.summary,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -258,18 +251,25 @@ private fun ScanResultContent(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 4.dp).fillMaxWidth()
+            modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
         )
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        val isSafeUrlFromView = payload is UrlPayload && result.riskLevel == RiskLevel.GREEN && fromViewIntent
-        val buttonText = if (isSafeUrlFromView) "Continue to Website" else "Close"
+        val canContinueToUrl = payload is UrlPayload &&
+            result.decision == ProtectionDecision.ALLOW &&
+            fromViewIntent
+        val buttonText = if (canContinueToUrl) "Continue to website" else "Close"
         val buttonAction = {
-            if (isSafeUrlFromView) {
-                onOpenUrl((payload as UrlPayload).url)
+            if (canContinueToUrl) {
+                if (onOpenUrl((payload as UrlPayload).url)) {
+                    onClose()
+                }
+            } else {
+                onClose()
             }
-            onClose()
         }
 
         Button(
