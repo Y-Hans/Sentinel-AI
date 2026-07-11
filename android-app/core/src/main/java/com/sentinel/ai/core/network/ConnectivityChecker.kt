@@ -3,6 +3,8 @@ package com.sentinel.ai.core.network
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,6 +15,7 @@ import javax.inject.Singleton
  */
 interface ConnectivityChecker {
     /** Returns `true` if the device is connected to the Internet. */
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     fun isConnected(): Boolean
 }
 
@@ -27,7 +30,14 @@ class AndroidConnectivityChecker @Inject constructor(
     private val context: Context
 ) : ConnectivityChecker {
 
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     override fun isConnected(): Boolean {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_NETWORK_STATE
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) return false
+
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
             as? ConnectivityManager
             ?: return false

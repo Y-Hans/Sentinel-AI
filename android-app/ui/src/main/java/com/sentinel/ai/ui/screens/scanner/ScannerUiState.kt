@@ -20,4 +20,5 @@ sealed interface ScannerUiAction {
     data class UpdateInput(val text: String) : ScannerUiAction
     data class SetScanType(val type: ScanType) : ScannerUiAction
     data object RunScan : ScannerUiAction
+    data object ClearResult : ScannerUiAction
 }

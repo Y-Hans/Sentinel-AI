@@ -24,7 +24,8 @@ private fun ScanInputLinkDarkPreview() {
                 scanInput = "",
                 onInputChange = {},
                 onTypeChange = {},
-                onRunScan = {}
+                onRunScan = {},
+                error = null
             )
         }
     }
@@ -36,8 +37,7 @@ private fun LiveScanLightPreview() {
     SentinelTheme(darkTheme = false, dynamicColor = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
             LiveScanContent(
-                scanType = ScanType.LINK,
-                onComplete = {}
+                scanType = ScanType.LINK
             )
         }
     }

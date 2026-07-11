@@ -59,5 +59,12 @@ class DashboardViewModel @Inject constructor(
                 refreshStatus()
             }
         }
+        viewModelScope.launch {
+            ThreatJournal.scanResults.collectLatest { scans ->
+                _uiState.update { current ->
+                    current.copy(latestScan = scans.firstOrNull(), scanCount = scans.size)
+                }
+            }
+        }
     }
 }

@@ -19,7 +19,12 @@ class WarningNotificationHelper(private val context: Context) {
     fun showWarning(result: ScanResult, highPriority: Boolean, fullScreen: Boolean = false) {
         val model = result.toWarningUiModel()
         if (model.severity == WarningSeverity.NONE) return
-        if (!hasNotificationPermission()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
             Log.w(TAG, "Skipping notification for ${result.id}: POST_NOTIFICATIONS not granted")
             return
         }
@@ -63,7 +68,14 @@ class WarningNotificationHelper(private val context: Context) {
             }
             .build()
 
-        NotificationManagerCompat.from(context).notify(result.id.hashCode(), notification)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            NotificationManagerCompat.from(context).notify(result.id.hashCode(), notification)
+        }
     }
 
     private fun canUseFullScreenIntent(): Boolean {

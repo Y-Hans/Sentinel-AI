@@ -4,6 +4,7 @@ import com.sentinel.ai.protection.intent.file.FileProtectionAgent
 import com.sentinel.ai.protection.intent.file.FileScanner
 import com.sentinel.ai.protection.intent.link.LinkProtectionAgent
 import com.sentinel.ai.protection.intent.link.LinkScanner
+import com.sentinel.ai.core.data.ScanRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -34,4 +35,10 @@ abstract class IntentProtectionModule {
     abstract fun bindIntentThreatAnalyzer(
         analyzer: IntentThreatAnalyzerImpl
     ): IntentThreatAnalyzer
+
+    @Binds
+    @Singleton
+    abstract fun bindScanRepository(
+        repository: IntentScanRepository
+    ): ScanRepository
 }

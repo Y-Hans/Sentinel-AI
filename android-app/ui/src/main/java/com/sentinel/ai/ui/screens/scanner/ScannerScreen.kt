@@ -21,11 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sentinel.ai.core.model.RiskLevel
-import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.ui.components.ActionButton
 import com.sentinel.ai.ui.components.AnimatedSentinelShield
 import com.sentinel.ai.ui.components.ElevatedSentinelCard
@@ -53,7 +47,6 @@ import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelMotion
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
-import kotlinx.coroutines.delay
 
 @Composable
 fun ScannerScreen(
@@ -72,8 +65,11 @@ fun ScannerContent(
     onAction: (ScannerUiAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var phase by remember { mutableStateOf(ScanPhase.Input) }
-    var result by remember { mutableStateOf<ScanResult?>(null) }
+    val phase = when {
+        uiState.isScanning -> ScanPhase.Scanning
+        uiState.scanResult != null -> ScanPhase.Result
+        else -> ScanPhase.Input
+    }
 
     when (phase) {
         ScanPhase.Input -> ScanInputContent(
@@ -83,25 +79,20 @@ fun ScannerContent(
             onTypeChange = { onAction(ScannerUiAction.SetScanType(it)) },
             onRunScan = {
                 onAction(ScannerUiAction.RunScan)
-                phase = ScanPhase.Scanning
             },
+            error = uiState.error,
             modifier = modifier
         )
 
         ScanPhase.Scanning -> LiveScanContent(
             scanType = uiState.scanType,
-            onComplete = {
-                result = sampleScanResult(uiState.scanType, uiState.scanInput)
-                phase = ScanPhase.Result
-            },
             modifier = modifier
         )
 
         ScanPhase.Result -> {
-            val scanResult = result ?: sampleScanResult(uiState.scanType, uiState.scanInput)
+            val scanResult = uiState.scanResult ?: return
             val onScanAgain: () -> Unit = {
-                result = null
-                phase = ScanPhase.Input
+                onAction(ScannerUiAction.ClearResult)
             }
             when (uiState.scanType) {
                 LINK -> UrlScanResultContent(
@@ -143,6 +134,7 @@ internal fun ScanInputContent(
     onInputChange: (String) -> Unit,
     onTypeChange: (ScanType) -> Unit,
     onRunScan: () -> Unit,
+    error: String?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -227,6 +219,13 @@ internal fun ScanInputContent(
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = Icons.Filled.Radar
                 )
+                if (error != null) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
@@ -235,22 +234,11 @@ internal fun ScanInputContent(
 @Composable
 internal fun LiveScanContent(
     scanType: ScanType,
-    onComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val steps = scanStepsFor(scanType)
-    var currentStep by remember { mutableStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        repeat(steps.size) { step ->
-            currentStep = step
-            delay(SentinelMotion.DurationExtraLong.toLong())
-        }
-        delay(500)
-        onComplete()
-    }
-
-    val stage = if (currentStep + 1 > steps.size) steps.size else currentStep + 1
+    val currentStep = 1
+    val stage = currentStep + 1
 
     Column(
         modifier = modifier
@@ -318,22 +306,6 @@ private fun scanStepsFor(scanType: ScanType): List<String> = buildList {
     add("Match known threat patterns")
     add("Cross-check against reputation data")
     add("Finalize the verdict")
-}
-
-private fun sampleScanResult(type: ScanType, input: String): ScanResult {
-    val subject = input.takeIf { it.isNotBlank() } ?: when (type) {
-        FILE -> "document.apk"
-        else -> "https://example.com"
-    }
-    val noun = if (type == FILE) "file" else "link"
-    return ScanResult(
-        id = "demo-scan",
-        source = subject,
-        riskLevel = RiskLevel.GREEN,
-        riskScore = 0.04f,
-        explanation = "No threats were found in this $noun. It matches Sentinel's safe patterns.",
-        timestamp = System.currentTimeMillis()
-    )
 }
 
 private enum class ScanPhase {

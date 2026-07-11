@@ -128,7 +128,8 @@ fun DashboardContent(
 ) {
     val protection = uiState.protection
     val protectionState = protectionState(protection)
-    val score = protectionScore(protection)
+    val score = uiState.latestScan?.riskScore?.let { (100 - it).toInt().coerceIn(0, 100) }
+        ?: protectionScore(protection)
     val alerts = uiState.recentAlerts
 
     LazyColumn(
@@ -167,7 +168,7 @@ fun DashboardContent(
 
         item {
             StatisticsRow(
-                threatCount = alerts.size,
+                threatCount = uiState.scanCount,
                 highCount = alerts.count { it.riskLevel == RiskLevel.RED },
                 criticalCount = alerts.count { it.riskLevel == RiskLevel.CRITICAL }
             )

@@ -41,17 +41,17 @@ class LinkHeuristicRiskEngine @Inject constructor() {
 
         // Calibration Debug Logging
         try {
-            if (android.util.Log.isLoggable("SentinelCalibration", android.util.Log.DEBUG)) {
-                android.util.Log.d("SentinelCalibration", "--- Link Heuristic Scan: host=${parsedUrl.host.orEmpty()} ---")
+            if (android.util.Log.isLoggable(CALIBRATION_LOG_TAG, android.util.Log.DEBUG)) {
+                android.util.Log.d(CALIBRATION_LOG_TAG, "--- Link Heuristic Scan: host=${parsedUrl.host.orEmpty()} ---")
                 for (res in results) {
                     if (res.triggered) {
-                        android.util.Log.d("SentinelCalibration", "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
+                        android.util.Log.d(CALIBRATION_LOG_TAG, "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
                     }
                 }
-                android.util.Log.d("SentinelCalibration", "Heuristic Total Score: $score")
-                android.util.Log.d("SentinelCalibration", "----------------------------------")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "Heuristic Total Score: $score")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "----------------------------------")
             } else {
-                android.util.Log.i("SentinelCalibration", "Link host=${parsedUrl.host.orEmpty()} -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "Link host=${parsedUrl.host.orEmpty()} -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
             }
         } catch (t: Throwable) {
             println("SentinelCalibration - Link host=${parsedUrl.host.orEmpty()} -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
@@ -90,6 +90,8 @@ class LinkHeuristicRiskEngine @Inject constructor() {
     }
 
     companion object {
+        private const val CALIBRATION_LOG_TAG = "SentinelCalibration"
+
         fun defaultRules(): Collection<LinkHeuristicRule> = listOf(
             SuspiciousTldRule(),
             IpAddressRule(),

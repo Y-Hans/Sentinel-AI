@@ -25,17 +25,17 @@ class FileHeuristicRiskEngine @Inject constructor() {
 
         // Calibration Debug Logging
         try {
-            if (android.util.Log.isLoggable("SentinelCalibration", android.util.Log.DEBUG)) {
-                android.util.Log.d("SentinelCalibration", "--- File Heuristic Scan: $filename ---")
+            if (android.util.Log.isLoggable(CALIBRATION_LOG_TAG, android.util.Log.DEBUG)) {
+                android.util.Log.d(CALIBRATION_LOG_TAG, "--- File Heuristic Scan: $filename ---")
                 for (res in results) {
                     if (res.triggered) {
-                        android.util.Log.d("SentinelCalibration", "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
+                        android.util.Log.d(CALIBRATION_LOG_TAG, "  [TRIGGERED] Category: ${res.category}, Score: ${res.scoreContribution}, Reason: ${res.explanation}")
                     }
                 }
-                android.util.Log.d("SentinelCalibration", "Heuristic Total Score: $score")
-                android.util.Log.d("SentinelCalibration", "----------------------------------")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "Heuristic Total Score: $score")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "----------------------------------")
             } else {
-                android.util.Log.i("SentinelCalibration", "File: $filename -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
+                android.util.Log.d(CALIBRATION_LOG_TAG, "File: $filename -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
             }
         } catch (t: Throwable) {
             println("SentinelCalibration - File: $filename -> Heuristic Total: $score (Triggered rules: ${triggered.joinToString { it.category.name }})")
@@ -74,6 +74,8 @@ class FileHeuristicRiskEngine @Inject constructor() {
     }
 
     companion object {
+        private const val CALIBRATION_LOG_TAG = "SentinelCalibration"
+
         fun defaultRules(): Collection<FileHeuristicRule> = listOf(
             DangerousExtensionRule(),
             DoubleExtensionRule(),

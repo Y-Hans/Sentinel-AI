@@ -26,6 +26,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +48,7 @@ fun PermissionOnboardingScreen(
     onPermissionsComplete: () -> Unit
 ) {
     val context = LocalContext.current
-    var snapshot by mutableStateOf(ProtectionControl.snapshot(context))
+    var snapshot by remember { mutableStateOf(ProtectionControl.snapshot(context)) }
     val refresh = { snapshot = ProtectionControl.snapshot(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -67,7 +68,10 @@ fun PermissionOnboardingScreen(
     }
 
     LaunchedEffect(snapshot.missingPermissions) {
-        if (snapshot.missingPermissions.isEmpty()) onPermissionsComplete()
+        if (snapshot.missingPermissions.isEmpty()) {
+            ProtectionControl.sync(context)
+            onPermissionsComplete()
+        }
     }
 
     Column(
