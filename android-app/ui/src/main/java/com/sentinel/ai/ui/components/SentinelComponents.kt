@@ -2,8 +2,8 @@ package com.sentinel.ai.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,47 +17,48 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.RiskLevel
-import com.sentinel.ai.ui.theme.SentinelCritical
 import com.sentinel.ai.ui.theme.SentinelCyan
+import com.sentinel.ai.ui.theme.SentinelCritical
 import com.sentinel.ai.ui.theme.SentinelGreen
 import com.sentinel.ai.ui.theme.SentinelOutline
 import com.sentinel.ai.ui.theme.SentinelRed
+import com.sentinel.ai.ui.theme.SentinelFull
+import com.sentinel.ai.ui.theme.SentinelShapes
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelSurface
 import com.sentinel.ai.ui.theme.SentinelSurfaceVariant
 import com.sentinel.ai.ui.theme.SentinelYellow
 
-@Composable
-fun SentinelCard(
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    content: @Composable () -> Unit
-) {
-    val cardModifier = if (onClick != null) {
-        modifier.fillMaxWidth().clickable(onClick = onClick)
-    } else {
-        modifier.fillMaxWidth()
+internal fun riskColor(riskLevel: RiskLevel): Color {
+    return when (riskLevel) {
+        RiskLevel.GREEN -> SentinelGreen
+        RiskLevel.YELLOW -> SentinelYellow
+        RiskLevel.RED -> SentinelRed
+        RiskLevel.CRITICAL -> SentinelCritical
     }
+}
 
-    Card(
-        modifier = cardModifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = SentinelSurface.copy(alpha = 0.96f)
-        ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SentinelOutline.copy(alpha = 0.65f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            content()
-        }
+internal fun RiskLevel.displayLabel(): String {
+    return when (this) {
+        RiskLevel.GREEN -> "Low"
+        RiskLevel.YELLOW -> "Moderate"
+        RiskLevel.RED -> "High"
+        RiskLevel.CRITICAL -> "Critical"
     }
 }
 
@@ -76,10 +77,11 @@ fun SentinelSectionHeader(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() }
             )
             if (subtitle != null) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
@@ -89,12 +91,13 @@ fun SentinelSectionHeader(
         }
 
         if (actionLabel != null && onAction != null) {
-            Text(
-                text = actionLabel,
-                style = MaterialTheme.typography.labelLarge,
-                color = SentinelCyan,
-                modifier = Modifier.clickable(onClick = onAction)
-            )
+            TextButton(onClick = onAction) {
+                Text(
+                    text = actionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = SentinelCyan
+                )
+            }
         }
     }
 }
@@ -109,23 +112,23 @@ fun SentinelMetricCard(
 ) {
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(20.dp)),
+            .clip(MaterialTheme.shapes.large)
+            .border(SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), MaterialTheme.shapes.large),
         color = SentinelSurfaceVariant.copy(alpha = 0.8f)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(SentinelSpacing.MD)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
             Text(
                 text = supportingText,
                 style = MaterialTheme.typography.bodyMedium,
@@ -146,10 +149,10 @@ fun SentinelPill(
     Text(
         text = label,
         modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(SentinelShapes.small)
             .background(accent.copy(alpha = 0.15f))
-            .border(1.dp, accent.copy(alpha = 0.4f), RoundedCornerShape(999.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .border(SentinelSize.BorderThickness, accent.copy(alpha = 0.4f), SentinelShapes.small)
+            .padding(horizontal = SentinelSpacing.SM, vertical = SentinelSpacing.XXS),
         color = accent,
         style = MaterialTheme.typography.labelLarge
     )
@@ -160,28 +163,10 @@ fun SentinelIndicatorDot(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.foundation.layout.Box(
+    Box(
         modifier = modifier
-            .size(10.dp)
-            .clip(RoundedCornerShape(50.dp))
+            .size(SentinelSize.IndicatorDot)
+            .clip(SentinelFull)
             .background(color)
     )
-}
-
-internal fun riskColor(riskLevel: RiskLevel): Color {
-    return when (riskLevel) {
-        RiskLevel.GREEN -> SentinelGreen
-        RiskLevel.YELLOW -> SentinelYellow
-        RiskLevel.RED -> SentinelRed
-        RiskLevel.CRITICAL -> SentinelCritical
-    }
-}
-
-internal fun RiskLevel.displayLabel(): String {
-    return when (this) {
-        RiskLevel.GREEN -> "Low"
-        RiskLevel.YELLOW -> "Moderate"
-        RiskLevel.RED -> "High"
-        RiskLevel.CRITICAL -> "Critical"
-    }
 }

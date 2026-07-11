@@ -1,32 +1,47 @@
 package com.sentinel.ai.ui.screens.dashboard
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.CircleShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -34,20 +49,36 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sentinel.ai.core.model.Alert
 import com.sentinel.ai.core.model.RiskLevel
-import com.sentinel.ai.ui.components.RiskBadge
-import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.SentinelIndicatorDot
-import com.sentinel.ai.ui.components.SentinelMetricCard
-import com.sentinel.ai.ui.components.SentinelPill
+import com.sentinel.ai.ui.components.ActionButton
+import com.sentinel.ai.ui.components.AnimatedSentinelShield
+import com.sentinel.ai.ui.components.EmptyState
+import com.sentinel.ai.ui.components.ElevatedSentinelCard
+import com.sentinel.ai.ui.components.InfoRow
+import com.sentinel.ai.ui.components.QuickActionCard
+import com.sentinel.ai.ui.components.RiskState
 import com.sentinel.ai.ui.components.SentinelSectionHeader
+import com.sentinel.ai.ui.components.ShieldState
+import com.sentinel.ai.ui.components.StatusChip
+import com.sentinel.ai.ui.components.MetricCard
+import com.sentinel.ai.ui.components.SentinelCard
+import com.sentinel.ai.ui.components.ThreatCard
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.protection.ProtectionSnapshot
+import com.sentinel.ai.ui.theme.SentinelSize
+import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
 import com.sentinel.ai.ui.util.resolveSenderPresentation
 import com.sentinel.ai.ui.util.toAppLabel
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DashboardScreen(
     onThreatSelected: (String) -> Unit,
+    onNavigateToScanner: () -> Unit = {},
+    onNavigateToHistory: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -70,6 +101,8 @@ fun DashboardScreen(
         uiState = uiState,
         onAction = viewModel::onAction,
         onThreatSelected = onThreatSelected,
+        onNavigateToScanner = onNavigateToScanner,
+        onNavigateToHistory = onNavigateToHistory,
         appLabelResolver = { source -> source.toAppLabel(context) },
         senderPresentationResolver = { name, identifier ->
             resolveSenderPresentation(
@@ -83,326 +116,455 @@ fun DashboardScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DashboardContent(
+fun DashboardContent(
     uiState: DashboardUiState,
     onAction: (DashboardUiAction) -> Unit,
     onThreatSelected: (String) -> Unit,
+    onNavigateToScanner: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     appLabelResolver: (String) -> String,
-    senderPresentationResolver: (String?, String?) -> SenderPresentation
+    senderPresentationResolver: (String?, String?) -> SenderPresentation,
+    modifier: Modifier = Modifier
 ) {
+    val protection = uiState.protection
+    val protectionState = protectionState(protection)
+    val score = protectionScore(protection)
     val alerts = uiState.recentAlerts
-    val threatCount = alerts.size
-    val criticalCount = alerts.count { it.riskLevel == RiskLevel.CRITICAL }
-    val highCount = alerts.count { it.riskLevel == RiskLevel.RED }
-    val topThreat = alerts.maxByOrNull { it.timestamp }
-    val protectionEnabled = uiState.protection.protectionEnabled
-    val protectionOperational = protectionEnabled &&
-        uiState.protection.guardServiceRunning &&
-        uiState.protection.monitorServiceRunning
-    val listenerAvailable = uiState.protection.notificationListenerEnabled
-    val missingPermissions = uiState.protection.missingPermissions
 
-    Column(
-        modifier = Modifier
+    LazyColumn(
+        modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.ScreenVertical),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XL),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = SentinelSpacing.XXL)
     ) {
-        Text(
-            text = "Sentinel AI",
-            style = MaterialTheme.typography.displaySmall
-        )
-        Text(
-            text = "Real-time protection dashboard for scam detection and threat triage.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        SentinelCard {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    SentinelPill(
-                        label = if (protectionEnabled) "Protection Active" else "Protection Disabled",
-                        accent = if (protectionEnabled) riskColor(RiskLevel.GREEN) else riskColor(RiskLevel.YELLOW)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = when {
-                            !protectionEnabled -> "Shield status: Disabled"
-                            protectionOperational -> "Shield status: Online"
-                            else -> "Shield status: Starting"
-                        },
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = buildString {
-                            append("Monitoring notifications and message patterns for social-engineering signals.")
-                            if (missingPermissions.isNotEmpty()) {
-                                append(" Required permissions missing: ")
-                                append(missingPermissions.joinToString())
-                                append(".")
-                            }
-                            if (protectionEnabled && !protectionOperational) {
-                                append(" Backend protection services are still syncing.")
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                CircularProgressIndicator(
-                    progress = when {
-                        protectionOperational -> 1f
-                        protectionEnabled -> 0.6f
-                        else -> 0.25f
-                    },
-                    modifier = Modifier.size(68.dp),
-                    color = if (protectionEnabled) riskColor(RiskLevel.GREEN) else riskColor(RiskLevel.YELLOW)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SentinelMetricCard(
-                    label = "Threats detected",
-                    value = threatCount.toString(),
-                    accent = riskColor(RiskLevel.YELLOW),
-                    supportingText = "Actual detections surfaced by the backend."
-                )
-                SentinelMetricCard(
-                    label = "High-risk threats",
-                    value = highCount.toString(),
-                    accent = riskColor(RiskLevel.RED),
-                    supportingText = "Messages requiring careful review."
-                )
-                SentinelMetricCard(
-                    label = "Critical threats",
-                    value = criticalCount.toString(),
-                    accent = riskColor(RiskLevel.CRITICAL),
-                    supportingText = "Highest-risk backend detections."
-                )
-            }
+        item {
+            DashboardGreeting()
         }
 
-        SentinelSectionHeader(
-            title = "Threat summary",
-            subtitle = "A quick view of the current risk posture."
-        )
-        SentinelCard {
-            if (topThreat != null) {
-                val senderPresentation = senderPresentationResolver(
-                    topThreat.senderDisplayName,
-                    topThreat.senderIdentifier
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        RiskBadge(riskLevel = topThreat.riskLevel)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = senderPresentation.primaryText,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        senderPresentation.secondaryText?.let { identifier ->
-                            Text(
-                                text = identifier,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                        }
-                        Text(
-                            text = appLabelResolver(topThreat.title),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = topThreat.summary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Text(
-                        text = "${alerts.count { it.riskLevel != RiskLevel.GREEN }} risky",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-            } else {
-                Text(
-                    text = "No detections recorded yet. The backend will populate this card when events arrive.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        SentinelSectionHeader(
-            title = "Recent detections",
-            subtitle = "Tap any card for a full threat breakdown."
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (alerts.isEmpty()) {
-                SentinelCard {
-                    Text(
-                        text = "No threat events yet.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                alerts.forEach { alert ->
-                    AlertPreviewCard(
-                        alert = alert,
-                        appLabel = appLabelResolver(alert.title),
-                        senderPresentation = senderPresentationResolver(
-                            alert.senderDisplayName,
-                            alert.senderIdentifier
-                        ),
-                        onClick = { onThreatSelected(alert.threatId) }
-                    )
-                }
-            }
-        }
-
-        SentinelSectionHeader(
-            title = "Quick statistics",
-            subtitle = "Operational signals that help you assess coverage at a glance."
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SentinelMetricCard(
-                label = "Protection status",
-                value = if (protectionEnabled) "Active" else "Disabled",
-                accent = if (protectionEnabled) riskColor(RiskLevel.GREEN) else riskColor(RiskLevel.YELLOW),
-                supportingText = if (protectionOperational) {
-                    "Matches the shared backend protection state."
-                } else {
-                    "Uses the shared backend protection switch and shows service readiness separately."
-                }
-            )
-            SentinelMetricCard(
-                label = "Listener",
-                value = if (listenerAvailable) "Available" else "Unavailable",
-                accent = if (listenerAvailable) riskColor(RiskLevel.GREEN) else riskColor(RiskLevel.YELLOW),
-                supportingText = "Reflects notification listener access."
+        item {
+            ProtectionHero(
+                state = protectionState,
+                score = score,
+                protectionEnabled = protection.protectionEnabled,
+                onToggle = { onAction(DashboardUiAction.ToggleGuard) }
             )
         }
 
-        SentinelSectionHeader(
-            title = "Scan and protection",
-            subtitle = "Operational status cards for the current session."
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SentinelCard {
-                Text(
-                    text = "Live scan engine",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Active notification inspection with risk scoring and event correlation.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(onClick = { onAction(DashboardUiAction.RefreshStatus) }) {
-                    Text(text = "Refresh status")
-                }
-            }
-            SentinelCard {
-                Text(
-                    text = "Protection mode",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = if (listenerAvailable) {
-                        "Notification listener available, threat pipeline ready, and scam warnings enabled."
-                    } else {
-                        "Notification listener unavailable. Enable access in system settings to resume live monitoring."
+        item {
+            QuickActions(
+                onRunScan = onNavigateToScanner,
+                onReviewHistory = onNavigateToHistory
+            )
+        }
+
+        item {
+            SentinelSectionHeader(
+                title = "At a glance",
+                subtitle = "What Sentinel is watching right now"
+            )
+        }
+
+        item {
+            StatisticsRow(
+                threatCount = alerts.size,
+                highCount = alerts.count { it.riskLevel == RiskLevel.RED },
+                criticalCount = alerts.count { it.riskLevel == RiskLevel.CRITICAL }
+            )
+        }
+
+        item {
+            ProtectionSummaryCard(snapshot = protection)
+        }
+
+        item {
+            SentinelSectionHeader(
+                title = "Recent activity",
+                subtitle = "The latest detections from your devices",
+                actionLabel = "View all",
+                onAction = onNavigateToHistory
+            )
+        }
+
+        if (alerts.isEmpty()) {
+            item {
+                EmptyState(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(SentinelSize.IconLarge)
+                        )
                     },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    title = "No detections yet",
+                    description = "Sentinel will surface suspicious messages and links here as they arrive."
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedButton(onClick = { onAction(DashboardUiAction.ToggleGuard) }) {
-                    Text(text = if (protectionEnabled) "Pause shield" else "Resume shield")
-                }
+            }
+        } else {
+            items(alerts.take(3), key = { it.threatId }) { alert ->
+                RecentActivityItem(
+                    alert = alert,
+                    appLabel = appLabelResolver(alert.title),
+                    senderPresentation = senderPresentationResolver(alert.senderDisplayName, alert.senderIdentifier),
+                    onClick = { onThreatSelected(alert.threatId) },
+                    modifier = Modifier
+                )
             }
         }
     }
 }
 
 @Composable
-private fun AlertPreviewCard(
+private fun DashboardGreeting() {
+    val greeting = remember { greetingFor(LocalTime.now().hour) }
+    Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
+        Text(
+            text = greeting,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = "Here is your protection at a glance.",
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() }
+        )
+    }
+}
+
+@Composable
+private fun ProtectionHero(
+    state: RiskState,
+    score: Int,
+    protectionEnabled: Boolean,
+    onToggle: () -> Unit
+) {
+    val shieldState = when (state) {
+        RiskState.Safe -> ShieldState.Safe
+        RiskState.Suspicious -> ShieldState.Warning
+        RiskState.Dangerous -> ShieldState.Dangerous
+        RiskState.Neutral -> ShieldState.Idle
+        RiskState.Scanning -> ShieldState.Scanning
+    }
+    val headline = when (state) {
+        RiskState.Safe -> "Active protection"
+        RiskState.Suspicious -> "Protection paused"
+        RiskState.Dangerous -> "Protection needs attention"
+        RiskState.Neutral -> "Preparing protection"
+        RiskState.Scanning -> "Protection scan in progress"
+    }
+    val description = when (state) {
+        RiskState.Safe -> "Monitoring incoming notifications and messages in real time."
+        RiskState.Suspicious -> "Live monitoring is paused until you resume protection."
+        RiskState.Dangerous -> "Enable protection to resume monitoring your device."
+        RiskState.Neutral -> "Checking that Sentinel services are ready to monitor threats."
+        RiskState.Scanning -> "Scanning recent activity for suspicious behavior."
+    }
+
+    ElevatedSentinelCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val breathingTransition = rememberInfiniteTransition(label = "hero-shield-breathing")
+        val shieldScale by breathingTransition.animateFloat(
+            initialValue = 0.97f,
+            targetValue = 1.03f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 2800),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "hero-shield-scale"
+        )
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            HeroSecurityPattern()
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                    shape = CircleShape
+                ) {
+                    Box(
+                        modifier = Modifier.size(SentinelSize.IconXL * 3),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedSentinelShield(
+                            state = shieldState,
+                            modifier = Modifier
+                                .size(SentinelSize.IconXL * 2)
+                                .scale(shieldScale),
+                            contentDescription = headline
+                        )
+                    }
+                }
+                StatusChip(state = state)
+                Text(
+                    text = headline,
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                HeroInformationStrip(
+                    score = score,
+                    protectionEnabled = protectionEnabled,
+                    state = state
+                )
+                ActionButton(
+                    text = if (protectionEnabled) "Pause protection" else "Resume protection",
+                    onClick = onToggle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = SentinelSpacing.XS),
+                    leadingIcon = Icons.Filled.Shield
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeroSecurityPattern() {
+    val accent = MaterialTheme.colorScheme.primary.copy(alpha = 0.045f)
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val baseRadius = size.minDimension * 0.24f
+        repeat(3) { index ->
+            drawCircle(
+                color = accent,
+                radius = baseRadius * (index + 1),
+                center = center,
+                style = Stroke(width = 1.dp.toPx())
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroInformationStrip(
+    score: Int,
+    protectionEnabled: Boolean,
+    state: RiskState
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        HeroMetric(
+            label = "Protection score",
+            value = "$score/100",
+            modifier = Modifier.weight(1f)
+        )
+        HeroMetric(
+            label = "Monitoring",
+            value = if (protectionEnabled) "Active" else "Paused",
+            modifier = Modifier.weight(1f)
+        )
+        HeroMetric(
+            label = "Engine",
+            value = if (state == RiskState.Safe) "Online" else "Checking",
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun HeroMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XXS)
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun StatisticsRow(
+    threatCount: Int,
+    highCount: Int,
+    criticalCount: Int
+) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+        maxItemsInEachRow = 3
+    ) {
+        MetricCard(
+            modifier = Modifier.weight(1f),
+            label = "Detections",
+            value = threatCount.toString(),
+            state = RiskState.Suspicious,
+            supportingText = "Total threats found"
+        )
+        MetricCard(
+            modifier = Modifier.weight(1f),
+            label = "High risk",
+            value = highCount.toString(),
+            state = RiskState.Dangerous,
+            supportingText = "Needs review"
+        )
+        MetricCard(
+            modifier = Modifier.weight(1f),
+            label = "Critical",
+            value = criticalCount.toString(),
+            state = RiskState.Dangerous,
+            supportingText = "Immediate action"
+        )
+    }
+}
+
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun QuickActions(
+    onRunScan: () -> Unit,
+    onReviewHistory: () -> Unit
+) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
+        maxItemsInEachRow = 2
+    ) {
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            icon = {
+                Icon(
+                    Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(SentinelSize.IconLarge)
+                )
+            },
+            title = "Run live scan",
+            subtitle = "Check a link or file now",
+            onClick = onRunScan
+        )
+        QuickActionCard(
+            modifier = Modifier.weight(1f),
+            icon = {
+                Icon(
+                    Icons.Filled.AccessTime,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(SentinelSize.IconLarge)
+                )
+            },
+            title = "Review history",
+            subtitle = "Browse past detections",
+            onClick = onReviewHistory
+        )
+    }
+}
+
+@Composable
+private fun ProtectionSummaryCard(snapshot: ProtectionSnapshot) {
+    val missing = snapshot.missingPermissions
+    Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)) {
+        InfoRow(
+            label = "Shield",
+            value = if (snapshot.protectionEnabled) "Active" else "Disabled",
+            icon = {
+                Icon(
+                    Icons.Filled.Shield,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            }
+        )
+        InfoRow(
+            label = "Notification listener",
+            value = if (snapshot.notificationListenerEnabled) "Available" else "Unavailable",
+            icon = {
+                Icon(
+                    Icons.Filled.Error,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            }
+        )
+        InfoRow(
+            label = "Permissions",
+            value = if (missing.isEmpty()) "All granted" else "${missing.size} missing",
+            icon = {
+                Icon(
+                    Icons.Filled.Cancel,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            showDivider = false
+        )
+    }
+}
+
+@Composable
+private fun RecentActivityItem(
     alert: Alert,
     appLabel: String,
     senderPresentation: SenderPresentation,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    SentinelCard(onClick = onClick) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SentinelIndicatorDot(color = riskColor(alert.riskLevel))
-                    Spacer(modifier = Modifier.size(10.dp))
-                    Text(
-                        text = senderPresentation.primaryText,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-                senderPresentation.secondaryText?.let { identifier ->
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = identifier,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = appLabel,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = alert.summary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            RiskBadge(riskLevel = alert.riskLevel)
-        }
-    }
+    ThreatCard(
+        modifier = modifier,
+        title = senderPresentation.primaryText,
+        source = appLabel,
+        riskLevel = alert.riskLevel,
+        timestampLabel = formatTimestamp(alert.timestamp),
+        description = alert.summary,
+        onClick = onClick
+    )
+}
+
+private fun protectionState(snapshot: ProtectionSnapshot): RiskState = when {
+    !snapshot.protectionEnabled -> RiskState.Suspicious
+    snapshot.guardServiceRunning && snapshot.monitorServiceRunning -> RiskState.Safe
+    else -> RiskState.Neutral
+}
+
+private fun protectionScore(snapshot: ProtectionSnapshot): Int = when {
+    !snapshot.protectionEnabled -> 18
+    snapshot.guardServiceRunning && snapshot.monitorServiceRunning -> 94
+    else -> 62
+}
+
+private fun greetingFor(hour: Int): String = when {
+    hour < 12 -> "Good morning"
+    hour < 17 -> "Good afternoon"
+    hour < 21 -> "Good evening"
+    else -> "Good night"
+}
+
+private fun formatTimestamp(timestamp: Long): String {
+    return runCatching {
+        val formatter = DateTimeFormatter.ofPattern("MMM d, h:mm a")
+        Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).format(formatter)
+    }.getOrDefault("Recent")
 }
