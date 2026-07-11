@@ -20,30 +20,22 @@ class BrowserLauncher {
      * the URL or the value is not a web URL.
      */
     fun launch(context: Context, url: String): Boolean {
-        if (!url.startsWith(HTTP_PREFIX, ignoreCase = true) &&
-            !url.startsWith(HTTPS_PREFIX, ignoreCase = true)
-        ) {
-            Log.w(TAG, "Refusing to launch a non-web URL")
-            return false
-        }
-
         val uri = Uri.parse(url)
-        if (uri.host.isNullOrBlank()) {
-            Log.w(TAG, "Refusing to launch a non-web URL")
+
+        if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) {
+            Log.w("BrowserLauncher", "Invalid URL")
             return false
         }
 
-        val viewIntent = Intent(Intent.ACTION_VIEW, uri)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            .setPackage(CHROME_PACKAGE)
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.android.chrome")
 
-        return runCatching {
-            context.startActivity(viewIntent)
+        return try {
+            context.startActivity(intent)
             true
-        }.getOrElse { error ->
-            Log.i(TAG, "Chrome is unavailable; showing external browser chooser", error)
-            launchExternalChooser(context, viewIntent)
+        } catch (e: Exception) {
+            Log.e("BrowserLauncher", "Chrome launch failed", e)
+            false
         }
     }
 

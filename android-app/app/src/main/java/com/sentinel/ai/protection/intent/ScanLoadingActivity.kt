@@ -107,7 +107,11 @@ class ScanLoadingActivity : ComponentActivity() {
                                 payload = state.payload,
                                 fromViewIntent = fromViewIntent,
                                 onClose = { finish() },
-                                onOpenUrl = { url -> openUrlInBrowser(url) }
+                                onOpenUrl = { url ->
+                                    val launched = openUrlInBrowser(url)
+                                    Log.d("ScanLoadingActivity", "Browser launched: $launched")
+                                    launched
+                                }
                             )
                         }
                         is ScanUiState.Error -> {
@@ -264,12 +268,19 @@ private fun ScanResultContent(
         val buttonText = if (canContinueToUrl) "Continue to website" else "Close"
         val buttonAction = {
             if (canContinueToUrl) {
-                if (onOpenUrl((payload as UrlPayload).url)) {
+                val launched = onOpenUrl((payload as UrlPayload).url)
+
+                if (launched) {
                     onClose()
+                } else {
+                    Log.e("ScanLoadingActivity", "Browser launch failed")
                 }
             } else {
                 onClose()
             }
+
+            // ✅ IMPORTANT: force Unit return
+            Unit
         }
 
         Button(
