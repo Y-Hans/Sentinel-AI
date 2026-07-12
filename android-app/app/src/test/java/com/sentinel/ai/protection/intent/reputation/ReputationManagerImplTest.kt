@@ -184,7 +184,7 @@ class ReputationManagerImplTest {
 
         assertEquals(ProtectionDecision.ALLOW, result.decision)
         assertEquals(EvidenceSourceStatus.UNAVAILABLE, result.providerFindings.single().status)
-        assertTrue(result.summary.contains("incomplete"))
+        assertEquals("Limited online verification. Proceed with caution.", result.summary)
     }
 
     @Test

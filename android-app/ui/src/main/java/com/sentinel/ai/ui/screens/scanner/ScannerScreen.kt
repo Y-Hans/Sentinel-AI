@@ -1,5 +1,10 @@
 package com.sentinel.ai.ui.screens.scanner
 
+import android.content.Context
+import android.content.ComponentName
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -91,15 +97,21 @@ fun ScannerContent(
 
         ScanPhase.Result -> {
             val scanResult = uiState.scanResult ?: return
+            val context = LocalContext.current
             val onScanAgain: () -> Unit = {
                 onAction(ScannerUiAction.ClearResult)
+            }
+            val onOpenUrl: () -> Unit = {
+                if (launchBrowser(context, uiState.scanInput.trim())) {
+                    onScanAgain()
+                }
             }
             when (uiState.scanType) {
                 LINK -> UrlScanResultContent(
                     result = scanResult,
-                    onOpen = onScanAgain,
+                    onOpen = onOpenUrl,
                     onGoBack = onScanAgain,
-                    onBypass = onScanAgain,
+                    onBypass = onOpenUrl,
                     onScanAgain = onScanAgain,
                     modifier = modifier
                 )
@@ -115,9 +127,9 @@ fun ScannerContent(
 
                 TEXT -> UrlScanResultContent(
                     result = scanResult,
-                    onOpen = onScanAgain,
+                    onOpen = onOpenUrl,
                     onGoBack = onScanAgain,
-                    onBypass = onScanAgain,
+                    onBypass = onOpenUrl,
                     onScanAgain = onScanAgain,
                     modifier = modifier
                 )
@@ -125,6 +137,38 @@ fun ScannerContent(
         }
     }
 }
+
+private fun launchBrowser(context: Context, url: String): Boolean {
+    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        setPackage(CHROME_PACKAGE)
+    }
+    return runCatching {
+        context.startActivity(browserIntent)
+        true
+    }.getOrElse {
+        runCatching {
+            browserIntent.setPackage(null)
+            val handlers = context.packageManager.queryIntentActivities(
+                browserIntent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+            if (handlers.none { it.activityInfo.packageName != context.packageName }) {
+                return false
+            }
+            val sentinelComponents = handlers
+                .filter { it.activityInfo.packageName == context.packageName }
+                .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
+                .toTypedArray()
+            val chooser = Intent.createChooser(browserIntent, "Open with").apply {
+                putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, sentinelComponents)
+            }
+            context.startActivity(chooser)
+            true
+        }.getOrDefault(false)
+    }
+}
+
+private const val CHROME_PACKAGE = "com.android.chrome"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

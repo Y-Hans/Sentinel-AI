@@ -238,20 +238,20 @@ class LinkHeuristicRiskEngineTest {
     }
 
     @Test
-    fun `unencoded redirect target contributes 15 points`() {
+    fun `unencoded redirect target and embedded URL contribute 45 points`() {
         assertLinkAnalysis(
             engine,
             "https://example.com/?next=https://destination.test",
-            15f,
-            RiskLevel.GREEN,
+            45f,
+            RiskLevel.YELLOW,
             "suspicious_redirect" to expectedRule(
                 15f,
                 "URL uses a redirect parameter pointing to another destination",
                 RuleCategory.URL_STRUCTURE
             ),
             "embedded_url" to expectedRule(
-                0f,
-                "The URL embeds another destination URL",
+                30f,
+                "Embedded external URL detected",
                 RuleCategory.URL_STRUCTURE
             )
         )
@@ -393,8 +393,8 @@ class LinkHeuristicRiskEngineTest {
         assertLinkAnalysis(
             engine,
             "https://paypal-secure.xyz/?next=https://evil.test",
-            80f,
-            RiskLevel.RED,
+            100f,
+            RiskLevel.CRITICAL,
             "suspicious_tld" to expectedRule(
                 15f,
                 "Uses .xyz domain",
@@ -416,8 +416,8 @@ class LinkHeuristicRiskEngineTest {
                 RuleCategory.SOCIAL_ENGINEERING
             ),
             "embedded_url" to expectedRule(
-                0f,
-                "The URL embeds another destination URL",
+                30f,
+                "Embedded external URL detected",
                 RuleCategory.URL_STRUCTURE
             )
         )
@@ -452,10 +452,10 @@ class LinkHeuristicRiskEngineTest {
             "suspicious_redirect" to expectedRule(15f, "URL uses a redirect parameter pointing to another destination", RuleCategory.URL_STRUCTURE),
             "brand_impersonation" to expectedRule(30f, "Possible paypal brand impersonation", RuleCategory.BRAND_IMPERSONATION),
             "social_engineering" to expectedRule(20f, "Uses social engineering keyword in domain: secure", RuleCategory.SOCIAL_ENGINEERING),
-            "embedded_url" to expectedRule(0f, "The URL embeds another destination URL", RuleCategory.URL_STRUCTURE)
+            "embedded_url" to expectedRule(30f, "Embedded external URL detected", RuleCategory.URL_STRUCTURE)
         )
 
-        assertEquals(170f, analysis.ruleResults.sumOf { it.scoreContribution.toDouble() }.toFloat(), 0f)
+        assertEquals(200f, analysis.ruleResults.sumOf { it.scoreContribution.toDouble() }.toFloat(), 0f)
         assertEquals(
             "Detected 16 link risk signal(s): Uses .xyz domain; Contains excessive subdomains; " +
                 "Uses a random-looking hostname; Contains repeated or multiple hyphens in domain.",
@@ -508,16 +508,16 @@ class LinkHeuristicRiskEngineTest {
         assertLinkAnalysis(
             engine,
             "https://example.com/?next=https://one.test&next=https://two.test",
-            15f,
-            RiskLevel.GREEN,
+            45f,
+            RiskLevel.YELLOW,
             "suspicious_redirect" to expectedRule(
                 15f,
                 "URL uses a redirect parameter pointing to another destination",
                 RuleCategory.URL_STRUCTURE
             ),
             "embedded_url" to expectedRule(
-                0f,
-                "The URL embeds another destination URL",
+                30f,
+                "Embedded external URL detected",
                 RuleCategory.URL_STRUCTURE
             )
         )

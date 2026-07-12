@@ -35,8 +35,8 @@ class BrowserLauncher {
             context.startActivity(intent)
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to open browser", e)
-            false
+            Log.w(TAG, "Chrome unavailable; trying external browser chooser", e)
+            launchExternalChooser(context, intent)
         }
     }
 

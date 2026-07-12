@@ -11,11 +11,11 @@ class InsecureHttpRule : LinkHeuristicRule {
     override val name: String = "Insecure HTTP"
 
     override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
-        val triggered = url.scheme.equals("http", ignoreCase = true)
+        val triggered = url.isValid && url.original.startsWith("http://", ignoreCase = true)
         return RuleResult(
             triggered = triggered,
             scoreContribution = if (triggered) config.weights[id] ?: 0f else 0f,
-            explanation = if (triggered) "The URL uses unencrypted HTTP" else null,
+            explanation = if (triggered) "Uses insecure HTTP protocol" else null,
             category = RuleCategory.URL_STRUCTURE
         )
     }

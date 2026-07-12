@@ -179,7 +179,7 @@ class EvidenceCombinerTest {
 
         assertEquals(ProtectionDecision.ALLOW, result.decision)
         assertEquals(EvidenceSourceStatus.UNAVAILABLE, result.providerFindings.single().status)
-        assertTrue(result.summary.contains("incomplete"))
+        assertEquals("Limited online verification. Proceed with caution.", result.summary)
         assertFalse(result.reasons.single().message.contains("malicious", ignoreCase = true))
     }
 
@@ -239,7 +239,7 @@ class EvidenceCombinerTest {
 
         assertEquals(ProtectionDecision.ALLOW, result.decision)
         assertEquals(0f, result.confidence, 0f)
-        assertTrue(result.summary.contains("coverage was incomplete"))
+        assertEquals("Limited online verification. Proceed with caution.", result.summary)
     }
 
     @Test

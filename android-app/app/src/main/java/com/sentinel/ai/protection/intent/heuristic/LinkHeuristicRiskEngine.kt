@@ -34,7 +34,9 @@ class LinkHeuristicRiskEngine @Inject constructor() {
     private val rules: Collection<LinkHeuristicRule> = defaultRules()
 
     fun analyze(url: String): LinkHeuristicAnalysis {
-        val parsedUrl = UrlNormalizer.parse(url)
+        val originalUrl = url.trim()
+        val normalizedUrl = UrlNormalizer.normalize(originalUrl)
+        val parsedUrl = UrlNormalizer.parse(normalizedUrl).copy(original = originalUrl)
         val results = rules.map { rule -> rule.evaluate(parsedUrl, config) }
         val score = results.sumOf { it.scoreContribution.toDouble() }.toFloat().coerceIn(0f, 100f)
         val triggered = results.filter { it.triggered }

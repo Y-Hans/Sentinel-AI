@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.ui.components.ActionButton
 import com.sentinel.ai.ui.components.AnimatedSentinelShield
@@ -89,7 +89,7 @@ private fun ScanVerdictContent(
     onScanAgain: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state = riskStateOf(result.riskLevel)
+    val state = riskStateOf(result.decision)
     val shieldState = when (state) {
         RiskState.Safe -> ShieldState.Safe
         RiskState.Suspicious -> ShieldState.Warning
@@ -189,17 +189,19 @@ private fun ScanVerdictContent(
                     )
                 }
 
-                else -> {
+                RiskState.Dangerous -> {
                     ActionButton(
                         text = "Back to safety",
                         onClick = onGoBack,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    SecondaryButton(
-                        text = "Open anyway",
-                        onClick = onBypass,
-                        modifier = Modifier.fillMaxWidth(),
-                        variant = ButtonVariant.Text
+                }
+
+                RiskState.Neutral, RiskState.Scanning -> {
+                    ActionButton(
+                        text = "Go back",
+                        onClick = onGoBack,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -209,11 +211,10 @@ private fun ScanVerdictContent(
     }
 }
 
-private fun riskStateOf(level: RiskLevel): RiskState = when (level) {
-    RiskLevel.GREEN -> RiskState.Safe
-    RiskLevel.YELLOW -> RiskState.Suspicious
-    RiskLevel.RED -> RiskState.Dangerous
-    RiskLevel.CRITICAL -> RiskState.Dangerous
+private fun riskStateOf(decision: ProtectionDecision): RiskState = when (decision) {
+    ProtectionDecision.ALLOW -> RiskState.Safe
+    ProtectionDecision.WARN -> RiskState.Suspicious
+    ProtectionDecision.BLOCK -> RiskState.Dangerous
 }
 
 private fun verdictCopy(subject: ScanSubject, state: RiskState): Pair<String, String> {

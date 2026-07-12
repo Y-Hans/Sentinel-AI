@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sentinel.ai.core.data.ScanRepository
+import com.sentinel.ai.core.validation.UrlInputValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,10 @@ class ScannerViewModel @Inject constructor(
         val input = _uiState.value.scanInput.trim()
         if (input.isBlank()) {
             _uiState.update { it.copy(error = "Enter a link or file path before scanning.") }
+            return
+        }
+        if (_uiState.value.scanType != ScanType.FILE && !UrlInputValidator.isValid(input)) {
+            _uiState.update { it.copy(error = "Enter a valid URL") }
             return
         }
         viewModelScope.launch {

@@ -336,7 +336,7 @@ class EvidenceCombiner @Inject constructor() {
 
             ProtectionDecision.ALLOW -> when {
                 incompleteLookup ->
-                    "No strong threat evidence was detected, but online reputation coverage was incomplete."
+                    "Limited online verification. Proceed with caution."
                 hasUnknown ->
                     "No strong threat evidence was detected; reputation providers returned no conclusive verdict."
                 providerEvidence.isEmpty() ->

@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.core.validation.UrlInputValidator
 import com.sentinel.ai.protection.intent.link.BrowserLauncher
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
@@ -61,13 +62,14 @@ class ScanLoadingActivity : ComponentActivity() {
 
         val payloadType = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE)
         val payloadValue = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE)
-        val fromViewIntent = intent.getBooleanExtra(IntentPayloadExtras.EXTRA_FROM_VIEW_INTENT, false)
-
         val payload = when (payloadType) {
-            IntentPayloadExtras.TYPE_URL -> payloadValue?.let { UrlPayload(it) }
+            IntentPayloadExtras.TYPE_URL -> payloadValue
+                ?.takeIf(UrlInputValidator::isValid)
+                ?.let { UrlPayload(it.trim()) }
             IntentPayloadExtras.TYPE_FILE -> payloadValue?.let { FilePayload(Uri.parse(it)) }
             else -> null
         }
+        val invalidUrl = payloadType == IntentPayloadExtras.TYPE_URL && payload == null
 
         setContent {
             SentinelTheme {
@@ -79,7 +81,9 @@ class ScanLoadingActivity : ComponentActivity() {
 
                     LaunchedEffect(payload) {
                         if (payload == null) {
-                            uiState = ScanUiState.Error("Unsupported or missing payload data.")
+                            uiState = ScanUiState.Error(
+                                if (invalidUrl) "Enter a valid URL" else "Unsupported or missing payload data."
+                            )
                             return@LaunchedEffect
                         }
                         try {
@@ -105,7 +109,6 @@ class ScanLoadingActivity : ComponentActivity() {
                             ScanResultContent(
                                 result = state.result,
                                 payload = state.payload,
-                                fromViewIntent = fromViewIntent,
                                 onClose = { finish() },
                                 onOpenUrl = { url ->
                                     val launched = openUrlInBrowser(url)
@@ -182,7 +185,6 @@ private fun ScanLoadingContent(payloadType: String) {
 private fun ScanResultContent(
     result: ScanResult,
     payload: IntentPayload,
-    fromViewIntent: Boolean,
     onClose: () -> Unit,
     onOpenUrl: (String) -> Boolean
 ) {
@@ -264,16 +266,14 @@ private fun ScanResultContent(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        val canContinueToUrl = payload is UrlPayload &&
-            result.decision != ProtectionDecision.BLOCK &&
-            fromViewIntent
-        val buttonText = when {
-            !canContinueToUrl -> "Close"
-            result.decision == ProtectionDecision.WARN -> "Continue Anyway"
-            else -> "Continue to website"
+        val continueButtonText = if (payload is UrlPayload) {
+            continueButtonText(result.decision)
+        } else {
+            null
         }
+        val buttonText = continueButtonText ?: "Close"
         val buttonAction = {
-            if (canContinueToUrl) {
+            if (continueButtonText != null) {
                 val launched = onOpenUrl((payload as UrlPayload).url)
 
                 if (!launched) {
@@ -300,6 +300,12 @@ private fun ScanResultContent(
             )
         }
     }
+}
+
+internal fun continueButtonText(decision: ProtectionDecision): String? = when (decision) {
+    ProtectionDecision.ALLOW -> "Continue"
+    ProtectionDecision.WARN -> "Continue Anyway"
+    ProtectionDecision.BLOCK -> null
 }
 
 @Composable
