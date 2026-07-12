@@ -11,7 +11,7 @@ class InsecureHttpRule : LinkHeuristicRule {
     override val name: String = "Insecure HTTP"
 
     override fun evaluate(url: ParsedUrl, config: LinkHeuristicConfig): RuleResult {
-        val triggered = url.originalHost != null && url.scheme.equals("http", ignoreCase = true)
+        val triggered = url.scheme.equals("http", ignoreCase = true)
         return RuleResult(
             triggered = triggered,
             scoreContribution = if (triggered) config.weights[id] ?: 0f else 0f,

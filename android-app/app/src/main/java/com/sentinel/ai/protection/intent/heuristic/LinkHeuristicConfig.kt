@@ -69,7 +69,7 @@ data class LinkHeuristicConfig(
         "encoded_chars" to 10f,
         "multiple_fragments" to 15f,
         "suspicious_redirect" to 15f,
-        "insecure_http" to 5f,
+        "insecure_http" to 25f,
         "non_standard_port" to 10f,
         "userinfo_deception" to 30f,
         "embedded_url" to 15f,

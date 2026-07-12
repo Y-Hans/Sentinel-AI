@@ -25,6 +25,11 @@ object ScamRuleEngine {
         }
 
         val lower = messageText.lowercase()
+        score += addSignal(lower, "urgent", 20, "Urgency language detected", explanations)
+        score += addSignal(lower, "verify", 15, "Sensitive request pattern detected", explanations)
+        score += addSignal(lower, "account", 10, "Account-related language detected", explanations)
+        score += addSignal(lower, "offer", 15, "Promotional offer language detected", explanations)
+        score += addSignal(lower, "otp", 25, "Sensitive request pattern detected", explanations)
         score += addMatchedTerms(lower, URGENCY_TERMS, 12, explanations) { "Urgency language detected: $it" }
         score += addMatchedTerms(lower, FINANCIAL_TERMS, 10, explanations) { "Financial language detected: $it" }
         score += addMatchedTerms(lower, CREDENTIAL_TERMS, 15, explanations) { "Credential harvesting indicator detected: $it" }
@@ -47,6 +52,18 @@ object ScamRuleEngine {
         )
     }
 
+    private fun addSignal(
+        lower: String,
+        term: String,
+        points: Int,
+        explanation: String,
+        explanations: MutableList<String>
+    ): Int {
+        if (!lower.contains(term)) return 0
+        explanations += explanation
+        return points
+    }
+
     private fun addMatchedTerms(
         lower: String,
         terms: List<String>,
@@ -62,10 +79,8 @@ object ScamRuleEngine {
     }
 
     private val URGENCY_TERMS = listOf(
-        "urgent",
         "immediately",
         "act now",
-        "verify now",
         "account suspended",
         "account blocked"
     )
@@ -82,7 +97,6 @@ object ScamRuleEngine {
     private val CREDENTIAL_TERMS = listOf(
         "login",
         "password",
-        "otp",
         "verification code",
         "security code"
     )

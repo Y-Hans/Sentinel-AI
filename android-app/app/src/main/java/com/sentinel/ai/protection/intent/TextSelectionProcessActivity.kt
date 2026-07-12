@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.sentinel.ai.core.feature.FeatureManager
 
 /**
  * Android text-selection entry point for selected web links.
@@ -16,6 +17,11 @@ class TextSelectionProcessActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!FeatureManager.isTextEnabled()) {
+            finish()
+            return
+        }
 
         val selectedText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT).orEmpty()
         val extractedUrl = extractUrl(selectedText)

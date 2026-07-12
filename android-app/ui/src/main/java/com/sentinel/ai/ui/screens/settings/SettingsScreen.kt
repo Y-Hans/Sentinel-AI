@@ -153,6 +153,27 @@ fun SettingsScreen(
                 Icon(
                     imageVector = Icons.Filled.Security,
                     contentDescription = null,
+                    tint = riskColor(RiskLevel.GREEN),
+                    modifier = Modifier.size(SentinelSize.IconMedium)
+                )
+            },
+            title = "Protection features",
+            description = "Control notification, click, clipboard, and text-selection protection",
+            onClick = {
+                context.startActivity(
+                    Intent().setClassName(
+                        context,
+                        "com.sentinel.ai.ui.settings.SettingsActivity"
+                    )
+                )
+            }
+        )
+
+        SettingRow(
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Security,
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(SentinelSize.IconMedium)
                 )

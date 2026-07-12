@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Build
 import android.util.Log
 import androidx.activity.ComponentActivity
+import com.sentinel.ai.core.feature.FeatureManager
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
 import com.sentinel.ai.protection.intent.model.UrlPayload
@@ -21,6 +22,11 @@ class IntentRouterActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!FeatureManager.isClickEnabled()) {
+            finish()
+            return
+        }
 
         val payload = intent.toIntentPayloadOrNull()
         if (payload == null) {

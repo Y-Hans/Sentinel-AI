@@ -5,6 +5,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.sentinel.ai.agents.whatsapp.NotificationAgentCoordinator
 import com.sentinel.ai.agents.registry.SupportedAppRegistry
+import com.sentinel.ai.core.feature.FeatureManager
 import com.sentinel.ai.ui.protection.ProtectionControl
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +24,7 @@ class SentinelNotificationListener : NotificationListenerService() {
     @Inject lateinit var supportedAppRegistry: SupportedAppRegistry
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        if (!FeatureManager.isNotificationEnabled()) return
         if (!ProtectionControl.isProtectionEnabled(this)) {
             Log.d(TAG, "Notification ignored: protection_disabled, package=${sbn.packageName}")
             return

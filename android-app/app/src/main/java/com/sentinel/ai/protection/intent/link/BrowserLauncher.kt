@@ -31,10 +31,11 @@ class BrowserLauncher {
         intent.setPackage("com.android.chrome")
 
         return try {
+            Log.d(TAG, "Launching Chrome with URL: $url")
             context.startActivity(intent)
             true
         } catch (e: Exception) {
-            Log.e("BrowserLauncher", "Chrome launch failed", e)
+            Log.e(TAG, "Failed to open browser", e)
             false
         }
     }

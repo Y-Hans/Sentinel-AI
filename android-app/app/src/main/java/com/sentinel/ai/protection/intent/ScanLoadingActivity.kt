@@ -109,7 +109,9 @@ class ScanLoadingActivity : ComponentActivity() {
                                 onClose = { finish() },
                                 onOpenUrl = { url ->
                                     val launched = openUrlInBrowser(url)
-                                    Log.d("ScanLoadingActivity", "Browser launched: $launched")
+                                    if (launched) {
+                                        finish()
+                                    }
                                     launched
                                 }
                             )
@@ -263,16 +265,18 @@ private fun ScanResultContent(
         Spacer(modifier = Modifier.height(48.dp))
 
         val canContinueToUrl = payload is UrlPayload &&
-            result.decision == ProtectionDecision.ALLOW &&
+            result.decision != ProtectionDecision.BLOCK &&
             fromViewIntent
-        val buttonText = if (canContinueToUrl) "Continue to website" else "Close"
+        val buttonText = when {
+            !canContinueToUrl -> "Close"
+            result.decision == ProtectionDecision.WARN -> "Continue Anyway"
+            else -> "Continue to website"
+        }
         val buttonAction = {
             if (canContinueToUrl) {
                 val launched = onOpenUrl((payload as UrlPayload).url)
 
-                if (launched) {
-                    onClose()
-                } else {
+                if (!launched) {
                     Log.e("ScanLoadingActivity", "Browser launch failed")
                 }
             } else {

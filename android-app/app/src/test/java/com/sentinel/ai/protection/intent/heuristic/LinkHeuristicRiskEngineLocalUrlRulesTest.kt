@@ -9,32 +9,32 @@ class LinkHeuristicRiskEngineLocalUrlRulesTest {
     private val engine = LinkHeuristicRiskEngine()
 
     @Test
-    fun `explicit HTTP contributes five points while HTTPS and bare domains remain clean`() {
+    fun `explicit HTTP contributes twenty five points while HTTPS and bare domains remain clean`() {
         assertLinkAnalysis(
             engine,
             "http://example.com",
-            5f,
+            25f,
             RiskLevel.GREEN,
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE)
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE)
         )
         assertLinkAnalysis(engine, "https://example.com", 0f, RiskLevel.GREEN)
         assertLinkAnalysis(engine, "example.com", 0f, RiskLevel.GREEN)
         assertLinkAnalysis(
             engine,
             "HTTP://EXAMPLE.COM",
-            5f,
+            25f,
             RiskLevel.GREEN,
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE)
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE)
         )
     }
 
     @Test
     fun `default ports remain clean and explicit non-default ports contribute ten points`() {
-        assertLinkAnalysis(engine, "http://example.com:80", 5f, RiskLevel.GREEN,
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE))
+        assertLinkAnalysis(engine, "http://example.com:80", 25f, RiskLevel.GREEN,
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE))
         assertLinkAnalysis(engine, "https://example.com:443", 0f, RiskLevel.GREEN)
-        assertLinkAnalysis(engine, "http://example.com:8080", 15f, RiskLevel.GREEN,
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
+        assertLinkAnalysis(engine, "http://example.com:8080", 35f, RiskLevel.YELLOW,
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
             "non_standard_port" to expectedRule(10f, "The URL uses a non-standard network port", RuleCategory.URL_STRUCTURE))
         assertLinkAnalysis(engine, "https://example.com:8443", 10f, RiskLevel.GREEN,
             "non_standard_port" to expectedRule(10f, "The URL uses a non-standard network port", RuleCategory.URL_STRUCTURE))
@@ -176,13 +176,13 @@ class LinkHeuristicRiskEngineLocalUrlRulesTest {
     }
 
     @Test
-    fun `combined HTTP and non-standard port remains below dangerous thresholds`() {
+    fun `combined HTTP and non-standard port reaches warning risk`() {
         assertLinkAnalysis(
             engine,
             "http://example.com:8080",
-            15f,
-            RiskLevel.GREEN,
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
+            35f,
+            RiskLevel.YELLOW,
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
             "non_standard_port" to expectedRule(10f, "The URL uses a non-standard network port", RuleCategory.URL_STRUCTURE)
         )
     }
@@ -205,10 +205,10 @@ class LinkHeuristicRiskEngineLocalUrlRulesTest {
         assertLinkAnalysis(
             engine,
             "http://google.com@evil.example/?redirect=https://evil.example",
-            50f,
-            RiskLevel.YELLOW,
+            70f,
+            RiskLevel.RED,
             "suspicious_redirect" to expectedRule(15f, "URL uses a redirect parameter pointing to another destination", RuleCategory.URL_STRUCTURE),
-            "insecure_http" to expectedRule(5f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
+            "insecure_http" to expectedRule(25f, "The URL uses unencrypted HTTP", RuleCategory.URL_STRUCTURE),
             "userinfo_deception" to expectedRule(30f, "The URL contains deceptive user information before the actual host", RuleCategory.URL_STRUCTURE),
             "embedded_url" to expectedRule(0f, "The URL embeds another destination URL", RuleCategory.URL_STRUCTURE)
         )

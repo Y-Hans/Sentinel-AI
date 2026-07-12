@@ -49,6 +49,11 @@
         </activity>
 
         <activity
+            android:name="com.sentinel.ai.ui.settings.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SentinelAI" />
+
+        <activity
             android:name="com.sentinel.ai.protection.intent.IntentRouterActivity"
             android:exported="true"
             android:theme="@style/Theme.SentinelAI">
@@ -98,6 +103,10 @@
             android:name="com.sentinel.ai.protection.intent.ScanLoadingActivity"
             android:exported="false"
             android:theme="@style/Theme.SentinelAI" />
+
+        <receiver
+            android:name="com.sentinel.ai.protection.clipboard.ClipboardActionReceiver"
+            android:exported="false" />
 
         <activity
             android:name="com.sentinel.ai.warning.ScamWarningActivity"

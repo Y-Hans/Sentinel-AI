@@ -32,8 +32,8 @@ class ScamRuleEngineTest {
             isKnownContact = false
         )
 
-        assertEquals(ScamRiskLevel.MEDIUM, result.riskLevel)
-        assertEquals(42, result.riskScore)
+        assertEquals(ScamRiskLevel.CRITICAL, result.riskLevel)
+        assertEquals(75, result.riskScore)
         assertTrue(result.explanations.any { it.contains("Shortened URL detected") })
         assertTrue(result.explanations.any { it.contains("Urgency language detected") })
         assertTrue(result.explanations.any { it.contains("Sender is not a known contact") })
@@ -66,5 +66,31 @@ class ScamRuleEngineTest {
         assertEquals(40, result.riskScore)
         assertTrue(result.explanations.any { it.contains("Raw IP address URL detected") })
         assertTrue(result.explanations.any { it.contains("Credential harvesting indicator detected") })
+    }
+
+    @Test
+    fun `urgent verify account signals accumulate`() {
+        val result = ScamRuleEngine.evaluate(
+            messageText = "URGENT verify account now",
+            urls = emptyList(),
+            isKnownContact = true
+        )
+
+        assertEquals(45, result.riskScore)
+        assertEquals(ScamRiskLevel.MEDIUM, result.riskLevel)
+        assertTrue(result.explanations.any { it == "Urgency language detected" })
+        assertTrue(result.explanations.any { it == "Sensitive request pattern detected" })
+    }
+
+    @Test
+    fun `offer signal contributes fifteen points`() {
+        val result = ScamRuleEngine.evaluate(
+            messageText = "Limited offer!",
+            urls = emptyList(),
+            isKnownContact = true
+        )
+
+        assertEquals(15, result.riskScore)
+        assertTrue(result.explanations.any { it == "Promotional offer language detected" })
     }
 }
