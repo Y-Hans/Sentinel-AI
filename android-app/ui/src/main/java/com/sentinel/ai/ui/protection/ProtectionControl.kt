@@ -16,7 +16,6 @@ data class ProtectionSnapshot(
     val notificationPermissionGranted: Boolean = false,
     val overlayPermissionGranted: Boolean = false,
     val contactsPermissionGranted: Boolean = false,
-    val fullScreenIntentPermissionGranted: Boolean = true,
     val missingPermissions: List<String> = emptyList()
 )
 
@@ -35,13 +34,11 @@ object ProtectionControl {
         val notificationPermissionGranted = hasPostNotificationsPermission(context)
         val overlayPermissionGranted = Settings.canDrawOverlays(context)
         val contactsPermissionGranted = hasContactsPermission(context)
-        val fullScreenIntentPermissionGranted = hasFullScreenIntentPermission(context)
         val missingPermissions = buildList {
             if (!notificationPermissionGranted) add("Notification permission")
             if (!listenerEnabled) add("Notification listener access")
             if (!overlayPermissionGranted) add("Overlay permission")
             if (!contactsPermissionGranted) add("Contacts permission")
-            if (!fullScreenIntentPermissionGranted) add("Full-screen alert permission")
         }
 
         return ProtectionSnapshot(
@@ -52,7 +49,6 @@ object ProtectionControl {
             notificationPermissionGranted = notificationPermissionGranted,
             overlayPermissionGranted = overlayPermissionGranted,
             contactsPermissionGranted = contactsPermissionGranted,
-            fullScreenIntentPermissionGranted = fullScreenIntentPermissionGranted,
             missingPermissions = missingPermissions
         )
     }
@@ -102,21 +98,6 @@ object ProtectionControl {
             context,
             android.Manifest.permission.READ_CONTACTS
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasFullScreenIntentPermission(context: Context): Boolean {
-        // Below API 34 the USE_FULL_SCREEN_INTENT manifest permission is normal-protection and
-        // always granted at install time, so there is nothing further to check. On API 34+ it
-        // becomes a user-revocable special access grant: NotificationManager exposes the current
-        // state via canUseFullScreenIntent(). This is why full-screen critical alerts can appear
-        // to work "inconsistently" across devices - it silently degrades to a heads-up
-        // notification on any Android 14+ device where the user hasn't explicitly turned this on.
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return true
-        }
-        val manager = context.getSystemService(android.app.NotificationManager::class.java)
-            ?: return true
-        return manager.canUseFullScreenIntent()
     }
 
     private fun startService(context: Context, className: String) {

@@ -22,7 +22,6 @@ private fun sampleProtection() = ProtectionSnapshot(
     notificationPermissionGranted = true,
     overlayPermissionGranted = true,
     contactsPermissionGranted = true,
-    fullScreenIntentPermissionGranted = true,
     missingPermissions = emptyList()
 )
 

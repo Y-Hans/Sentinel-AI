@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -17,7 +16,7 @@ import com.sentinel.ai.core.model.ScanResult
 
 class WarningNotificationHelper(private val context: Context) {
 
-    fun showWarning(result: ScanResult, highPriority: Boolean, fullScreen: Boolean = false) {
+    fun showWarning(result: ScanResult, highPriority: Boolean) {
         val model = result.toWarningUiModel()
         if (model.severity == WarningSeverity.NONE && result.decision != ProtectionDecision.BLOCK) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -32,12 +31,7 @@ class WarningNotificationHelper(private val context: Context) {
 
         ensureChannel(highPriority)
 
-        val shouldUseFullScreen = fullScreen && result.decision == ProtectionDecision.BLOCK
-        val alertIntent = if (shouldUseFullScreen) {
-            CriticalAlertActivity.newIntent(context, result)
-        } else {
-            ScamWarningActivity.newIntent(context, result)
-        }
+        val alertIntent = ScamWarningActivity.newIntent(context, result)
 
         val contentIntent = PendingIntent.getActivity(
             context,
@@ -45,14 +39,6 @@ class WarningNotificationHelper(private val context: Context) {
             alertIntent,
             pendingIntentFlags()
         )
-
-        // Android 14 (API 34) introduced a user-revocable, per-app grant for the full-screen
-        // intent privilege: even though USE_FULL_SCREEN_INTENT is declared in the manifest, the
-        // system may silently refuse to launch the full-screen UI and only show a heads-up
-        // notification instead. Checking this avoids requesting a full-screen intent we already
-        // know will be downgraded, and keeps the emitted notification (and its contentIntent)
-        // correct either way.
-        val canUseFullScreenIntent = shouldUseFullScreen && canUseFullScreenIntent()
 
         val notification = NotificationCompat.Builder(context, channelId(highPriority))
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
@@ -63,11 +49,6 @@ class WarningNotificationHelper(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
             .setContentIntent(contentIntent)
-            .apply {
-                if (canUseFullScreenIntent) {
-                    setFullScreenIntent(contentIntent, true)
-                }
-            }
             .build()
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
@@ -77,35 +58,6 @@ class WarningNotificationHelper(private val context: Context) {
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
             NotificationManagerCompat.from(context).notify(result.id.hashCode(), notification)
-        }
-    }
-
-    private fun canUseFullScreenIntent(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return true
-        val manager = context.getSystemService(NotificationManager::class.java) ?: return true
-        return manager.canUseFullScreenIntent()
-    }
-
-    /**
-     * Starts [CriticalAlertActivity] directly. Only safe to call from a context that Android
-     * currently allows to start background activities (e.g. a foreground Activity, or another
-     * context covered by a background-activity-launch exemption). Do NOT call this from a plain
-     * background Service - use [showWarning] with `fullScreen = true` instead, which delivers the
-     * critical alert via a notification full-screen intent and is reliably exempt from Android
-     * 10+ background activity launch restrictions.
-     */
-    fun launchCriticalAlert(result: ScanResult) {
-        if (result.decision != ProtectionDecision.BLOCK) return
-        val intent = CriticalAlertActivity.newIntent(context, result)
-            .addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP
-            )
-        runCatching {
-            context.startActivity(intent)
-        }.onFailure {
-            Log.w(TAG, "Unable to launch critical alert directly for ${result.id}", it)
         }
     }
 

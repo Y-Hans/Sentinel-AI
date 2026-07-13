@@ -7,21 +7,16 @@ import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.feature.FeatureManager
 import com.sentinel.ai.warning.ThreatEventSubscriberService
 import com.sentinel.ai.ui.protection.ProtectionControl
-import com.sentinel.ai.protection.clipboard.ClipboardMonitor
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class SentinelApp : Application() {
-
-    private lateinit var clipboardMonitor: ClipboardMonitor
-
     override fun onCreate() {
         super.onCreate()
         FeatureManager.init(applicationContext)
         Logger.init(isDebug = BuildConfig.DEBUG)
         ThreatJournal.initialize(this)
         ProtectionControl.sync(this)
-        clipboardMonitor = ClipboardMonitor(this).also(ClipboardMonitor::start)
         startService(Intent(this, ThreatEventSubscriberService::class.java))
     }
 }

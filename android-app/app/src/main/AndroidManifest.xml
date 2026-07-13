@@ -19,7 +19,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission
@@ -104,24 +103,11 @@
             android:exported="false"
             android:theme="@style/Theme.SentinelAI" />
 
-        <receiver
-            android:name="com.sentinel.ai.protection.clipboard.ClipboardActionReceiver"
-            android:exported="false" />
-
         <activity
             android:name="com.sentinel.ai.warning.ScamWarningActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.SentinelAI" />
-
-        <activity
-            android:name="com.sentinel.ai.warning.CriticalAlertActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:showWhenLocked="true"
-            android:theme="@style/Theme.SentinelAI"
-            android:turnScreenOn="true" />
 
         <service
             android:name="com.sentinel.ai.services.SentinelGuardService"

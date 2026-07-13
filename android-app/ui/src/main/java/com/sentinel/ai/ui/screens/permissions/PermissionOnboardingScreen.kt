@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -102,8 +101,7 @@ fun PermissionOnboardingScreen(
             onRequestNotifications = { notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
             onRequestContacts = { contactsLauncher.launch(Manifest.permission.READ_CONTACTS) },
             onOpenListenerSettings = { openNotificationListenerSettings(context) },
-            onOpenOverlaySettings = { openOverlaySettings(context) },
-            onOpenFullScreenSettings = { openFullScreenIntentSettings(context) }
+            onOpenOverlaySettings = { openOverlaySettings(context) }
         )
 
         if (snapshot.missingPermissions.isEmpty()) {
@@ -128,15 +126,13 @@ private fun PermissionRows(
     onRequestNotifications: () -> Unit,
     onRequestContacts: () -> Unit,
     onOpenListenerSettings: () -> Unit,
-    onOpenOverlaySettings: () -> Unit,
-    onOpenFullScreenSettings: () -> Unit
+    onOpenOverlaySettings: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenItems)) {
         PermissionRow("Notifications", "Show urgent security warnings", snapshot.notificationPermissionGranted, onRequestNotifications)
         PermissionRow("Notification access", "Monitor incoming notifications for threats", snapshot.notificationListenerEnabled, onOpenListenerSettings)
         PermissionRow("Overlay alerts", "Display urgent warnings above other apps", snapshot.overlayPermissionGranted, onOpenOverlaySettings)
         PermissionRow("Contacts", "Recognize known senders in alerts", snapshot.contactsPermissionGranted, onRequestContacts)
-        PermissionRow("Full-screen alerts", "Show critical warnings immediately", snapshot.fullScreenIntentPermissionGranted, onOpenFullScreenSettings)
     }
 }
 
@@ -192,17 +188,4 @@ private fun openOverlaySettings(context: Context) {
             data = Uri.fromParts("package", context.packageName, null)
         }
     )
-}
-
-private fun openFullScreenIntentSettings(context: Context) {
-    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-        Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
-    } else {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
-    }
-    context.startActivity(intent)
 }

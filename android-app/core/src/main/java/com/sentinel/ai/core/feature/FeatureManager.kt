@@ -8,7 +8,6 @@ object FeatureManager {
     private const val PREFS_NAME = "sentinel_features"
     private const val KEY_NOTIFICATION_ENABLED = "notificationEnabled"
     private const val KEY_CLICK_PROTECTION_ENABLED = "clickProtectionEnabled"
-    private const val KEY_CLIPBOARD_ENABLED = "clipboardEnabled"
     private const val KEY_TEXT_SELECTION_ENABLED = "textSelectionEnabled"
 
     @Volatile
@@ -35,13 +34,6 @@ object FeatureManager {
 
     fun setClickEnabled(enabled: Boolean) {
         prefs?.edit()?.putBoolean(KEY_CLICK_PROTECTION_ENABLED, enabled)?.apply()
-    }
-
-    fun isClipboardEnabled(): Boolean =
-        prefs?.getBoolean(KEY_CLIPBOARD_ENABLED, false) ?: false
-
-    fun setClipboardEnabled(enabled: Boolean) {
-        prefs?.edit()?.putBoolean(KEY_CLIPBOARD_ENABLED, enabled)?.apply()
     }
 
     fun isTextEnabled(): Boolean =

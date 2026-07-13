@@ -51,6 +51,7 @@ fun SentinelNavGraph(
     startDestination: String = Screen.Dashboard.route,
     themeMode: SentinelThemeMode = SentinelThemeMode.Dark,
     onThemeModeSelected: (SentinelThemeMode) -> Unit = {},
+    onPermissionOnboardingComplete: () -> Unit = {},
     appVersion: String = "1.0.0"
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -129,6 +130,7 @@ fun SentinelNavGraph(
                     startDestination = startDestination,
                     themeMode = themeMode,
                     onThemeModeSelected = onThemeModeSelected,
+                    onPermissionOnboardingComplete = onPermissionOnboardingComplete,
                     appVersion = appVersion
                 )
             }
@@ -147,6 +149,7 @@ private fun SentinelNavHost(
     startDestination: String,
     themeMode: SentinelThemeMode,
     onThemeModeSelected: (SentinelThemeMode) -> Unit,
+    onPermissionOnboardingComplete: () -> Unit,
     appVersion: String
 ) {
     NavHost(
@@ -224,6 +227,7 @@ private fun SentinelNavHost(
                         popUpTo(Screen.PermissionSetup.route) { inclusive = true }
                         launchSingleTop = true
                     }
+                    onPermissionOnboardingComplete()
                 }
             )
         }

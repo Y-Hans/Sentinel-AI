@@ -2,7 +2,6 @@ package com.sentinel.ai.ui.settings
 
 import android.app.role.RoleManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -58,10 +57,6 @@ class SettingsActivity : ComponentActivity() {
                     onBack = ::finish,
                     onNotificationChanged = ::setNotificationEnabled,
                     onClickChanged = ::setClickEnabled,
-                    onClipboardChanged = {
-                        FeatureManager.setClipboardEnabled(it)
-                        refreshState()
-                    },
                     onTextChanged = {
                         FeatureManager.setTextEnabled(it)
                         refreshState()
@@ -76,8 +71,8 @@ class SettingsActivity : ComponentActivity() {
                             TextButton(onClick = {
                                 showDefaultBrowserDialog = false
                                 awaitingDefaultBrowser = true
-                                openDefaultAppsSettings()
-                            }) { Text("Open settings") }
+                                requestDefaultBrowser()
+                            }) { Text("Continue") }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDefaultBrowserDialog = false }) { Text("Cancel") }
@@ -130,7 +125,6 @@ class SettingsActivity : ComponentActivity() {
         state = FeatureState(
             notificationEnabled = FeatureManager.isNotificationEnabled(),
             clickEnabled = FeatureManager.isClickEnabled(),
-            clipboardEnabled = FeatureManager.isClipboardEnabled(),
             textEnabled = FeatureManager.isTextEnabled()
         )
     }
@@ -143,24 +137,27 @@ class SettingsActivity : ComponentActivity() {
             val roleManager = getSystemService(RoleManager::class.java)
             return roleManager?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
         }
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com"))
-        @Suppress("DEPRECATION")
-        return packageManager.resolveActivity(browserIntent, 0)?.activityInfo?.packageName == packageName
+        return false
     }
 
-    private fun openDefaultAppsSettings() {
-        val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-        runCatching { startActivity(intent) }
-            .onFailure { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", packageName, null)
-            }) }
+    private fun requestDefaultBrowser() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(RoleManager::class.java)
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
+                val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
+                startActivityForResult(intent, DEFAULT_BROWSER_REQUEST_CODE)
+            }
+        }
+    }
+
+    private companion object {
+        const val DEFAULT_BROWSER_REQUEST_CODE = 1001
     }
 }
 
 private data class FeatureState(
     val notificationEnabled: Boolean = true,
     val clickEnabled: Boolean = true,
-    val clipboardEnabled: Boolean = false,
     val textEnabled: Boolean = true
 )
 
@@ -171,7 +168,6 @@ private fun FeatureSettingsScreen(
     onBack: () -> Unit,
     onNotificationChanged: (Boolean) -> Unit,
     onClickChanged: (Boolean) -> Unit,
-    onClipboardChanged: (Boolean) -> Unit,
     onTextChanged: (Boolean) -> Unit
 ) {
     Scaffold(
@@ -190,7 +186,6 @@ private fun FeatureSettingsScreen(
             Text("Enable only the protection features you want.", style = MaterialTheme.typography.bodyLarge)
             FeatureToggle("Notification Protection", "Detect scams from incoming messages", "Requires notification access", state.notificationEnabled, onNotificationChanged)
             FeatureToggle("Click Protection", "Scan links before opening", "Requires Sentinel as the default browser", state.clickEnabled, onClickChanged)
-            FeatureToggle("Clipboard Protection", "Scan copied links", "Works only when app is active", state.clipboardEnabled, onClipboardChanged)
             FeatureToggle("Text Selection", "Analyze selected text", null, state.textEnabled, onTextChanged)
         }
     }

@@ -3,7 +3,6 @@ package com.sentinel.ai.ui
 import android.app.AlertDialog
 import android.app.role.RoleManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,14 +27,7 @@ class MainActivity : ComponentActivity() {
         val preferences = getSharedPreferences(ONBOARDING_PREFERENCES, MODE_PRIVATE)
         val firstLaunch = preferences.getBoolean(KEY_FIRST_LAUNCH, true)
 
-        val isBrowserDefault = isDefaultBrowser()
-
-        // 🔥 FIX: onboarding should also trigger if browser NOT default
-        isPermissionOnboardingLaunch = firstLaunch || !isBrowserDefault
-
-        if (firstLaunch) {
-            preferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
-        }
+        isPermissionOnboardingLaunch = firstLaunch
 
         enableEdgeToEdge()
 
@@ -54,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     },
                     themeMode = themeMode.value,
                     onThemeModeSelected = { ThemePreferences.set(this, it) },
+                    onPermissionOnboardingComplete = ::completePermissionOnboarding,
                     appVersion = BuildConfig.APP_VERSION
                 )
             }
@@ -62,11 +55,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onPostResume() {
         super.onPostResume()
-
-        // 🔥 FIX: re-check browser after returning from settings
-        if (!isDefaultBrowser()) {
-            isPermissionOnboardingLaunch = true
-        }
 
         showIncompleteProtectionWarningOnce()
     }
@@ -106,20 +94,40 @@ class MainActivity : ComponentActivity() {
 
     private fun isDefaultBrowser(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return getSystemService(RoleManager::class.java)
-                ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
+            val roleManager = getSystemService(RoleManager::class.java)
+            return roleManager?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
         }
+        return false
+    }
 
-        @Suppress("DEPRECATION")
-        return packageManager.resolveActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")),
-            0
-        )?.activityInfo?.packageName == packageName
+    private fun requestDefaultBrowser() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(RoleManager::class.java)
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
+                val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
+                startActivityForResult(intent, DEFAULT_BROWSER_REQUEST_CODE)
+            }
+        }
+    }
+
+    private fun completePermissionOnboarding() {
+        if (!isPermissionOnboardingLaunch) return
+
+        getSharedPreferences(ONBOARDING_PREFERENCES, MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_FIRST_LAUNCH, false)
+            .apply()
+        isPermissionOnboardingLaunch = false
+
+        if (!isDefaultBrowser()) {
+            requestDefaultBrowser()
+        }
     }
 
     private companion object {
         const val ONBOARDING_PREFERENCES = "sentinel_onboarding"
         const val KEY_FIRST_LAUNCH = "first_launch"
+        const val DEFAULT_BROWSER_REQUEST_CODE = 1001
         var warningShownThisProcess = false
     }
 

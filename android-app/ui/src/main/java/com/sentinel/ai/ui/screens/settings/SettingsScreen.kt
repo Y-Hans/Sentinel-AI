@@ -1,5 +1,6 @@
 package com.sentinel.ai.ui.screens.settings
 
+import android.app.Activity
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
@@ -142,7 +143,7 @@ fun SettingsScreen(
             }
         }
 
-        if (!sentinelIsDefaultBrowser) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !sentinelIsDefaultBrowser) {
             SentinelCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -181,7 +182,7 @@ fun SettingsScreen(
                 )
             },
             title = "Protection features",
-            description = "Control notification, click, clipboard, and text-selection protection",
+            description = "Control notification, click, and text-selection protection",
             onClick = {
                 context.startActivity(
                     Intent().setClassName(
@@ -216,38 +217,13 @@ fun SettingsScreen(
             },
             title = "Permissions",
             description = if (protection.missingPermissions.isEmpty()) {
-                "Notifications, overlay, contacts, and full-screen alerts are available"
+                "Notifications, overlay, and contacts are available"
             } else {
                 protection.missingPermissions.joinToString()
             }
         )
 
         PermissionSettingsCard(context = context, isCompact = isCompact)
-        if (!protection.fullScreenIntentPermissionGranted) {
-            SentinelCard {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Full-screen critical alerts are off",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                    Text(
-                        text = "On this Android version, full-screen alerts require a one-time " +
-                            "permission grant. Until it's on, critical warnings will only show as " +
-                            "a normal notification instead of taking over the screen.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
-                    ActionButton(
-                        text = "Turn on full-screen alerts",
-                        onClick = { openFullScreenIntentSettings(context) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
 
         SentinelSectionHeader(
             title = "Theme",
@@ -368,44 +344,24 @@ private fun openAppSettings(context: Context) {
     context.startActivity(intent)
 }
 
-private fun openFullScreenIntentSettings(context: Context) {
-    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-        Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
-    } else {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
-    }
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
-        .onFailure {
-            context.startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
-        }
-}
-
 private fun isDefaultBrowser(context: Context): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         return context.getSystemService(RoleManager::class.java)
             ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
     }
 
-    @Suppress("DEPRECATION")
-    return context.packageManager.resolveActivity(
-        Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")),
-        0
-    )?.activityInfo?.packageName == context.packageName
+    return false
 }
 
 private fun requestDefaultBrowser(context: Context) {
-    val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
-        .onFailure { openAppSettings(context) }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val activity = context as? Activity ?: return
+        val roleManager = activity.getSystemService(RoleManager::class.java)
+        if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
+            val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
+            activity.startActivityForResult(intent, DEFAULT_BROWSER_REQUEST_CODE)
+        }
+    }
 }
+
+private const val DEFAULT_BROWSER_REQUEST_CODE = 1001
