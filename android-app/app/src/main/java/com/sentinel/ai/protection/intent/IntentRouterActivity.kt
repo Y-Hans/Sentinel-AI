@@ -36,12 +36,18 @@ class IntentRouterActivity : ComponentActivity() {
         }
 
         Log.i(TAG, "Routing payload type: ${payload.payloadTypeLabel}")
+        Log.d(ML_TAG, "Router payload class=${payload.javaClass.name}")
+        Log.d(ML_TAG, "Router payload=$payload")
         val isViewIntent = intent.action == Intent.ACTION_VIEW
         val scanIntent = Intent(this, ScanLoadingActivity::class.java).apply {
             putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE, payload.payloadTypeKey)
             putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE, payload.payloadValue)
             putExtra(IntentPayloadExtras.EXTRA_FROM_VIEW_INTENT, isViewIntent)
         }
+        Log.d(
+            ML_TAG,
+            "Forwarding extras: type=${payload.payloadTypeKey}, value=${payload.payloadValue}"
+        )
         if (payload is FilePayload) {
             scanIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             scanIntent.data = payload.uri
@@ -125,5 +131,6 @@ class IntentRouterActivity : ComponentActivity() {
 
     private companion object {
         const val TAG = "IntentRouterActivity"
+        const val ML_TAG = "ML_DEBUG"
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.sentinel.ai.core.data.ScanRepository
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.core.validation.UrlInputValidator
@@ -54,7 +55,7 @@ import javax.inject.Inject
 class ScanLoadingActivity : ComponentActivity() {
 
     @Inject
-    lateinit var threatAnalyzer: IntentThreatAnalyzer
+    lateinit var scanRepository: ScanRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +71,13 @@ class ScanLoadingActivity : ComponentActivity() {
             else -> null
         }
         val invalidUrl = payloadType == IntentPayloadExtras.TYPE_URL && payload == null
+        Log.d(ML_TAG, "payload.javaClass.name=${payload?.javaClass?.name ?: "null"}")
+        Log.d(ML_TAG, "payload.toString()=${payload?.toString() ?: "null"}")
+        if (payload is UrlPayload) {
+            Log.d(ML_TAG, "payload.url=${payload.url}")
+        } else {
+            Log.d(ML_TAG, "Skipping ML: payload is not UrlPayload")
+        }
 
         setContent {
             SentinelTheme {
@@ -88,7 +96,10 @@ class ScanLoadingActivity : ComponentActivity() {
                         }
                         try {
                             delay(1000) // Delay to display "Analyzing..." state clearly to the user
-                            val result = threatAnalyzer.analyze(payload)
+                            val result = when (payload) {
+                                is UrlPayload -> scanRepository.scanLink(payload.url)
+                                is FilePayload -> scanRepository.scanFile(payload.uri)
+                            }
                             uiState = ScanUiState.Success(result, payload)
                         } catch (e: Exception) {
                             Log.e(TAG, "Analysis failed", e)
@@ -135,6 +146,7 @@ class ScanLoadingActivity : ComponentActivity() {
 
     private companion object {
         const val TAG = "ScanLoadingActivity"
+        const val ML_TAG = "ML_DEBUG"
     }
 }
 
