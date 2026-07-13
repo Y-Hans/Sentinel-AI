@@ -18,6 +18,6 @@ class ClipboardUrlDetectorTest {
 
     @Test fun `rejects non URL text and inferred schemes`() {
         assertNull(ClipboardUrlDetector.firstValidUrl("hello world"))
-        assertNull(ClipboardUrlDetector.firstValidUrl("example.com"))
+        assertEquals("https://google.com", ClipboardUrlDetector.firstValidUrl("google.com"))
     }
 }

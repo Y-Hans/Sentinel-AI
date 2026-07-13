@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class NotificationEventBuilder @Inject constructor() {
 
-    fun build(raw: WhatsAppRawNotificationData): MessageEvent? {
+    fun build(raw: WhatsAppRawNotificationData, isKnownContact: Boolean = false): MessageEvent? {
         if (raw.senderDisplayName.isNullOrBlank() || raw.messageText.isNullOrBlank()) return null
 
         val capturedAt = Instant.ofEpochMilli(raw.capturedAtMs).toString()
@@ -39,7 +39,7 @@ class NotificationEventBuilder @Inject constructor() {
         val scamResult = ScamRuleEngine.evaluate(
             messageText = truncated,
             urls = urls,
-            isKnownContact = false
+            isKnownContact = isKnownContact
         )
         val senderHash = sha256Hex(raw.senderDisplayName)
         val chatHash = sha256Hex(
@@ -73,7 +73,7 @@ class NotificationEventBuilder @Inject constructor() {
             source = SourceBlock(
                 identifierHash = senderHash,
                 identifierType = mapping.identifierType,
-                isKnownContact = false
+                isKnownContact = isKnownContact
             ),
             content = ContentBlock(
                 body = truncated,

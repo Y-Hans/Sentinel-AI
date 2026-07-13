@@ -36,8 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -93,18 +91,11 @@ fun SettingsScreen(
             ),
         verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.displaySmall,
-                modifier = Modifier.semantics { heading() }
-            )
-            Text(
-                text = "Control protection, permissions, and the app-wide appearance.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = "Control protection, permissions, and the app-wide appearance.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         ElevatedSentinelCard {
             Column(modifier = Modifier.fillMaxWidth()) {

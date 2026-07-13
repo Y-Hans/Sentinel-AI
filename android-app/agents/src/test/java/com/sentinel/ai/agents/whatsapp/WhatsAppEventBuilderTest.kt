@@ -82,6 +82,14 @@ class WhatsAppEventBuilderTest {
     }
 
     @Test
+    fun `preserves resolved known contact status in the event`() {
+        val event = builder.build(validRawNotification(), isKnownContact = true)
+
+        assertNotNull(event)
+        assertTrue(event!!.event.source.isKnownContact)
+    }
+
+    @Test
     fun `sets group name to null for privacy mode compliance`() {
         val event = builder.build(
             validRawNotification(

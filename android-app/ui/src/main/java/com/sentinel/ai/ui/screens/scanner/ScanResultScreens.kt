@@ -147,7 +147,11 @@ private fun ScanVerdictContent(
         SentinelCard(modifier = Modifier.fillMaxWidth()) {
             InfoRow(
                 label = subjectLabel,
-                value = result.source,
+                value = result.source
+            )
+            InfoRow(
+                label = "Risk Score",
+                value = "${result.riskScore.toInt().coerceIn(0, 100)} / 100",
                 showDivider = false
             )
         }

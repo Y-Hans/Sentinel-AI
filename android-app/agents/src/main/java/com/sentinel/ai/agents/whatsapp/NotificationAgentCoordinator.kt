@@ -31,7 +31,10 @@ class NotificationAgentCoordinator @Inject constructor(
         }
     }
 
-    suspend fun onWhatsAppNotification(snapshot: WhatsAppNotificationSnapshot) {
+    suspend fun onWhatsAppNotification(
+        snapshot: WhatsAppNotificationSnapshot,
+        isKnownContact: Boolean = false
+    ) {
         _lastStatus.value = "CAPTURED"
         val raw = parser.parse(snapshot) ?: run {
             logDebug("Notification ignored: package=${snapshot.packageName}, sender=${snapshot.title.orEmpty()}, message=${snapshot.bigText ?: snapshot.text.orEmpty()}")
@@ -53,7 +56,7 @@ class NotificationAgentCoordinator @Inject constructor(
             _lastStatus.value = "IGNORED"
             return
         }
-        val event = builder.build(raw) ?: run {
+        val event = builder.build(raw, isKnownContact = isKnownContact) ?: run {
             logDebug("Notification ignored: package=${raw.normalized.packageName}, sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, reason=event_not_built")
             _lastStatus.value = "IGNORED"
             return
@@ -94,7 +97,7 @@ class NotificationAgentCoordinator @Inject constructor(
 
     private companion object {
         const val TAG = "NotificationAgent"
-        const val DUPLICATE_WINDOW_MS = 60_000L
+        const val DUPLICATE_WINDOW_MS = 3_000L
         const val MAX_DUPLICATE_CACHE_SIZE = 256
     }
 

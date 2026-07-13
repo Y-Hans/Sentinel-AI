@@ -23,6 +23,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val preferences = getSharedPreferences(ONBOARDING_PREFERENCES, MODE_PRIVATE)
+        isPermissionOnboardingLaunch = preferences.getBoolean(KEY_FIRST_LAUNCH, true)
+        if (isPermissionOnboardingLaunch) {
+            preferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
+        }
         enableEdgeToEdge()
         setContent {
             val themeMode = rememberThemeMode(this)
@@ -30,7 +35,11 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 SentinelNavGraph(
                     navController = navController,
-                    startDestination = Screen.Dashboard.route,
+                    startDestination = if (isPermissionOnboardingLaunch) {
+                        Screen.PermissionSetup.route
+                    } else {
+                        Screen.Dashboard.route
+                    },
                     themeMode = themeMode.value,
                     onThemeModeSelected = { ThemePreferences.set(this, it) },
                     appVersion = BuildConfig.APP_VERSION
@@ -45,16 +54,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showIncompleteProtectionWarningOnce() {
-        if (warningShownThisProcess) return
+        if (warningShownThisProcess || isPermissionOnboardingLaunch) return
+        val protection = com.sentinel.ai.ui.protection.ProtectionControl.snapshot(this)
         val missing = buildList {
-            if (FeatureManager.isNotificationEnabled() &&
-                !androidx.core.app.NotificationManagerCompat.getEnabledListenerPackages(this@MainActivity)
-                    .contains(packageName)
-            ) add("Notification access disabled")
+            addAll(protection.missingPermissions)
             if (FeatureManager.isClickEnabled() && !isDefaultBrowser()) {
                 add("Default browser not set")
             }
-        }
+        }.distinct()
         if (missing.isEmpty()) return
         warningShownThisProcess = true
         AlertDialog.Builder(this)
@@ -85,6 +92,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private companion object {
+        const val ONBOARDING_PREFERENCES = "sentinel_onboarding"
+        const val KEY_FIRST_LAUNCH = "first_launch"
         var warningShownThisProcess = false
     }
+
+    private var isPermissionOnboardingLaunch = false
 }

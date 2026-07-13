@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import android.Manifest
 import com.sentinel.ai.R
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
 
 class WarningNotificationHelper(private val context: Context) {
@@ -31,7 +32,8 @@ class WarningNotificationHelper(private val context: Context) {
 
         ensureChannel(highPriority)
 
-        val alertIntent = if (fullScreen) {
+        val shouldUseFullScreen = fullScreen && result.decision == ProtectionDecision.BLOCK
+        val alertIntent = if (shouldUseFullScreen) {
             CriticalAlertActivity.newIntent(context, result)
         } else {
             ScamWarningActivity.newIntent(context, result)
@@ -50,7 +52,7 @@ class WarningNotificationHelper(private val context: Context) {
         // notification instead. Checking this avoids requesting a full-screen intent we already
         // know will be downgraded, and keeps the emitted notification (and its contentIntent)
         // correct either way.
-        val canUseFullScreenIntent = fullScreen && canUseFullScreenIntent()
+        val canUseFullScreenIntent = shouldUseFullScreen && canUseFullScreenIntent()
 
         val notification = NotificationCompat.Builder(context, channelId(highPriority))
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
@@ -93,6 +95,7 @@ class WarningNotificationHelper(private val context: Context) {
      * 10+ background activity launch restrictions.
      */
     fun launchCriticalAlert(result: ScanResult) {
+        if (result.decision != ProtectionDecision.BLOCK) return
         val intent = CriticalAlertActivity.newIntent(context, result)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         runCatching {

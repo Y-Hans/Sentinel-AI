@@ -7,6 +7,7 @@ import android.util.Log
 import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.event.ThreatJournal
+import com.sentinel.ai.core.model.ProtectionDecision
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,6 @@ class ThreatEventSubscriberService : Service() {
         Log.d("ThreatSubscriber", "About to create WarningNotificationHelper")
         val helper = WarningNotificationHelper(this)
         Log.d("ThreatSubscriber", "Created WarningNotificationHelper")
-        val isCriticalScore = result.riskScore >= CRITICAL_SCORE_THRESHOLD
         // Do NOT call helper.launchCriticalAlert(result) here. This service has no visible UI,
         // and starting an Activity directly from a background Service context is subject to
         // Android's background activity launch (BAL) restrictions from Android 10 onward. Whether
@@ -76,13 +76,17 @@ class ThreatEventSubscriberService : Service() {
         // therefore the sole, reliable trigger for the critical alert UI.
         when (warning.severity) {
             WarningSeverity.MEDIUM -> helper.showWarning(result, highPriority = false)
-            WarningSeverity.HIGH -> helper.showWarning(result, highPriority = true, fullScreen = isCriticalScore)
-            WarningSeverity.CRITICAL -> helper.showWarning(result, highPriority = true, fullScreen = true)
+            WarningSeverity.HIGH -> helper.showWarning(
+                result,
+                highPriority = true,
+                fullScreen = result.decision == ProtectionDecision.BLOCK
+            )
+            WarningSeverity.CRITICAL -> helper.showWarning(
+                result,
+                highPriority = true,
+                fullScreen = result.decision == ProtectionDecision.BLOCK
+            )
             WarningSeverity.NONE -> Unit
         }
-    }
-
-    private companion object {
-        private const val CRITICAL_SCORE_THRESHOLD = 70f
     }
 }

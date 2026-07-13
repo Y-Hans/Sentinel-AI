@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,7 +23,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.sentinel.ai.ui.screens.about.AboutScreen
 import com.sentinel.ai.ui.screens.alert.AlertScreen
-import com.sentinel.ai.ui.screens.copilot.CopilotScreen
 import com.sentinel.ai.ui.screens.dashboard.DashboardScreen
 import com.sentinel.ai.ui.screens.history.HistoryScreen
 import com.sentinel.ai.ui.screens.permissions.PermissionOnboardingScreen
@@ -57,6 +55,7 @@ fun SentinelNavGraph(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val isPermissionSetup = currentRoute == Screen.PermissionSetup.route
 
     val windowWidth = rememberWindowWidthClass()
     val isCompact = windowWidth.isCompact
@@ -67,11 +66,15 @@ fun SentinelNavGraph(
     val onDestinationSelected: (Screen) -> Unit = { screen ->
         scope.launch { drawerState.close() }
         navController.navigate(screen.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+            if (screen == Screen.Dashboard) {
+                popUpTo(Screen.Dashboard.route) { inclusive = true }
+            } else {
+                popUpTo(Screen.Dashboard.route) {
+                    saveState = true
+                }
             }
             launchSingleTop = true
-            restoreState = true
+            restoreState = screen != Screen.Dashboard
         }
     }
 
@@ -91,7 +94,7 @@ fun SentinelNavGraph(
         gesturesEnabled = false
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            if (!isCompact) {
+            if (!isCompact && !isPermissionSetup) {
                 SentinelNavRail(
                     currentRoute = currentRoute,
                     onDestinationSelected = onDestinationSelected,
@@ -102,14 +105,16 @@ fun SentinelNavGraph(
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
-                    SentinelTopBar(
-                        currentRoute = currentRoute,
-                        onMenuClicked = { scope.launch { drawerState.open() } },
-                        onBackClicked = { navController.popBackStack() }
-                    )
+                    if (!isPermissionSetup) {
+                        SentinelTopBar(
+                            currentRoute = currentRoute,
+                            onMenuClicked = { scope.launch { drawerState.open() } },
+                            onBackClicked = { navController.popBackStack() }
+                        )
+                    }
                 },
                 bottomBar = {
-                    if (isCompact && currentRoute?.startsWith("threat_details") != true) {
+                    if (isCompact && !isPermissionSetup && currentRoute?.startsWith("threat_details") != true) {
                         SentinelBottomNav(
                             currentRoute = currentRoute,
                             onDestinationSelected = onDestinationSelected
@@ -254,15 +259,6 @@ private fun SentinelNavHost(
             popExitTransition = { SentinelNavPopExitTransition }
         ) {
             ScannerScreen()
-        }
-        composable(
-            route = Screen.Copilot.route,
-            enterTransition = { SentinelNavEnterTransition },
-            exitTransition = { SentinelNavExitTransition },
-            popEnterTransition = { SentinelNavPopEnterTransition },
-            popExitTransition = { SentinelNavPopExitTransition }
-        ) {
-            CopilotScreen()
         }
     }
 }

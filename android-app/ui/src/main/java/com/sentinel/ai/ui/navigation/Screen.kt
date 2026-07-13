@@ -15,5 +15,4 @@ sealed class Screen(val route: String) {
     // Legacy routes kept for compatibility with the frozen backend surface.
     data object Alerts : Screen("alerts")
     data object Scanner : Screen("scanner")
-    data object Copilot : Screen("copilot")
 }

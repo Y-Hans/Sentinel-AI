@@ -1,8 +1,12 @@
 package com.sentinel.ai.listeners
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.provider.ContactsContract
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.sentinel.ai.agents.whatsapp.NotificationAgentCoordinator
 import com.sentinel.ai.agents.registry.SupportedAppRegistry
 import com.sentinel.ai.core.feature.FeatureManager
@@ -69,8 +73,65 @@ class SentinelNotificationListener : NotificationListenerService() {
                 "notification accepted for processing"
         )
         serviceScope.launch {
-            notificationAgentCoordinator.onWhatsAppNotification(snapshot)
+            notificationAgentCoordinator.onWhatsAppNotification(
+                snapshot = snapshot,
+                isKnownContact = isKnownContact(snapshot)
+            )
         }
+    }
+
+    private fun isKnownContact(snapshot: com.sentinel.ai.agents.whatsapp.WhatsAppNotificationSnapshot): Boolean {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "Contact lookup skipped: READ_CONTACTS not granted")
+            return false
+        }
+
+        val incomingValues = listOfNotNull(snapshot.title, snapshot.sender, snapshot.subText)
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+        val incomingNumbers = incomingValues
+            .mapNotNull(::extractPhoneNumber)
+            .map(::normalizeNumber)
+            .filter { it.length >= MIN_PHONE_DIGITS }
+            .toSet()
+        val incomingNames = incomingValues
+            .filterNot { extractPhoneNumber(it) != null }
+
+        return runCatching {
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                ),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                while (cursor.moveToNext()) {
+                    val contactNumber = if (numberIndex >= 0) cursor.getString(numberIndex).orEmpty() else ""
+                    val normalizedContact = normalizeNumber(contactNumber)
+                    if (normalizedContact.length >= MIN_PHONE_DIGITS && normalizedContact in incomingNumbers) {
+                        return@use true
+                    }
+
+                    val contactName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
+                    if (!contactName.isNullOrBlank() && incomingNames.any {
+                            it.equals(contactName.trim(), ignoreCase = true)
+                        }
+                    ) {
+                        return@use true
+                    }
+                }
+                false
+            } ?: false
+        }.onFailure {
+            Log.w(TAG, "Contact lookup failed", it)
+        }.getOrDefault(false)
     }
 
     override fun onDestroy() {
@@ -80,5 +141,18 @@ class SentinelNotificationListener : NotificationListenerService() {
 
     private companion object {
         const val TAG = "SentinelNotification"
+        const val MIN_PHONE_DIGITS = 7
     }
 }
+
+internal fun normalizeNumber(number: String): String = number
+    .replace("\\s".toRegex(), "")
+    .replace("-", "")
+    .replace("+91", "")
+    .filter(Char::isDigit)
+    .takeLast(10)
+
+private fun extractPhoneNumber(value: String): String? =
+    PHONE_FINDER.find(value)?.value
+
+private val PHONE_FINDER = Regex("""\+?[0-9][0-9()\-.\s]{5,}[0-9]""")

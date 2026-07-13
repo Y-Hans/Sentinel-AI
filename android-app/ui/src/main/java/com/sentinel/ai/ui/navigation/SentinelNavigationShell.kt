@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -100,8 +99,7 @@ private val primaryDestinations = listOf(
 // drawer improves discoverability without altering any route or navigation logic.
 private val secondaryDestinations = listOf(
     SentinelNavDestination(Screen.Scanner, "Scanner", Icons.Filled.QrCodeScanner, NavGroup.Secondary),
-    SentinelNavDestination(Screen.Alerts, "Alerts", Icons.Filled.Notifications, NavGroup.Secondary),
-    SentinelNavDestination(Screen.Copilot, "Copilot", Icons.Filled.SmartToy, NavGroup.Secondary)
+    SentinelNavDestination(Screen.Alerts, "Alerts", Icons.Filled.Notifications, NavGroup.Secondary)
 )
 
 private val allDestinations = primaryDestinations + secondaryDestinations
