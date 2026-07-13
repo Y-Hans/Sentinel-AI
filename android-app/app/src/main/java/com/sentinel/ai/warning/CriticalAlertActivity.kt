@@ -53,6 +53,21 @@ class CriticalAlertActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, backCallback)
 
         val result = intent.toScanResultOrNull() ?: return finish()
+        presentAlert(result)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val result = intent.toScanResultOrNull() ?: return
+        presentAlert(result)
+    }
+
+    private fun presentAlert(result: ScanResult) {
+        countdownJob?.cancel()
+        stopDeviceAlert()
+        canExit = false
+        backCallback.isEnabled = true
         bindViews(result)
         startDeviceAlert()
         startCountdown()
@@ -181,6 +196,11 @@ class CriticalAlertActivity : ComponentActivity() {
 
         fun newIntent(context: Context, result: ScanResult): Intent =
             Intent(context, CriticalAlertActivity::class.java)
+                .addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                )
                 .putExtra(EXTRA_ID, result.id)
                 .putExtra(EXTRA_SOURCE, result.source)
                 .putExtra(EXTRA_RISK_LEVEL, result.riskLevel.name)

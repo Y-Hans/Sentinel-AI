@@ -1,5 +1,6 @@
 package com.sentinel.ai.ui.screens.settings
 
+import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -32,6 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,12 +71,16 @@ fun SettingsScreen(
     val context = LocalContext.current
     val protection = uiState.protection
     val isCompact = rememberWindowWidthClass().isCompact
+    var sentinelIsDefaultBrowser by remember(context) {
+        mutableStateOf(isDefaultBrowser(context))
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, viewModel) {
+    DisposableEffect(lifecycleOwner, viewModel, context) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.onAction(SettingsUiAction.RefreshStatus)
+                sentinelIsDefaultBrowser = isDefaultBrowser(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -129,6 +137,30 @@ fun SettingsScreen(
                         modifier = Modifier
                             .size(SentinelSize.MinTouchTarget)
                             .padding(SentinelSpacing.None)
+                    )
+                }
+            }
+        }
+
+        if (!sentinelIsDefaultBrowser) {
+            SentinelCard {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Make Sentinel your default browser",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+                    Text(
+                        text = "Android manages the default browser in system settings.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+                    ActionButton(
+                        text = "Set Sentinel as Default Browser",
+                        onClick = { requestDefaultBrowser(context) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -356,4 +388,24 @@ private fun openFullScreenIntentSettings(context: Context) {
                 }
             )
         }
+}
+
+private fun isDefaultBrowser(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        return context.getSystemService(RoleManager::class.java)
+            ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
+    }
+
+    @Suppress("DEPRECATION")
+    return context.packageManager.resolveActivity(
+        Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")),
+        0
+    )?.activityInfo?.packageName == context.packageName
+}
+
+private fun requestDefaultBrowser(context: Context) {
+    val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+        .onFailure { openAppSettings(context) }
 }

@@ -58,9 +58,6 @@ class ThreatEventSubscriberService : Service() {
             else -> return
         }
 
-        val warning = result.toWarningUiModel()
-        if (warning.severity == WarningSeverity.NONE) return
-
         Log.d("ThreatSubscriber", "About to create WarningNotificationHelper")
         val helper = WarningNotificationHelper(this)
         Log.d("ThreatSubscriber", "Created WarningNotificationHelper")
@@ -74,18 +71,17 @@ class ThreatEventSubscriberService : Service() {
         // notification's full-screen intent (NotificationCompat.Builder#setFullScreenIntent),
         // which is explicitly exempted from BAL restrictions. Posting that notification below is
         // therefore the sole, reliable trigger for the critical alert UI.
+        if (result.decision == ProtectionDecision.BLOCK) {
+            helper.showWarning(result, highPriority = true, fullScreen = true)
+            return
+        }
+
+        val warning = result.toWarningUiModel()
+        if (warning.severity == WarningSeverity.NONE) return
         when (warning.severity) {
             WarningSeverity.MEDIUM -> helper.showWarning(result, highPriority = false)
-            WarningSeverity.HIGH -> helper.showWarning(
-                result,
-                highPriority = true,
-                fullScreen = result.decision == ProtectionDecision.BLOCK
-            )
-            WarningSeverity.CRITICAL -> helper.showWarning(
-                result,
-                highPriority = true,
-                fullScreen = result.decision == ProtectionDecision.BLOCK
-            )
+            WarningSeverity.HIGH -> helper.showWarning(result, highPriority = true)
+            WarningSeverity.CRITICAL -> helper.showWarning(result, highPriority = true)
             WarningSeverity.NONE -> Unit
         }
     }

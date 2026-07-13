@@ -111,11 +111,10 @@ private fun titleForRoute(route: String?): String {
     return allDestinations.firstOrNull { it.screen.route == base }?.label ?: primaryDestinations.first().label
 }
 
-/** Picks a top app bar variant that exercises the supported Large / Medium / Center styles. */
+/** Picks a top app bar variant for the active destination. */
 private fun variantForRoute(route: String?): TopAppBarVariant {
     return when (route?.substringBefore("/")) {
         Screen.Dashboard.route -> TopAppBarVariant.Large
-        Screen.Settings.route -> TopAppBarVariant.Center
         else -> TopAppBarVariant.Medium
     }
 }

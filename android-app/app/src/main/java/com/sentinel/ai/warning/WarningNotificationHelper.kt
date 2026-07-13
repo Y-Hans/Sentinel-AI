@@ -19,7 +19,7 @@ class WarningNotificationHelper(private val context: Context) {
 
     fun showWarning(result: ScanResult, highPriority: Boolean, fullScreen: Boolean = false) {
         val model = result.toWarningUiModel()
-        if (model.severity == WarningSeverity.NONE) return
+        if (model.severity == WarningSeverity.NONE && result.decision != ProtectionDecision.BLOCK) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 context,
@@ -97,7 +97,11 @@ class WarningNotificationHelper(private val context: Context) {
     fun launchCriticalAlert(result: ScanResult) {
         if (result.decision != ProtectionDecision.BLOCK) return
         val intent = CriticalAlertActivity.newIntent(context, result)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
         runCatching {
             context.startActivity(intent)
         }.onFailure {

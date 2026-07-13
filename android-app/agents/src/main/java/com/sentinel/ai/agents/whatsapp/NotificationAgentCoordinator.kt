@@ -6,6 +6,7 @@ import com.sentinel.ai.core.event.schema.EventValidator
 import com.sentinel.ai.core.event.schema.EventSchemaGson
 import com.sentinel.ai.core.event.schema.ValidationResult
 import com.sentinel.ai.core.event.schema.ScamRiskLevel
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,16 +47,6 @@ class NotificationAgentCoordinator @Inject constructor(
                 "sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, " +
                 "timestamp=${raw.normalized.timestampMs}"
         )
-        val fingerprint = raw.deduplicationFingerprint()
-        if (isDuplicate(fingerprint)) {
-            logDebug(
-                "Notification ignored: package=${raw.normalized.packageName}, " +
-                    "sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, " +
-                    "reason=duplicate_notification"
-            )
-            _lastStatus.value = "IGNORED"
-            return
-        }
         val event = builder.build(raw, isKnownContact = isKnownContact) ?: run {
             logDebug("Notification ignored: package=${raw.normalized.packageName}, sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, reason=event_not_built")
             _lastStatus.value = "IGNORED"
@@ -70,6 +61,7 @@ class NotificationAgentCoordinator @Inject constructor(
 
         logDebug("WhatsAppAgent: ${EventSchemaGson.toJsonMessage(event)}")
 
+        val fingerprint = raw.deduplicationFingerprint()
         val senderIdentifier = raw.bestEffortSenderIdentifier()
         val senderDisplayName = raw.senderDisplayName
             ?.trim()
@@ -91,6 +83,15 @@ class NotificationAgentCoordinator @Inject constructor(
             explanation = event.event.scamExplanations?.joinToString("; ") ?: "WhatsApp message captured and normalized",
             timestamp = snapshot.timestampMs
         )
+        if (result.decision != ProtectionDecision.BLOCK && isDuplicate(fingerprint)) {
+            logDebug(
+                "Notification ignored: package=${raw.normalized.packageName}, " +
+                    "sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, " +
+                    "reason=duplicate_notification"
+            )
+            _lastStatus.value = "IGNORED"
+            return
+        }
         threatEventBus.emit(ThreatEvent.WhatsAppThreatDetected(result))
         _lastStatus.value = "COMPLETED"
     }

@@ -95,4 +95,39 @@ class WhatsAppAgentCoordinatorTest {
         assertEquals("IGNORED", coordinator.lastStatus.value)
         collector.cancel()
     }
+
+    @Test
+    fun `always publishes repeated block notifications`() = runTest {
+        val bus = ThreatEventBus()
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = bus
+        )
+        val events = mutableListOf<ThreatEvent>()
+        val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+            bus.events.collect { events += it }
+        }
+        val snapshot = WhatsAppNotificationSnapshot(
+            packageName = "com.whatsapp",
+            notificationKey = "critical-key",
+            sender = "Unknown Sender",
+            message = "Urgent: verify your account OTP immediately for bank login",
+            timestampMs = 1_719_218_400_000L
+        )
+
+        coordinator.onWhatsAppNotification(snapshot)
+        coordinator.onWhatsAppNotification(snapshot)
+        advanceUntilIdle()
+
+        assertEquals(2, events.size)
+        events.forEach { event ->
+            assertEquals(
+                RiskLevel.CRITICAL,
+                (event as ThreatEvent.WhatsAppThreatDetected).scanResult.riskLevel
+            )
+        }
+        assertEquals("COMPLETED", coordinator.lastStatus.value)
+        collector.cancel()
+    }
 }

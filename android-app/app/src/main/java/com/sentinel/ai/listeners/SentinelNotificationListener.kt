@@ -96,8 +96,10 @@ class SentinelNotificationListener : NotificationListenerService() {
             .map(::normalizeNumber)
             .filter { it.length >= MIN_PHONE_DIGITS }
             .toSet()
-        val incomingNames = incomingValues
-            .filterNot { extractPhoneNumber(it) != null }
+        val senderName = snapshot.title
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+            ?: snapshot.sender?.trim()?.takeIf(String::isNotEmpty)
 
         return runCatching {
             contentResolver.query(
@@ -120,10 +122,7 @@ class SentinelNotificationListener : NotificationListenerService() {
                     }
 
                     val contactName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (!contactName.isNullOrBlank() && incomingNames.any {
-                            it.equals(contactName.trim(), ignoreCase = true)
-                        }
-                    ) {
+                    if (incomingNumbers.isEmpty() && contactNamesMatch(senderName, contactName)) {
                         return@use true
                     }
                 }
@@ -151,6 +150,14 @@ internal fun normalizeNumber(number: String): String = number
     .replace("+91", "")
     .filter(Char::isDigit)
     .takeLast(10)
+
+internal fun contactNamesMatch(senderName: String?, displayName: String?): Boolean {
+    val normalizedSender = senderName?.trim().orEmpty()
+    val normalizedContact = displayName?.trim().orEmpty()
+    return normalizedSender.isNotEmpty() &&
+        normalizedContact.isNotEmpty() &&
+        normalizedSender.equals(normalizedContact, ignoreCase = true)
+}
 
 private fun extractPhoneNumber(value: String): String? =
     PHONE_FINDER.find(value)?.value
