@@ -48,6 +48,9 @@ class CriticalAlertActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val url = intent.getStringExtra("url")
+        val score = intent.getIntExtra("score", 0)
+        val decision = intent.getStringExtra("decision")
         configureFullScreen()
         setContentView(R.layout.activity_critical_alert)
         onBackPressedDispatcher.addCallback(this, backCallback)

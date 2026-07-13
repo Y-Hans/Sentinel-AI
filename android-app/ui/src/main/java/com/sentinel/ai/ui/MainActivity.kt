@@ -21,18 +21,30 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val preferences = getSharedPreferences(ONBOARDING_PREFERENCES, MODE_PRIVATE)
-        isPermissionOnboardingLaunch = preferences.getBoolean(KEY_FIRST_LAUNCH, true)
-        if (isPermissionOnboardingLaunch) {
+        val firstLaunch = preferences.getBoolean(KEY_FIRST_LAUNCH, true)
+
+        val isBrowserDefault = isDefaultBrowser()
+
+        // 🔥 FIX: onboarding should also trigger if browser NOT default
+        isPermissionOnboardingLaunch = firstLaunch || !isBrowserDefault
+
+        if (firstLaunch) {
             preferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
         }
+
         enableEdgeToEdge()
+
         setContent {
             val themeMode = rememberThemeMode(this)
+
             SentinelTheme(mode = themeMode.value) {
                 val navController = rememberNavController()
+
                 SentinelNavGraph(
                     navController = navController,
                     startDestination = if (isPermissionOnboardingLaunch) {
@@ -50,20 +62,33 @@ class MainActivity : ComponentActivity() {
 
     override fun onPostResume() {
         super.onPostResume()
+
+        // 🔥 FIX: re-check browser after returning from settings
+        if (!isDefaultBrowser()) {
+            isPermissionOnboardingLaunch = true
+        }
+
         showIncompleteProtectionWarningOnce()
     }
 
     private fun showIncompleteProtectionWarningOnce() {
         if (warningShownThisProcess || isPermissionOnboardingLaunch) return
+
         val protection = com.sentinel.ai.ui.protection.ProtectionControl.snapshot(this)
+
         val missing = buildList {
             addAll(protection.missingPermissions)
+
+            // 🔥 FIX: include browser in warning
             if (FeatureManager.isClickEnabled() && !isDefaultBrowser()) {
                 add("Default browser not set")
             }
         }.distinct()
+
         if (missing.isEmpty()) return
+
         warningShownThisProcess = true
+
         AlertDialog.Builder(this)
             .setTitle("Protection incomplete:")
             .setMessage(missing.joinToString(separator = "\n") { "• $it" })
@@ -84,6 +109,7 @@ class MainActivity : ComponentActivity() {
             return getSystemService(RoleManager::class.java)
                 ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
         }
+
         @Suppress("DEPRECATION")
         return packageManager.resolveActivity(
             Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")),

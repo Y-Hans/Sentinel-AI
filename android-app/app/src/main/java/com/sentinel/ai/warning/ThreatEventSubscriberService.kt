@@ -1,22 +1,23 @@
 package com.sentinel.ai.warning
 
-import android.app.Service
+import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.sentinel.ai.R
 import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.model.ProtectionDecision
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
+import android.app.PendingIntent
+import android.app.NotificationManager
 
 @AndroidEntryPoint
 class ThreatEventSubscriberService : Service() {
@@ -27,17 +28,17 @@ class ThreatEventSubscriberService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("ThreatSubscriber", "ThreatEventSubscriberService started")
+        Log.d("ThreatSubscriber", "Service started")
+
+        createAlertChannel() // 🔥 ensure channel exists
+
         serviceScope.launch {
-                Log.d("ThreatSubscriber", "Threat event collection begins")
-                try {
-                    threatEventBus.events.collectLatest { event ->
-                        Log.d("ThreatSubscriber", "Received threat event: $event")
-                        ThreatJournal.record(event)
-                        handleEvent(event)
-                    }
-                } catch (e: CancellationException) {
-                Log.d("ThreatSubscriber", "Threat event collection coroutine cancelled")
+            try {
+                threatEventBus.events.collectLatest { event ->
+                    ThreatJournal.record(event)
+                    handleEvent(event)
+                }
+            } catch (e: CancellationException) {
                 throw e
             }
         }
@@ -58,31 +59,83 @@ class ThreatEventSubscriberService : Service() {
             else -> return
         }
 
-        Log.d("ThreatSubscriber", "About to create WarningNotificationHelper")
         val helper = WarningNotificationHelper(this)
-        Log.d("ThreatSubscriber", "Created WarningNotificationHelper")
-        // Do NOT call helper.launchCriticalAlert(result) here. This service has no visible UI,
-        // and starting an Activity directly from a background Service context is subject to
-        // Android's background activity launch (BAL) restrictions from Android 10 onward. Whether
-        // that direct startActivity() call succeeds depends on transient, OEM-specific exemptions
-        // (e.g. whether SYSTEM_ALERT_WINDOW is granted, recent foreground state, manufacturer
-        // policy), which is exactly why CriticalAlertActivity behaved inconsistently across
-        // Android 10-15 devices. The one launch path Android guarantees from the background is a
-        // notification's full-screen intent (NotificationCompat.Builder#setFullScreenIntent),
-        // which is explicitly exempted from BAL restrictions. Posting that notification below is
-        // therefore the sole, reliable trigger for the critical alert UI.
+
+        // 🔥 CRITICAL FIX — ALWAYS use full-screen notification for BLOCK
         if (result.decision == ProtectionDecision.BLOCK) {
-            helper.showWarning(result, highPriority = true, fullScreen = true)
+            showFullScreenAlert(result)
             return
         }
 
         val warning = result.toWarningUiModel()
         if (warning.severity == WarningSeverity.NONE) return
+
         when (warning.severity) {
             WarningSeverity.MEDIUM -> helper.showWarning(result, highPriority = false)
             WarningSeverity.HIGH -> helper.showWarning(result, highPriority = true)
             WarningSeverity.CRITICAL -> helper.showWarning(result, highPriority = true)
             WarningSeverity.NONE -> Unit
         }
+    }
+
+    // ================= FULL SCREEN FIX =================
+
+    private fun showFullScreenAlert(result: com.sentinel.ai.core.model.ScanResult) {
+
+        val intent = Intent(this, CriticalAlertActivity::class.java).apply {
+            // ❌ DO NOT pass object
+            // putExtra("scan_result", result)
+
+            // ✅ PASS SAFE DATA
+            putExtra("url", result.source)                 // ✅ correct field
+            putExtra("score", result.riskScore.toInt())    // ✅ Float → Int
+            putExtra("decision", result.decision.name)
+
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            999,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert) // ✅ FIXED ICON
+            .setContentTitle("🚨 Critical Threat Detected")    // ✅ WILL WORK NOW
+            .setContentText("Tap to view details")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setFullScreenIntent(pendingIntent, true)
+            .setAutoCancel(true)
+            .build()
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(9999, notification)
+    }
+
+    // ================= CHANNEL =================
+
+    private fun createAlertChannel() {
+        val manager = getSystemService(NotificationManager::class.java)
+
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Critical Alerts",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Full screen scam alerts"
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
+
+        manager.createNotificationChannel(channel)
+    }
+
+    private companion object {
+        const val CHANNEL_ID = "CRITICAL_ALERT_CHANNEL"
     }
 }
