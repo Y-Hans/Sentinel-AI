@@ -50,7 +50,7 @@ private fun ScanSheetDangerousLightPreview() {
                 alert = sampleAlert(RiskLevel.CRITICAL, "a1"),
                 appLabel = "WhatsApp",
                 senderPresentation = SenderPresentation("Unknown"),
-                onDismiss = {},
+                onClose = {},
                 onViewDetails = {}
             )
         }
@@ -66,7 +66,7 @@ private fun ScanSheetSafeDarkPreview() {
                 alert = sampleAlert(RiskLevel.GREEN, "a4"),
                 appLabel = "WhatsApp",
                 senderPresentation = SenderPresentation("Mom"),
-                onDismiss = {},
+                onClose = {},
                 onViewDetails = {}
             )
         }

@@ -43,6 +43,7 @@ class LinkProtectionAgent @Inject constructor(
         return ScanResult(
             id = UUID.randomUUID().toString(),
             source = "Intent (Link)",
+            target = url.trim(),
             senderDisplayName = null,
             senderIdentifier = null,
             riskLevel = analysis.riskLevel,

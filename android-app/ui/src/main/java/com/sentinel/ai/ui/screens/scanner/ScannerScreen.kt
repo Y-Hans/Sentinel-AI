@@ -113,7 +113,8 @@ fun ScannerContent(
                     onGoBack = onScanAgain,
                     onBypass = onOpenUrl,
                     onScanAgain = onScanAgain,
-                    modifier = modifier
+                    modifier = modifier,
+                    displaySource = uiState.scanInput.trim()
                 )
 
                 FILE -> FileScanResultContent(
@@ -122,7 +123,8 @@ fun ScannerContent(
                     onGoBack = onScanAgain,
                     onBypass = onScanAgain,
                     onScanAgain = onScanAgain,
-                    modifier = modifier
+                    modifier = modifier,
+                    displaySource = uiState.scanInput.trim()
                 )
 
                 TEXT -> UrlScanResultContent(
@@ -131,7 +133,8 @@ fun ScannerContent(
                     onGoBack = onScanAgain,
                     onBypass = onOpenUrl,
                     onScanAgain = onScanAgain,
-                    modifier = modifier
+                    modifier = modifier,
+                    displaySource = uiState.scanInput.trim()
                 )
             }
         }

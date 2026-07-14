@@ -1,7 +1,7 @@
 package com.sentinel.ai.ui.screens.settings
 
-import android.app.Activity
 import android.app.role.RoleManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -9,24 +9,23 @@ import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -40,27 +39,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sentinel.ai.core.model.RiskLevel
-import com.sentinel.ai.ui.components.ActionButton
-import com.sentinel.ai.ui.components.ElevatedSentinelCard
-import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.SentinelSectionHeader
-import com.sentinel.ai.ui.components.SettingRow
+import com.sentinel.ai.ui.components.PremiumListRow
+import com.sentinel.ai.ui.components.PremiumPanel
+import com.sentinel.ai.ui.components.PremiumSectionTitle
+import com.sentinel.ai.ui.components.RiskState
+import com.sentinel.ai.ui.components.StatusDot
 import com.sentinel.ai.ui.components.riskColor
 import com.sentinel.ai.ui.protection.ProtectionSnapshot
-import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.theme.SentinelThemeMode
-import com.sentinel.ai.ui.theme.rememberWindowWidthClass
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun SettingsScreen(
     appVersion: String,
     selectedTheme: SentinelThemeMode,
@@ -70,13 +65,11 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val protection = uiState.protection
-    val isCompact = rememberWindowWidthClass().isCompact
+    val lifecycleOwner = LocalLifecycleOwner.current
     var sentinelIsDefaultBrowser by remember(context) {
         mutableStateOf(isDefaultBrowser(context))
     }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, viewModel, context) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -85,254 +78,210 @@ fun SettingsScreen(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    SettingsContent(
+        appVersion = appVersion,
+        protection = uiState.protection,
+        selectedTheme = selectedTheme,
+        sentinelIsDefaultBrowser = sentinelIsDefaultBrowser,
+        onProtectionChanged = {
+            viewModel.onAction(SettingsUiAction.SetGuardEnabled(it))
+        },
+        onOpenProtectionSettings = { openProtectionSettings(context) },
+        onOpenNotificationAccessSettings = { openNotificationAccessSettings(context) },
+        onOpenOverlaySettings = { openOverlaySettings(context) },
+        onOpenContactsSettings = { openAppSettings(context) },
+        onOpenDefaultAppsSettings = { openDefaultAppsSettings(context) },
+        onUseSystemThemeChanged = { useSystem ->
+            onThemeSelected(if (useSystem) SentinelThemeMode.System else SentinelThemeMode.Dark)
+        },
+        onNavigateToAbout = onNavigateToAbout
+    )
+}
+
+@Composable
+private fun SettingsContent(
+    appVersion: String,
+    protection: ProtectionSnapshot,
+    selectedTheme: SentinelThemeMode,
+    sentinelIsDefaultBrowser: Boolean,
+    onProtectionChanged: (Boolean) -> Unit,
+    onOpenProtectionSettings: () -> Unit,
+    onOpenNotificationAccessSettings: () -> Unit,
+    onOpenOverlaySettings: () -> Unit,
+    onOpenContactsSettings: () -> Unit,
+    onOpenDefaultAppsSettings: () -> Unit,
+    onUseSystemThemeChanged: (Boolean) -> Unit,
+    onNavigateToAbout: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(
-                horizontal = SentinelSpacing.ScreenHorizontal,
-                vertical = SentinelSpacing.ScreenVertical
-            ),
-        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
+            .padding(horizontal = 20.dp, vertical = SentinelSpacing.MD),
+        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
     ) {
         Text(
-            text = "Control protection, permissions, and the app-wide appearance.",
-            style = MaterialTheme.typography.bodyLarge,
+            text = "Manage how Sentinel protects this device.",
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        ElevatedSentinelCard {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = if (protection.protectionEnabled) "Protection Active" else "Protection Disabled",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                        Text(
-                            text = if (protection.protectionEnabled) {
-                                "The UI reflects the live backend guard state."
-                            } else {
-                                "The shield is paused and the backend services are stopped."
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
-                    }
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        PremiumSectionTitle(text = "Protection features")
+        PremiumPanel {
+            PremiumListRow(
+                title = "Real-time protection",
+                description = if (protection.protectionEnabled) {
+                    "Monitoring links and messages"
+                } else {
+                    "Protection is paused"
+                },
+                leading = { SettingsIcon(Icons.Filled.Security) },
+                trailing = {
                     Switch(
                         checked = protection.protectionEnabled,
-                        onCheckedChange = { viewModel.onAction(SettingsUiAction.SetGuardEnabled(it)) },
-                        modifier = Modifier
-                            .size(SentinelSize.MinTouchTarget)
-                            .padding(SentinelSpacing.None)
+                        onCheckedChange = onProtectionChanged
                     )
                 }
-            }
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PremiumListRow(
+                title = "Protection controls",
+                description = "Choose where Sentinel can check content",
+                leading = { SettingsIcon(Icons.Filled.AdminPanelSettings) },
+                trailing = { Chevron() },
+                onClick = onOpenProtectionSettings
+            )
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !sentinelIsDefaultBrowser) {
-            SentinelCard {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Make Sentinel your default browser",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                    Text(
-                        text = "Android manages the default browser in system settings.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(SentinelSpacing.MD))
-                    ActionButton(
-                        text = "Set Sentinel as Default Browser",
-                        onClick = { requestDefaultBrowser(context) },
-                        modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        PremiumSectionTitle(text = "Permissions")
+        PremiumPanel {
+            PermissionRow(
+                title = "Notification access",
+                description = "Required to scan incoming messages",
+                granted = protection.notificationListenerEnabled,
+                icon = Icons.Filled.Notifications,
+                onClick = onOpenNotificationAccessSettings
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PermissionRow(
+                title = "Display over other apps",
+                description = "Required to show urgent alerts",
+                granted = protection.overlayPermissionGranted,
+                icon = Icons.Filled.PhoneAndroid,
+                onClick = onOpenOverlaySettings
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PermissionRow(
+                title = "Contacts",
+                description = "Required to recognize known senders",
+                granted = protection.contactsPermissionGranted,
+                icon = Icons.Filled.Lock,
+                onClick = onOpenContactsSettings
+            )
+        }
+
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        PremiumSectionTitle(text = "General")
+        PremiumPanel {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                PremiumListRow(
+                    title = "Default browser",
+                    description = "Lets Sentinel check links before opening",
+                    leading = { SettingsIcon(Icons.Filled.PhoneAndroid) },
+                    trailing = { PermissionState(granted = sentinelIsDefaultBrowser) },
+                    onClick = onOpenDefaultAppsSettings
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
+            PremiumListRow(
+                title = "Use device appearance",
+                description = "Follow the system light or dark setting",
+                leading = { SettingsIcon(Icons.Filled.PhoneAndroid) },
+                trailing = {
+                    Switch(
+                        checked = selectedTheme == SentinelThemeMode.System,
+                        onCheckedChange = onUseSystemThemeChanged
                     )
                 }
-            }
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PremiumListRow(
+                title = "About Sentinel AI",
+                description = "Version $appVersion",
+                leading = { SettingsIcon(Icons.Filled.Info) },
+                trailing = { Chevron() },
+                onClick = onNavigateToAbout
+            )
         }
 
-        SentinelSectionHeader(
-            title = "Notification permissions",
-            subtitle = "Status is read-only here; the actual permission flow remains in the activity"
-        )
-
-        SettingRow(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Security,
-                    contentDescription = null,
-                    tint = riskColor(RiskLevel.GREEN),
-                    modifier = Modifier.size(SentinelSize.IconMedium)
-                )
-            },
-            title = "Protection features",
-            description = "Control notification, click, and text-selection protection",
-            onClick = {
-                context.startActivity(
-                    Intent().setClassName(
-                        context,
-                        "com.sentinel.ai.ui.settings.SettingsActivity"
-                    )
-                )
-            }
-        )
-
-        SettingRow(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Security,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(SentinelSize.IconMedium)
-                )
-            },
-            title = "Notification listener",
-            description = if (protection.notificationListenerEnabled) "Available" else "Unavailable",
-            trailing = null
-        )
-        SettingRow(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(SentinelSize.IconMedium)
-                )
-            },
-            title = "Permissions",
-            description = if (protection.missingPermissions.isEmpty()) {
-                "Notifications, overlay, and contacts are available"
-            } else {
-                protection.missingPermissions.joinToString()
-            }
-        )
-
-        PermissionSettingsCard(context = context, isCompact = isCompact)
-
-        SentinelSectionHeader(
-            title = "Theme",
-            subtitle = "Choose one appearance for the entire app"
-        )
-        SentinelCard {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM),
-                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
-            ) {
-                SentinelThemeMode.entries.forEach { option ->
-                    FilterChip(
-                        selected = selectedTheme == option,
-                        onClick = {
-                            onThemeSelected(option)
-                        },
-                        label = { Text(option.name) },
-                        modifier = Modifier.height(SentinelSize.MinTouchTarget)
-                    )
-                }
-            }
-        }
-
-        SentinelSectionHeader(
-            title = "More",
-            subtitle = "Navigation and version information for the app shell"
-        )
-        SettingRow(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Build,
-                    contentDescription = null,
-                    tint = riskColor(RiskLevel.GREEN),
-                    modifier = Modifier.size(SentinelSize.IconMedium)
-                )
-            },
-            title = appVersion,
-            description = "Matches the Compose shell build"
-        )
-        SettingRow(
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(SentinelSize.IconMedium)
-                )
-            },
-            title = "About Sentinel AI",
-            description = "Mission, credits, and project context",
-            onClick = onNavigateToAbout,
-            trailing = {
-                Icon(
-                    imageVector = Icons.Filled.Visibility,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        )
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
     }
 }
 
 @Composable
-private fun PermissionSettingsCard(context: Context, isCompact: Boolean) {
-    SentinelCard {
-        if (isCompact) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
-            ) {
-                PermissionSettingsCopy()
-                ActionButton(
-                    text = "Open app settings",
-                    onClick = { openAppSettings(context) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    PermissionSettingsCopy()
-                }
-                ActionButton(
-                    text = "Open app settings",
-                    onClick = { openAppSettings(context) },
-                    modifier = Modifier.height(SentinelSize.ButtonHeight)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PermissionSettingsCopy() {
-    Text(
-        text = "Open system notification settings",
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+private fun PermissionRow(
+    title: String,
+    description: String,
+    granted: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    PremiumListRow(
+        title = title,
+        description = description,
+        leading = { SettingsIcon(icon) },
+        trailing = { PermissionState(granted = granted) },
+        onClick = onClick
     )
-    Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-    Text(
-        text = "Review runtime permissions in system settings",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+@Composable
+private fun PermissionState(granted: Boolean) {
+    val color = if (granted) riskColor(RiskState.Safe) else riskColor(RiskState.Suspicious)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)
+    ) {
+        StatusDot(color = color)
+        Text(
+            text = if (granted) "Granted" else "Not Granted",
+            style = MaterialTheme.typography.labelMedium,
+            color = color
+        )
+    }
+}
+
+@Composable
+private fun SettingsIcon(icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(22.dp)
+    )
+}
+
+@Composable
+private fun Chevron() {
+    Icon(
+        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(20.dp)
+    )
+}
+
+private fun openProtectionSettings(context: Context) {
+    context.startActivity(
+        Intent().setClassName(
+            context,
+            "com.sentinel.ai.ui.settings.SettingsActivity"
+        )
     )
 }
 
@@ -340,28 +289,46 @@ private fun openAppSettings(context: Context) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         data = Uri.fromParts("package", context.packageName, null)
     }
+    launchSettingsIntent(context, intent)
+}
+
+private fun openDefaultAppsSettings(context: Context) {
+    val opened = launchSettingsIntent(
+        context,
+        Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+    )
+    if (!opened) openAppSettings(context)
+}
+
+private fun openNotificationAccessSettings(context: Context) {
+    val opened = launchSettingsIntent(
+        context,
+        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+    )
+    if (!opened) openAppSettings(context)
+}
+
+private fun openOverlaySettings(context: Context) {
+    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
+    if (!launchSettingsIntent(context, intent)) openAppSettings(context)
+}
+
+private fun launchSettingsIntent(context: Context, intent: Intent): Boolean {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(intent)
+    return try {
+        context.startActivity(intent)
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
+    } catch (_: SecurityException) {
+        false
+    }
 }
 
 private fun isDefaultBrowser(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        return context.getSystemService(RoleManager::class.java)
-            ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
-    }
-
-    return false
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
+    return context.getSystemService(RoleManager::class.java)
+        ?.isRoleHeld(RoleManager.ROLE_BROWSER) == true
 }
-
-private fun requestDefaultBrowser(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val activity = context as? Activity ?: return
-        val roleManager = activity.getSystemService(RoleManager::class.java)
-        if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
-            val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
-            activity.startActivityForResult(intent, DEFAULT_BROWSER_REQUEST_CODE)
-        }
-    }
-}
-
-private const val DEFAULT_BROWSER_REQUEST_CODE = 1001

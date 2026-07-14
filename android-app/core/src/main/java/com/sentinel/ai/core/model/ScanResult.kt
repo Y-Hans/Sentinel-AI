@@ -16,7 +16,8 @@ data class ScanResult(
     val reasons: List<ScanReason> = emptyList(),
     val providerFindings: List<ProviderFinding> = emptyList(),
     val localEvidence: LocalEvidence? = null,
-    val recommendedAction: ProtectionAction = decision.defaultAction()
+    val recommendedAction: ProtectionAction = decision.defaultAction(),
+    val target: String? = null
 )
 
 enum class ProtectionDecision {

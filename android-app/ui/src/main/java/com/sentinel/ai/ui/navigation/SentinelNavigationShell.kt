@@ -1,11 +1,8 @@
 package com.sentinel.ai.ui.navigation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -38,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -91,8 +86,7 @@ private data class SentinelNavDestination(
 private val primaryDestinations = listOf(
     SentinelNavDestination(Screen.Dashboard, "Home", Icons.Filled.Home, NavGroup.Primary),
     SentinelNavDestination(Screen.History, "History", Icons.Filled.History, NavGroup.Primary),
-    SentinelNavDestination(Screen.Settings, "Settings", Icons.Filled.Settings, NavGroup.Primary),
-    SentinelNavDestination(Screen.About, "About", Icons.Filled.Info, NavGroup.Primary)
+    SentinelNavDestination(Screen.Settings, "Settings", Icons.Filled.Settings, NavGroup.Primary)
 )
 
 // Secondary destinations were previously only reachable via deep links; surfacing them in the
@@ -108,13 +102,15 @@ private val allDestinations = primaryDestinations + secondaryDestinations
 private fun titleForRoute(route: String?): String {
     if (route?.startsWith("threat_details") == true) return "Threat details"
     val base = route?.substringBefore("/")
+    if (base == Screen.Dashboard.route) return "Sentinel AI"
+    if (base == Screen.About.route) return "About"
     return allDestinations.firstOrNull { it.screen.route == base }?.label ?: primaryDestinations.first().label
 }
 
 /** Picks a top app bar variant for the active destination. */
 private fun variantForRoute(route: String?): TopAppBarVariant {
     return when (route?.substringBefore("/")) {
-        Screen.Dashboard.route -> TopAppBarVariant.Large
+        Screen.Dashboard.route -> TopAppBarVariant.Small
         else -> TopAppBarVariant.Medium
     }
 }
@@ -130,20 +126,12 @@ private fun shouldHideBottomBar(route: String?): Boolean =
 // existing [SentinelMotion] tokens to stay consistent with the rest of the design system.
 // ---------------------------------------------------------------------------------------------
 
-private val sentinelEnterTransition = fadeIn(animationSpec = tween(SentinelMotion.DurationShort)) +
-    scaleIn(
-        initialScale = 0.98f,
-        animationSpec = tween(SentinelMotion.DurationShort)
-    )
+private val sentinelEnterTransition = fadeIn(animationSpec = tween(SentinelMotion.DurationShort))
 
 private val sentinelExitTransition = fadeOut(animationSpec = tween(SentinelMotion.DurationShort))
 
 private val sentinelPopEnterTransition = fadeIn(animationSpec = tween(SentinelMotion.DurationShort))
-private val sentinelPopExitTransition = fadeOut(animationSpec = tween(SentinelMotion.DurationShort)) +
-    scaleOut(
-        targetScale = 0.98f,
-        animationSpec = tween(SentinelMotion.DurationShort)
-    )
+private val sentinelPopExitTransition = fadeOut(animationSpec = tween(SentinelMotion.DurationShort))
 
 /** Exposed transition specs so the NavHost can wire them without redeclaring them. */
 internal val SentinelNavEnterTransition
@@ -270,44 +258,15 @@ private fun SentinelNavItemIcon(
     selected: Boolean,
     label: String
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(SentinelSize.IconLarge)
-            .clip(SentinelShapes.small)
-    ) {
-        AnimatedVisibility(
-            visible = selected,
-            enter = fadeIn(animationSpec = tween(SentinelMotion.DurationShort)) +
-                scaleIn(
-                    initialScale = 0.6f,
-                    animationSpec = tween(SentinelMotion.DurationShort)
-                ),
-            exit = fadeOut(animationSpec = tween(SentinelMotion.DurationShort)) +
-                scaleOut(
-                    targetScale = 0.6f,
-                    animationSpec = tween(SentinelMotion.DurationShort)
-                )
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(SentinelSize.IconLarge)
-                    .background(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = SentinelShapes.small
-                    )
-            )
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = if (selected) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
         }
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (selected) {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            }
-        )
-    }
+    )
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -378,13 +337,6 @@ fun SentinelNavDrawerContent(
     onDestinationSelected: (Screen) -> Unit
 ) {
     val baseRoute = currentRoute?.substringBefore("/")
-    val shieldGradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.secondary
-        )
-    )
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -400,8 +352,8 @@ fun SentinelNavDrawerContent(
             Box(
                 modifier = Modifier
                     .size(SentinelSize.AvatarSizeLarge)
-                    .clip(SentinelShapes.small)
-                    .background(shieldGradient),
+                    .clip(SentinelShapes.large)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 SentinelShield(

@@ -3,31 +3,25 @@ package com.sentinel.ai.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ---------------------------------------------------------------------------------------------
-// Brand & Risk palette
-//
-// These raw tokens are referenced directly across the UI (risk badges, indicators, accents).
-// They are intentionally stable and must not change values, otherwise existing screens would
-// shift in appearance.
+// Muted semantic palette. Security colors are reserved for safe, warning, and dangerous states.
 // ---------------------------------------------------------------------------------------------
 
-val SentinelCyan = Color(0xFF5BE7FF)
-val SentinelGreen = Color(0xFF26D07C)
-val SentinelYellow = Color(0xFFF6C453)
-val SentinelRed = Color(0xFFFF6B6B)
-val SentinelCritical = Color(0xFFFF4D9D)
+val SentinelCyan = Color(0xFF8B949E)
+val SentinelGreen = Color(0xFF66B486)
+val SentinelYellow = Color(0xFFD2A451)
+val SentinelRed = Color(0xFFD96B6B)
+val SentinelCritical = SentinelRed
 
 // ---------------------------------------------------------------------------------------------
-// Dark theme surface & semantic tokens
-//
-// Kept verbatim from the original design so the default (dark) appearance is unchanged.
+// Neutral dark surfaces avoid pure black and keep elevation quiet.
 // ---------------------------------------------------------------------------------------------
 
-val SentinelBackground = Color(0xFF06111D)
-val SentinelSurface = Color(0xFF0D1726)
-val SentinelSurfaceVariant = Color(0xFF12233A)
-val SentinelOutline = Color(0xFF29435E)
-val SentinelTextPrimary = Color(0xFFEAF4FF)
-val SentinelTextSecondary = Color(0xFFA9BED6)
+val SentinelBackground = Color(0xFF0B0C0E)
+val SentinelSurface = Color(0xFF141619)
+val SentinelSurfaceVariant = Color(0xFF1C1F23)
+val SentinelOutline = Color(0xFF30343A)
+val SentinelTextPrimary = Color(0xFFF1F2F4)
+val SentinelTextSecondary = Color(0xFFA5AAB1)
 
 // ---------------------------------------------------------------------------------------------
 // Light theme surface & semantic tokens
@@ -47,12 +41,12 @@ val SentinelLightTextSecondary = Color(0xFF4E5C6B)
 // Container tokens (used by both light and dark schemes for primary/secondary/tertiary roles)
 // ---------------------------------------------------------------------------------------------
 
-val SentinelPrimaryContainerDark = Color(0xFF0E3A28)
-val SentinelOnPrimaryContainerDark = Color(0xFFA6F0C6)
-val SentinelSecondaryContainerDark = Color(0xFF08293A)
-val SentinelOnSecondaryContainerDark = Color(0xFFA9E8FF)
-val SentinelTertiaryContainerDark = Color(0xFF3A0F2A)
-val SentinelOnTertiaryContainerDark = Color(0xFFFFB3DA)
+val SentinelPrimaryContainerDark = Color(0xFF25282D)
+val SentinelOnPrimaryContainerDark = SentinelTextPrimary
+val SentinelSecondaryContainerDark = Color(0xFF202328)
+val SentinelOnSecondaryContainerDark = SentinelTextPrimary
+val SentinelTertiaryContainerDark = Color(0xFF352224)
+val SentinelOnTertiaryContainerDark = Color(0xFFF0C2C2)
 
 val SentinelPrimaryContainerLight = Color(0xFFA6F0C6)
 val SentinelOnPrimaryContainerLight = Color(0xFF00210F)
@@ -62,8 +56,8 @@ val SentinelTertiaryContainerLight = Color(0xFFFFD9EC)
 val SentinelOnTertiaryContainerLight = Color(0xFF3A041F)
 
 // Shared error tokens
-val SentinelError = Color(0xFFE5484D)
-val SentinelErrorContainerDark = Color(0xFF410E0E)
-val SentinelOnErrorContainerDark = Color(0xFFFFDAD6)
+val SentinelError = SentinelRed
+val SentinelErrorContainerDark = Color(0xFF382123)
+val SentinelOnErrorContainerDark = Color(0xFFF1C4C4)
 val SentinelErrorContainerLight = Color(0xFFFFDAD6)
 val SentinelOnErrorContainerLight = Color(0xFF410E0E)

@@ -21,8 +21,8 @@ object SentinelElevation {
     // Semantic aliases
     val SurfaceResting = Level1
     val SurfaceRaised = Level2
-    val CardResting = Level2
-    val CardRaised = Level3
+    val CardResting = None
+    val CardRaised = Level1
     val CardPress = Level1
     val Dialog = Level4
     val Modal = Level5

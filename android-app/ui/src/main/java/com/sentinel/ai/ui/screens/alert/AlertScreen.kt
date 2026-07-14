@@ -133,7 +133,6 @@ fun AlertContent(
     if (selected != null) {
         ModalBottomSheet(
             onDismissRequest = {
-                onAction(AlertUiAction.DismissAlert(selected!!.id))
                 selected = null
             },
             dragHandle = { BottomSheetDefaults.DragHandle() },
@@ -143,8 +142,7 @@ fun AlertContent(
                 alert = selected!!,
                 appLabel = appLabelResolver(selected!!.title),
                 senderPresentation = senderPresentationResolver(selected!!.senderDisplayName, selected!!.senderIdentifier),
-                onDismiss = {
-                    onAction(AlertUiAction.DismissAlert(selected!!.id))
+                onClose = {
                     selected = null
                 },
                 onViewDetails = {
@@ -162,7 +160,7 @@ fun NotificationScanSheetContent(
     alert: Alert,
     appLabel: String,
     senderPresentation: SenderPresentation,
-    onDismiss: () -> Unit,
+    onClose: () -> Unit,
     onViewDetails: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -233,8 +231,8 @@ fun NotificationScanSheetContent(
             verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
         ) {
             ActionButton(
-                text = "Dismiss",
-                onClick = onDismiss,
+                text = "Close",
+                onClick = onClose,
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = Icons.Filled.Notifications
             )

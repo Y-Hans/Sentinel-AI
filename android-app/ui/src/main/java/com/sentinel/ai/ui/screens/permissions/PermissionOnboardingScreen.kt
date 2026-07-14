@@ -1,6 +1,7 @@
 package com.sentinel.ai.ui.screens.permissions
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -161,7 +162,7 @@ private fun PermissionRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = if (granted) "Granted" else "Not yet granted",
+                text = if (granted) "Granted" else "Not Granted",
                 style = MaterialTheme.typography.labelLarge,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -179,13 +180,37 @@ private fun PermissionRow(
 }
 
 private fun openNotificationListenerSettings(context: Context) {
-    context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+    val opened = launchSettingsIntent(
+        context,
+        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+    )
+    if (!opened) openAppSettings(context)
 }
 
 private fun openOverlaySettings(context: Context) {
-    context.startActivity(
-        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
+    if (!launchSettingsIntent(context, intent)) openAppSettings(context)
+}
+
+private fun openAppSettings(context: Context) {
+    launchSettingsIntent(
+        context,
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", context.packageName, null)
         }
     )
+}
+
+private fun launchSettingsIntent(context: Context, intent: Intent): Boolean {
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    return try {
+        context.startActivity(intent)
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
+    } catch (_: SecurityException) {
+        false
+    }
 }

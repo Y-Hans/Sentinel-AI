@@ -11,21 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 // ---------------------------------------------------------------------------------------------
-// Sentinel dark color scheme
-//
-// Reuses the original dark tokens verbatim so the default appearance is unchanged.
+// Sentinel dark color scheme: neutral controls with semantic risk colors kept out of chrome.
 // ---------------------------------------------------------------------------------------------
 
 private val DarkColorScheme = darkColorScheme(
-    primary = SentinelGreen,
+    primary = SentinelTextPrimary,
     onPrimary = SentinelBackground,
     primaryContainer = SentinelPrimaryContainerDark,
     onPrimaryContainer = SentinelOnPrimaryContainerDark,
-    secondary = SentinelCyan,
+    secondary = SentinelTextSecondary,
     onSecondary = SentinelBackground,
     secondaryContainer = SentinelSecondaryContainerDark,
     onSecondaryContainer = SentinelOnSecondaryContainerDark,
-    tertiary = SentinelCritical,
+    tertiary = SentinelYellow,
     onTertiary = SentinelBackground,
     tertiaryContainer = SentinelTertiaryContainerDark,
     onTertiaryContainer = SentinelOnTertiaryContainerDark,
@@ -41,7 +39,7 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = SentinelTextSecondary,
     outline = SentinelOutline,
     outlineVariant = SentinelOutline.copy(alpha = 0.5f),
-    surfaceTint = SentinelGreen
+    surfaceTint = SentinelSurface
 )
 
 // ---------------------------------------------------------------------------------------------
@@ -78,16 +76,17 @@ private val LightColorScheme = lightColorScheme(
     surfaceTint = SentinelGreen
 )
 
+// Kept for stored preference compatibility; it now resolves to the same restrained visual system.
 private val NeonColorScheme = darkColorScheme(
-    primary = SentinelCyan,
+    primary = SentinelTextPrimary,
     onPrimary = SentinelBackground,
     primaryContainer = SentinelSecondaryContainerDark,
     onPrimaryContainer = SentinelOnSecondaryContainerDark,
-    secondary = SentinelCritical,
+    secondary = SentinelTextSecondary,
     onSecondary = SentinelBackground,
     secondaryContainer = SentinelTertiaryContainerDark,
     onSecondaryContainer = SentinelOnTertiaryContainerDark,
-    tertiary = SentinelGreen,
+    tertiary = SentinelYellow,
     onTertiary = SentinelBackground,
     tertiaryContainer = SentinelPrimaryContainerDark,
     onTertiaryContainer = SentinelOnPrimaryContainerDark,
@@ -103,7 +102,7 @@ private val NeonColorScheme = darkColorScheme(
     onSurfaceVariant = SentinelTextSecondary,
     outline = SentinelOutline,
     outlineVariant = SentinelOutline.copy(alpha = 0.5f),
-    surfaceTint = SentinelCyan
+    surfaceTint = SentinelSurface
 )
 
 /**

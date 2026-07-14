@@ -170,9 +170,6 @@ private fun SentinelNavHost(
                 },
                 onNavigateToScanner = {
                     navController.navigate(Screen.Scanner.route)
-                },
-                onNavigateToHistory = {
-                    navController.navigate(Screen.History.route)
                 }
             )
         }

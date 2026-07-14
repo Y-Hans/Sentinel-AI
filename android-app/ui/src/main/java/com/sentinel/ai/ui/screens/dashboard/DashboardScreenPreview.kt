@@ -52,7 +52,6 @@ private fun DashboardProtectedDarkPreview() {
                 onAction = {},
                 onThreatSelected = {},
                 onNavigateToScanner = {},
-                onNavigateToHistory = {},
                 appLabelResolver = { it },
                 senderPresentationResolver = previewResolvers
             )
@@ -73,7 +72,6 @@ private fun DashboardOffLightPreview() {
                 onAction = {},
                 onThreatSelected = {},
                 onNavigateToScanner = {},
-                onNavigateToHistory = {},
                 appLabelResolver = { it },
                 senderPresentationResolver = previewResolvers
             )

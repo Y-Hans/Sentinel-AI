@@ -205,7 +205,7 @@ object ThreatJournal {
             source = source,
             senderDisplayName = senderDisplayName,
             senderIdentifier = senderIdentifier,
-            content = explanation,
+            content = target ?: explanation,
             riskLevel = riskLevel,
             riskScore = riskScore,
             explanation = explanation,

@@ -2,9 +2,12 @@ package com.sentinel.ai.ui
 
 import android.app.AlertDialog
 import android.app.role.RoleManager
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -101,12 +104,24 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestDefaultBrowser() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val roleManager = getSystemService(RoleManager::class.java)
-            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
-                val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
-                startActivityForResult(intent, DEFAULT_BROWSER_REQUEST_CODE)
-            }
+        val opened = launchSettingsIntent(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+        if (!opened) {
+            launchSettingsIntent(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+            )
+        }
+    }
+
+    private fun launchSettingsIntent(intent: Intent): Boolean {
+        return try {
+            startActivity(intent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        } catch (_: SecurityException) {
+            false
         }
     }
 
@@ -127,7 +142,6 @@ class MainActivity : ComponentActivity() {
     private companion object {
         const val ONBOARDING_PREFERENCES = "sentinel_onboarding"
         const val KEY_FIRST_LAUNCH = "first_launch"
-        const val DEFAULT_BROWSER_REQUEST_CODE = 1001
         var warningShownThisProcess = false
     }
 

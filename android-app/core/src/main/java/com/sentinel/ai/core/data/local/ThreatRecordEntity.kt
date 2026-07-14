@@ -35,7 +35,7 @@ internal fun ScanResult.toEntity(): ThreatRecordEntity {
         source = source,
         senderDisplayName = senderDisplayName,
         senderIdentifier = senderIdentifier,
-        content = null,
+        content = target,
         riskLevel = riskLevel.name,
         riskScore = riskScore,
         explanation = explanation,
@@ -64,6 +64,7 @@ internal fun ThreatRecordEntity.toScanResult(): ScanResult {
     return ScanResult(
         id = id,
         source = source,
+        target = content,
         senderDisplayName = senderDisplayName,
         senderIdentifier = senderIdentifier,
         riskLevel = RiskLevel.valueOf(riskLevel),

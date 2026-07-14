@@ -1,10 +1,10 @@
 package com.sentinel.ai.ui.screens.history
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,35 +12,40 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
-import com.sentinel.ai.ui.components.EmptyState
-import com.sentinel.ai.ui.components.InfoRow
-import com.sentinel.ai.ui.components.RiskBadge
-import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.SentinelIndicatorDot
-import com.sentinel.ai.ui.components.SentinelSectionHeader
-import com.sentinel.ai.ui.components.StatisticCard
+import com.sentinel.ai.ui.components.PremiumPanel
+import com.sentinel.ai.ui.components.RiskState
 import com.sentinel.ai.ui.components.riskColor
-import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 import com.sentinel.ai.ui.util.SenderPresentation
 import com.sentinel.ai.ui.util.resolveSenderPresentation
@@ -49,137 +54,91 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private sealed class HistoryListEntry {
-    data class DateHeader(val dateLabel: String) : HistoryListEntry()
-    data class ThreatItem(val item: ScanResult) : HistoryListEntry()
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val items = uiState.history
+    val context = LocalContext.current
     val formatter = rememberHistoryFormatter()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val sortedItems = remember(uiState.history) {
+        uiState.history.sortedByDescending { it.timestamp }
+    }
+    var selectedResult by remember { mutableStateOf<ScanResult?>(null) }
+
+    selectedResult?.let { result ->
+        ModalBottomSheet(
+            onDismissRequest = { selectedResult = null },
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            HistoryResultSheet(
+                result = result,
+                onClose = { selectedResult = null }
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(
-                horizontal = SentinelSpacing.ScreenHorizontal,
-                vertical = SentinelSpacing.ScreenVertical
-            ),
-        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenSections)
+            .padding(horizontal = 20.dp, vertical = SentinelSpacing.MD)
     ) {
         Text(
-            text = "A clean audit trail of previous detections and review outcomes.",
-            style = MaterialTheme.typography.bodyLarge,
+            text = "Previous link and message checks, newest first.",
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD),
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
-        ) {
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "Entries",
-                value = items.size.toString(),
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.History,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = "Stored detections currently visible in memory"
-            )
-            StatisticCard(
-                modifier = Modifier.weight(1f),
-                title = "Critical",
-                value = items.count { it.riskLevel == RiskLevel.CRITICAL }.toString(),
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.History,
-                        contentDescription = null,
-                        tint = riskColor(RiskLevel.CRITICAL),
-                        modifier = Modifier.size(SentinelSize.IconMedium)
-                    )
-                },
-                subtitle = "Requires urgent user attention"
-            )
+        if (sortedItems.isEmpty()) {
+            EmptyHistory(modifier = Modifier.weight(1f))
+        } else {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.large,
+                tonalElevation = 1.dp
+            ) {
+                LazyColumn {
+                    itemsIndexed(
+                        items = sortedItems,
+                        key = { _, item -> item.id }
+                    ) { index, item ->
+                        val sender = resolveSenderPresentation(
+                            context = context,
+                            senderDisplayName = item.senderDisplayName,
+                            senderIdentifier = item.senderIdentifier
+                        )
+                        HistoryItemRow(
+                            item = item,
+                            appLabel = item.source.toAppLabel(context),
+                            senderPresentation = sender,
+                            timestampLabel = formatter.format(Date(item.timestamp)),
+                            onClick = { selectedResult = item },
+                            modifier = Modifier.padding(horizontal = SentinelSpacing.MD)
+                        )
+                        if (index < sortedItems.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 40.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                }
+            }
         }
 
-        SentinelSectionHeader(
-            title = "Detection log",
-            subtitle = "Most recent items appear first"
-        )
-
-        if (items.isEmpty()) {
-            EmptyState(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.History,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                title = "No threat history yet",
-                description = "The backend will populate this list as detections arrive."
+        uiState.error?.let { message ->
+            Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
             )
-        } else {
-            val sortedItems = remember(items) { items.sortedByDescending { it.timestamp } }
-            val grouped = remember(sortedItems) {
-                sortedItems.groupBy { formatter.format(Date(it.timestamp)) }
-                    .toList()
-                    .sortedByDescending { (dateLabel, _) -> dateLabel }
-            }
-            val flatEntries = remember(grouped) {
-                grouped.flatMap { (dateLabel, dateItems) ->
-                    listOf(HistoryListEntry.DateHeader(dateLabel)) + dateItems.map { HistoryListEntry.ThreatItem(it) }
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(SentinelSpacing.BetweenItems)
-            ) {
-                items(flatEntries, key = { entry ->
-                    when (entry) {
-                        is HistoryListEntry.DateHeader -> "date-${entry.dateLabel}"
-                        is HistoryListEntry.ThreatItem -> entry.item.id
-                    }
-                }) { entry ->
-                    when (entry) {
-                        is HistoryListEntry.DateHeader -> {
-                            Text(
-                                text = entry.dateLabel,
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .padding(vertical = SentinelSpacing.SM)
-                            )
-                        }
-                        is HistoryListEntry.ThreatItem -> {
-                            HistoryItemRow(
-                                item = entry.item,
-                                appLabel = entry.item.source.toAppLabel(context),
-                                senderPresentation = resolveSenderPresentation(
-                                    context = context,
-                                    senderDisplayName = entry.item.senderDisplayName,
-                                    senderIdentifier = entry.item.senderIdentifier
-                                ),
-                                timestampLabel = formatter.format(Date(entry.item.timestamp)),
-                                modifier = Modifier
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -193,52 +152,158 @@ internal fun HistoryItemRow(
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val accent = riskColor(item.riskLevel)
+    val target = historyTarget(item, senderPresentation, appLabel)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.MD)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(vertical = SentinelSpacing.MD),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                SentinelIndicatorDot(color = riskColor(item.riskLevel))
-                Spacer(modifier = Modifier.size(SentinelSpacing.XS))
-                Text(
-                    text = senderPresentation.primaryText,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            senderPresentation.secondaryText?.let { identifier ->
-                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                Text(
-                    text = identifier,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(44.dp)
+                .background(accent, RoundedCornerShape(2.dp))
+        )
+        Spacer(modifier = Modifier.width(SentinelSpacing.SM))
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
             Text(
-                text = appLabel,
-                style = MaterialTheme.typography.labelLarge,
+                text = target,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)) {
+                Text(
+                    text = historyStatus(item.decision),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = accent
+                )
+                if (timestampLabel.isNotBlank()) {
+                    Text(
+                        text = timestampLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+@Composable
+private fun EmptyHistory(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.History,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(32.dp)
+        )
+        Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+        Text(
+            text = "No scan history",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Completed scans will appear here.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun HistoryResultSheet(
+    result: ScanResult,
+    onClose: () -> Unit
+) {
+    val accent = riskColor(result.riskLevel)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = historyStatus(result.decision),
+            style = MaterialTheme.typography.headlineSmall,
+            color = accent
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Risk score ${result.riskScore.toInt().coerceIn(0, 100)} / 100",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+        PremiumPanel {
+            Text(
+                text = result.senderIdentifier ?: result.source,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(SentinelSpacing.SM))
+            Text(
+                text = result.explanation,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Column(horizontalAlignment = Alignment.End) {
-            RiskBadge(riskLevel = item.riskLevel)
-            if (timestampLabel.isNotBlank()) {
-                Spacer(modifier = Modifier.height(SentinelSpacing.XXS))
-                Text(
-                    text = timestampLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+        Button(
+            onClick = onClose,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            ),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("Close")
         }
     }
 }
 
-internal fun rememberHistoryFormatter(): SimpleDateFormat {
-    return SimpleDateFormat("MMM d, yyyy - h:mm a", Locale.getDefault())
+private fun historyTarget(
+    item: ScanResult,
+    senderPresentation: SenderPresentation,
+    appLabel: String
+): String = when {
+    !item.senderIdentifier.isNullOrBlank() -> item.senderIdentifier.orEmpty()
+    item.source.startsWith("http", ignoreCase = true) -> item.source
+    senderPresentation.primaryText.isNotBlank() && senderPresentation.primaryText != "Unknown sender" ->
+        senderPresentation.primaryText
+    else -> appLabel
 }
+
+private fun historyStatus(decision: ProtectionDecision): String = when (decision) {
+    ProtectionDecision.ALLOW -> "SAFE"
+    ProtectionDecision.WARN -> "WARNING"
+    ProtectionDecision.BLOCK -> "DANGEROUS"
+}
+
+internal fun rememberHistoryFormatter(): SimpleDateFormat =
+    SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())

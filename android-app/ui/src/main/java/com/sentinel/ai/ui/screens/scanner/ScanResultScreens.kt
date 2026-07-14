@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,30 +12,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
-import com.sentinel.ai.ui.components.ActionButton
-import com.sentinel.ai.ui.components.AnimatedSentinelShield
-import com.sentinel.ai.ui.components.ButtonVariant
-import com.sentinel.ai.ui.components.InfoRow
+import com.sentinel.ai.ui.components.PremiumPanel
+import com.sentinel.ai.ui.components.PremiumSectionTitle
 import com.sentinel.ai.ui.components.RiskState
-import com.sentinel.ai.ui.components.SecondaryButton
-import com.sentinel.ai.ui.components.SentinelCard
-import com.sentinel.ai.ui.components.ShieldState
-import com.sentinel.ai.ui.components.ThreatExplanationCard
-import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
-import com.sentinel.ai.ui.theme.SentinelFull
-import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelSpacing
 
 @Composable
@@ -44,11 +48,13 @@ fun UrlScanResultContent(
     onGoBack: () -> Unit,
     onBypass: () -> Unit,
     onScanAgain: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    displaySource: String = result.source
 ) {
     ScanVerdictContent(
         subject = ScanSubject.Link,
         result = result,
+        displaySource = displaySource,
         onOpen = onOpen,
         onGoBack = onGoBack,
         onBypass = onBypass,
@@ -64,11 +70,13 @@ fun FileScanResultContent(
     onGoBack: () -> Unit,
     onBypass: () -> Unit,
     onScanAgain: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    displaySource: String = result.source
 ) {
     ScanVerdictContent(
         subject = ScanSubject.File,
         result = result,
+        displaySource = displaySource,
         onOpen = onOpen,
         onGoBack = onGoBack,
         onBypass = onBypass,
@@ -80,171 +88,221 @@ fun FileScanResultContent(
 private enum class ScanSubject { Link, File }
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 private fun ScanVerdictContent(
     subject: ScanSubject,
     result: ScanResult,
+    displaySource: String,
     onOpen: () -> Unit,
     onGoBack: () -> Unit,
     onBypass: () -> Unit,
     onScanAgain: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state = riskStateOf(result.decision)
-    val shieldState = when (state) {
-        RiskState.Safe -> ShieldState.Safe
-        RiskState.Suspicious -> ShieldState.Warning
-        RiskState.Dangerous -> ShieldState.Dangerous
-        RiskState.Neutral -> ShieldState.Idle
-        RiskState.Scanning -> ShieldState.Scanning
-    }
-    val accent = riskColor(state)
-    val (headline, body) = verdictCopy(subject, state)
-    val noun = if (subject == ScanSubject.Link) "link" else "file"
-    val subjectLabel = if (subject == ScanSubject.Link) "Link" else "File"
+    val verdict = verdictFor(result.decision, subject)
+    val evidence = remember(result) { evidenceFor(result) }
+    val score = result.riskScore.toInt().coerceIn(0, 100)
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = SentinelSpacing.ScreenHorizontal, vertical = SentinelSpacing.ScreenVertical),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SentinelSpacing.LG)
+            .padding(horizontal = 20.dp, vertical = SentinelSpacing.LG),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(SentinelSize.IconXL * 2)
-                .clip(SentinelFull)
-                .background(accent.copy(alpha = 0.10f)),
+                .size(72.dp)
+                .background(verdict.color.copy(alpha = 0.12f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            AnimatedSentinelShield(
-                state = shieldState,
-                modifier = Modifier.size(SentinelSize.IconXL * 2),
-                contentDescription = when (state) {
-                    RiskState.Safe -> "Safe status"
-                    RiskState.Suspicious -> "Suspicious status"
-                    RiskState.Dangerous -> "Dangerous status"
-                    RiskState.Neutral -> "Neutral status"
-                    RiskState.Scanning -> "Scanning status"
-                }
+            Icon(
+                imageVector = Icons.Filled.Shield,
+                contentDescription = null,
+                tint = verdict.color,
+                modifier = Modifier.size(34.dp)
             )
         }
 
-        ThreatLevelChip(state = state)
-
+        Spacer(modifier = Modifier.height(SentinelSpacing.MD))
         Text(
-            text = headline,
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
+            text = verdict.label,
+            style = MaterialTheme.typography.displaySmall,
+            color = verdict.color,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.semantics { heading() }
         )
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
         Text(
-            text = body,
+            text = verdict.message,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-
-        SentinelCard(modifier = Modifier.fillMaxWidth()) {
-            InfoRow(
-                label = subjectLabel,
-                value = result.source
-            )
-            InfoRow(
-                label = "Risk Score",
-                value = "${result.riskScore.toInt().coerceIn(0, 100)} / 100",
-                showDivider = false
-            )
-        }
-
-        ThreatExplanationCard(
-            explanation = result.explanation,
-            recommendation = recommendationFor(state)
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        Text(
+            text = "Risk score $score / 100",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
-        ) {
-            when (state) {
-                RiskState.Safe -> {
-                    ActionButton(
-                        text = "Open ${noun}",
-                        onClick = onOpen,
-                        modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+        PremiumPanel {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Link,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (subject == ScanSubject.Link) "Link" else "File",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    SecondaryButton(
-                        text = "Scan another",
-                        onClick = onScanAgain,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                RiskState.Suspicious -> {
-                    ActionButton(
-                        text = "Go back",
-                        onClick = onGoBack,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    SecondaryButton(
-                        text = "Open anyway",
-                        onClick = onBypass,
-                        modifier = Modifier.fillMaxWidth(),
-                        variant = ButtonVariant.Outlined
-                    )
-                }
-
-                RiskState.Dangerous -> {
-                    ActionButton(
-                        text = "Back to safety",
-                        onClick = onGoBack,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                RiskState.Neutral, RiskState.Scanning -> {
-                    ActionButton(
-                        text = "Go back",
-                        onClick = onGoBack,
-                        modifier = Modifier.fillMaxWidth()
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = displaySource,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(SentinelSpacing.MD))
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+        PremiumSectionTitle(
+            text = "Why this result",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        PremiumPanel {
+            Column(verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)) {
+                evidence.forEach { item ->
+                    EvidenceRow(text = item, color = verdict.color)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
+        Button(
+            onClick = onGoBack,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (result.decision == ProtectionDecision.BLOCK) {
+                    verdict.color
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                contentColor = if (result.decision == ProtectionDecision.BLOCK) {
+                    Color.White
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
+        ) {
+            Text(
+                text = if (result.decision == ProtectionDecision.BLOCK) "Block and close" else "Close",
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+
+        Spacer(modifier = Modifier.height(SentinelSpacing.XS))
+        OutlinedButton(
+            onClick = if (result.decision == ProtectionDecision.ALLOW) onOpen else onBypass,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = MaterialTheme.shapes.medium,
+            border = androidx.compose.foundation.BorderStroke(
+                1.dp,
+                MaterialTheme.colorScheme.outline
+            )
+        ) {
+            Text(
+                text = if (result.decision == ProtectionDecision.ALLOW) "Continue" else "Continue anyway",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        Spacer(modifier = Modifier.height(SentinelSpacing.LG))
     }
 }
 
-private fun riskStateOf(decision: ProtectionDecision): RiskState = when (decision) {
-    ProtectionDecision.ALLOW -> RiskState.Safe
-    ProtectionDecision.WARN -> RiskState.Suspicious
-    ProtectionDecision.BLOCK -> RiskState.Dangerous
+@Composable
+private fun EvidenceRow(text: String, color: Color) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 7.dp)
+                .size(6.dp)
+                .background(color, CircleShape)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+    }
 }
 
-private fun verdictCopy(subject: ScanSubject, state: RiskState): Pair<String, String> {
+private data class VerdictUi(
+    val label: String,
+    val message: String,
+    val color: Color
+)
+
+private fun verdictFor(decision: ProtectionDecision, subject: ScanSubject): VerdictUi {
     val noun = if (subject == ScanSubject.Link) "link" else "file"
-    return when (state) {
-        RiskState.Safe -> "This $noun looks safe" to
-            "We didn't find anything harmful. You can open it with confidence."
-
-        RiskState.Suspicious -> "Proceed with caution" to
-            "This $noun has some risky signals. Double-check the source before you continue."
-
-        RiskState.Dangerous -> "This $noun is dangerous" to
-            "We found strong signs this is a scam or malware. Avoid opening it."
-
-        RiskState.Neutral -> "Scan complete" to
-            "Sentinel finished inspecting this $noun."
-
-        RiskState.Scanning -> "Scanning" to
-            "Sentinel is inspecting this $noun."
+    return when (decision) {
+        ProtectionDecision.ALLOW -> VerdictUi(
+            label = "SAFE",
+            message = "No known threats were found in this $noun.",
+            color = riskColor(RiskState.Safe)
+        )
+        ProtectionDecision.WARN -> VerdictUi(
+            label = "WARNING",
+            message = "This $noun contains signals that need your attention.",
+            color = riskColor(RiskState.Suspicious)
+        )
+        ProtectionDecision.BLOCK -> VerdictUi(
+            label = "DANGEROUS",
+            message = "Strong threat signals were found. Do not continue.",
+            color = riskColor(RiskState.Dangerous)
+        )
     }
 }
 
-private fun recommendationFor(state: RiskState): String = when (state) {
-    RiskState.Safe -> "No action needed. You can proceed."
-    RiskState.Suspicious -> "Verify the sender and avoid sharing personal information."
-    RiskState.Dangerous -> "Do not open this. Block the sender and report it."
-    RiskState.Neutral -> "Review the details if anything looks unusual."
-    RiskState.Scanning -> "Wait for the scan to finish."
+private fun evidenceFor(result: ScanResult): List<String> {
+    val reasons = result.reasons
+        .map { it.message.trim() }
+        .filter { it.isNotBlank() }
+
+    if (reasons.isNotEmpty()) return reasons.distinct().take(4)
+
+    val explanation = result.explanation
+        .split(';', '\n')
+        .map { it.trim().trimEnd('.') }
+        .filter { it.isNotBlank() }
+        .map { "$it." }
+        .take(4)
+
+    return explanation.ifEmpty {
+        listOf("The scan completed without additional technical details.")
+    }
 }

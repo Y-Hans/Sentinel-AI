@@ -8,6 +8,7 @@ data class DashboardUiState(
     val isLoading: Boolean = false,
     val protection: ProtectionSnapshot = ProtectionSnapshot(),
     val recentAlerts: List<Alert> = emptyList(),
+    val recentScans: List<ScanResult> = emptyList(),
     val latestScan: ScanResult? = null,
     val scanCount: Int = 0,
     val error: String? = null
