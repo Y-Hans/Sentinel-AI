@@ -48,7 +48,7 @@ class IntentThreatAnalyzerImplTest {
             },
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
                 ): ScanResult {
                     receivedLocal = heuristicResult
@@ -75,12 +75,13 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = fixedLinkScanner(local),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
                 ): ScanResult {
                     managerCalls += 1
                     return combiner.combine(
                         heuristicResult,
+                        mlScore,
                         listOf(
                             ReputationEvidence.completed(
                                 ReputationResult(
@@ -112,10 +113,11 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = fixedLinkScanner(local),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
                 ): ScanResult = combiner.combine(
                     heuristicResult,
+                    mlScore,
                     listOf(ReputationEvidence.failed("OpenPhish"))
                 )
             }
@@ -135,9 +137,9 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = fixedLinkScanner(scanResult(0f, RiskLevel.GREEN)),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
-                ): ScanResult = combiner.combine(heuristicResult, emptyList())
+                ): ScanResult = combiner.combine(heuristicResult, mlScore, emptyList())
             }
         )
 
@@ -154,9 +156,9 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = LinkProtectionAgent(LinkHeuristicRiskEngine()),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
-                ): ScanResult = combiner.combine(heuristicResult, emptyList())
+                ): ScanResult = combiner.combine(heuristicResult, mlScore, emptyList())
             }
         )
 
@@ -175,9 +177,9 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = LinkProtectionAgent(LinkHeuristicRiskEngine()),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
-                ): ScanResult = combiner.combine(heuristicResult, emptyList())
+                ): ScanResult = combiner.combine(heuristicResult, mlScore, emptyList())
             }
         )
 
@@ -216,7 +218,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = fixedLinkScanner(scanResult(0f, RiskLevel.GREEN)),
             reputationManager = object : ReputationManager {
                 override suspend fun enrich(
-                    heuristicResult: ScanResult,
+                    heuristicResult: ScanResult, mlScore: Float?,
                     target: ReputationTarget?
                 ): ScanResult = awaitCancellation()
             }
@@ -238,12 +240,16 @@ class IntentThreatAnalyzerImplTest {
             override suspend fun scan(uri: Uri): ScanResult = error("File scanner should not run")
         },
         reputationManager: ReputationManager
-    ) = IntentThreatAnalyzerImpl(
-        linkScanner = linkScanner,
-        fileScanner = fileScanner,
-        threatEventBus = ThreatEventBus(),
-        reputationManager = reputationManager
-    )
+    ): IntentThreatAnalyzerImpl {
+        val fakeContext = io.mockk.mockk<android.content.Context>(relaxed = true)
+        return IntentThreatAnalyzerImpl(
+            linkScanner = linkScanner,
+            fileScanner = fileScanner,
+            threatEventBus = ThreatEventBus(),
+            reputationManager = reputationManager,
+            context = fakeContext
+        )
+    }
 
     private fun fixedLinkScanner(result: ScanResult) = object : LinkScanner {
         override suspend fun scan(url: String): ScanResult = result
@@ -251,7 +257,7 @@ class IntentThreatAnalyzerImplTest {
 
     private fun erroringManager() = object : ReputationManager {
         override suspend fun enrich(
-            heuristicResult: ScanResult,
+            heuristicResult: ScanResult, mlScore: Float?,
             target: ReputationTarget?
         ): ScanResult = error("Reputation manager should not run")
     }

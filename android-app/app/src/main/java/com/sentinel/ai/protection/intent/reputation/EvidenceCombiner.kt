@@ -17,9 +17,18 @@ class EvidenceCombiner @Inject constructor() {
 
     fun combine(
         heuristicResult: ScanResult,
+        mlScore: Float?,
         reputationEvidence: List<ReputationEvidence>
     ): ScanResult {
-        val localScore = boundedScore(heuristicResult.riskScore)
+        val baseLocalScore = boundedScore(heuristicResult.riskScore)
+        val combinedMlScore = if (mlScore != null) {
+            val boostedMlScore = (mlScore * 2f).coerceIn(0f, 100f)
+            (0.7f * baseLocalScore) + (0.3f * boostedMlScore)
+        } else {
+            baseLocalScore
+        }
+        val localScore = boundedScore(combinedMlScore)
+
         val localEvidence = normalizedLocalEvidence(heuristicResult, localScore)
         val providerEvidence = normalizeProviderEvidence(reputationEvidence)
         val providerFindings = providerEvidence.map(::toProviderFinding)

@@ -5,6 +5,7 @@ import com.sentinel.ai.core.model.ScanResult
 interface ReputationManager {
     suspend fun enrich(
         heuristicResult: ScanResult,
+        mlScore: Float?,
         target: ReputationTarget?
     ): ScanResult
 }

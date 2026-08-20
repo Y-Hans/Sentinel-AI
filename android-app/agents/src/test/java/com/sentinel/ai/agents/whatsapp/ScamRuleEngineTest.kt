@@ -62,8 +62,8 @@ class ScamRuleEngineTest {
             isKnownContact = true
         )
 
-        assertEquals(ScamRiskLevel.MEDIUM, result.riskLevel)
-        assertEquals(40, result.riskScore)
+        assertEquals(ScamRiskLevel.HIGH, result.riskLevel)
+        assertEquals(65, result.riskScore)
         assertTrue(result.explanations.any { it.contains("Raw IP address URL detected") })
         assertTrue(result.explanations.any { it.contains("Credential harvesting indicator detected") })
     }

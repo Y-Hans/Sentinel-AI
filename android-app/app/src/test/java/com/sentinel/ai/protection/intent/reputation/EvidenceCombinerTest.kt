@@ -378,7 +378,7 @@ class EvidenceCombinerTest {
     private fun combine(
         local: ScanResult,
         vararg evidence: ReputationEvidence
-    ): ScanResult = combiner.combine(local, evidence.toList())
+    ): ScanResult = combiner.combine(local, null, evidence.toList())
 
     private fun localResult(
         score: Float,
