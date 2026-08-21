@@ -35,7 +35,7 @@ Sentinel AI uses a local-first Android pipeline:
 1. **Capture:** Receive a link, shared file reference, selected text, manual scan request, or supported notification.
 2. **Normalize:** Convert the input into a stable form and extract relevant fields.
 3. **Analyze:** Apply URL or message heuristics and, for URLs, run an on-device TensorFlow Lite model.
-4. **Combine:** Incorporate available reputation evidence without allowing inconclusive lookups to imply safety.
+4. **Combine:** Incorporate available heuristic and ML evidence without allowing inconclusive lookups to imply safety.
 5. **Decide:** Produce an `ALLOW`, `WARN`, or `BLOCK` result with supporting reasons.
 6. **Record:** Save the result in the device's local history and display a warning when required.
 

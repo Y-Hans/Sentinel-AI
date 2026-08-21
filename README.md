@@ -1,6 +1,6 @@
 # Sentinel AI
 
-Sentinel AI is an Android application that checks links and incoming message notifications for phishing and scam signals. It combines local URL heuristics, an on-device TensorFlow Lite model, optional reputation evidence, and clear risk decisions before a user continues to a destination.
+Sentinel AI is an Android application that checks links and incoming message notifications for phishing and scam signals. It combines local URL heuristics, an on-device TensorFlow Lite model, local scan history, and clear risk decisions before a user continues to a destination.
 
 The project was developed for the ET AI Hackathon 2026 under the Digital Public Safety problem statement.
 
@@ -20,7 +20,7 @@ See [Features](docs/features.md) for the complete feature description.
 
 1. Sentinel AI receives a URL through the scanner, an Android web intent, shared content, or selected text. It can also observe notifications after the user grants notification access.
 2. Local rules inspect URL structure or message content for signals such as deceptive domains, urgency language, redirects, and credential requests.
-3. URL scans also extract 15 numeric features and run a bundled TensorFlow Lite model on the device. Available reputation evidence is combined with the local analysis.
+3. URL scans also extract 15 numeric features and run a bundled TensorFlow Lite model on the device. The local heuristics and on-device ML produce the final authoritative ScanResult.
 4. The app presents an `ALLOW`, `WARN`, or `BLOCK` decision and records the event in local history.
 
 See [Architecture](docs/architecture.md) for the component and data flows.

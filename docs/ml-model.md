@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The bundled model estimates phishing probability from 15 structural and lexical URL features. It complements the heuristic and reputation layers rather than acting as the sole source of a protection decision.
+The bundled model estimates phishing probability from 15 structural and lexical URL features. It complements the heuristic layer rather than acting as the sole source of a protection decision.
 
 ## Dataset
 
@@ -60,15 +60,15 @@ For a URL, the app:
 4. Runs the TensorFlow Lite interpreter.
 5. Converts the output probability to a percentage and blends it with the evidence score.
 
-The reported URL score is calculated as:
+The Android runtime calculates a local score based on heuristics and the ML model:
 
 ```text
 ml_percent     = clamp(model_probability * 100, 0, 100)
 boosted_ml     = clamp(ml_percent * 2, 0, 100)
-reported_score = 0.70 * evidence_score + 0.30 * boosted_ml
+local_score    = 0.70 * heuristic_score + 0.30 * boosted_ml
 ```
 
-The structured `ALLOW`, `WARN`, or `BLOCK` action is produced by the evidence layer. The ML blend adjusts the score returned to the scan UI.
+The ML model provides current-scan evidence that participates in the final result fusion before the authoritative ScanResult is created. The ML model is NOT retrained from the local scan history database.
 
 ## Why This Model Is Effective
 

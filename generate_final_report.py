@@ -63,7 +63,7 @@ class ArchitectureDiagram(Flowable):
         self.draw_box(c, x0 + 150, y_top - 66, 150, box_h, "Input Routing\nNormalize and classify payload", fill_a)
         self.arrow(c, x0 + 225, y_top, x0 + 225, y_top - 24)
 
-        self.draw_box(c, x0 + 35, y_top - 136, box_w, box_h, "URL/File Protection\nHeuristics + reputation", fill_b)
+        self.draw_box(c, x0 + 35, y_top - 136, box_w, box_h, "URL/File Protection\nHeuristics", fill_b)
         self.draw_box(c, x0 + 165, y_top - 136, box_w, box_h, "ML Inference\n15 features + TFLite", fill_c)
         self.draw_box(c, x0 + 295, y_top - 136, box_w, box_h, "Message Protection\nScam rules", fill_b)
 
@@ -280,7 +280,7 @@ def build():
         "2. Problem Statement",
         [
             p("Users are regularly exposed to links and messages that imitate legitimate organizations and attempt to steal credentials, payments, or personal information. The problem is important because a single unsafe click can lead to financial loss, account takeover, identity exposure, malicious downloads, and continued impersonation of trusted contacts.", styles["Body"]),
-            p("Existing protection methods have several limitations. Browser warnings may appear only after navigation has started. Server-side reputation services can miss newly created phishing domains and may require sharing the URL externally. General antivirus tools often focus on files rather than intent-time link decisions. Manual user judgment is unreliable when the attacker uses urgency, brand imitation, shortened URLs, raw IP addresses, or familiar sender names.", styles["Body"]),
+            p("Existing protection methods have several limitations. Browser warnings may appear only after navigation has started. Server-side services can miss newly created phishing domains and may require sharing the URL externally. General antivirus tools often focus on files rather than intent-time link decisions. Manual user judgment is unreliable when the attacker uses urgency, brand imitation, shortened URLs, raw IP addresses, or familiar sender names.", styles["Body"]),
             p("The central problem addressed by Sentinel AI is how to assess a link or notification quickly, privately, and explainably before the user proceeds with a risky action.", styles["Body"]),
         ],
         styles,
@@ -291,23 +291,23 @@ def build():
         "3. Proposed Solution",
         [
             p("Sentinel AI proposes a local-first Android protection pipeline. When a user opens, shares, selects, or manually scans a URL-like input, the app captures the payload, normalizes it, analyzes it, and returns a decision before the browser or target application receives the link. For supported notifications, the app locally evaluates message text, extracted URLs, urgency indicators, credential-related terms, financial language, sender context, and duplicate events.", styles["Body"]),
-            p("The decision system is risk-based. It does not expose raw technical features as the final user experience. Instead, it combines URL heuristics, optional reputation evidence, and on-device model output into a score and action. ALLOW indicates no strong local or provider evidence, WARN indicates meaningful suspicious signals, and BLOCK indicates a critical local score or malicious reputation evidence.", styles["Body"]),
+            p("The decision system is risk-based. It does not expose raw technical features as the final user experience. Instead, it combines URL heuristics and on-device model output into a score and action. ALLOW indicates no strong local evidence, WARN indicates meaningful suspicious signals, and BLOCK indicates a critical local score.", styles["Body"]),
             p("This design creates a practical middle layer between user intent and unsafe action. It remains usable offline for core protection and does not require a Sentinel AI backend.", styles["Body"]),
         ],
         styles,
     )
 
     story.append(Paragraph("4. System Architecture", styles["Heading1"]))
-    story.append(p("Sentinel AI is structured as a multi-module Android application. The app module handles startup, intent routing, URL and file orchestration, machine learning inference, reputation integration, and warnings. The core module defines domain models, validation, event handling, Room storage, networking contracts, and feature state. The agents module performs notification parsing, supported-app routing, message event construction, and scam rules. Services run guard and monitoring work, while the UI module contains Compose screens, navigation, view models, scanner, dashboard, alert, detail, settings, and history interfaces.", styles["Body"]))
+    story.append(p("Sentinel AI is structured as a multi-module Android application. The app module handles startup, intent routing, URL and file orchestration, ML inference, and warnings. The core module defines domain models, validation, event handling, Room storage, networking contracts, and feature state. The agents module performs notification parsing, supported-app routing, message event construction, and scam rules. Services run guard and monitoring work, while the UI module contains Compose screens, navigation, view models, scanner, dashboard, alert, detail, settings, and history interfaces.", styles["Body"]))
     story.append(Spacer(1, 8))
     story.append(ArchitectureDiagram())
     story.append(Spacer(1, 8))
-    story.append(p("The architecture begins with Android entry points such as web intents, share intents, selected text, manual scanner input, and notification listener events. Inputs are routed and normalized before moving into either URL/file protection or message protection. URL protection applies local heuristics, optional reputation checks, and the TensorFlow Lite model. Message protection applies notification-specific parsing and scam rules. Results flow through a threat event bus to the warning UI and local threat journal.", styles["Body"]))
+    story.append(p("The architecture begins with Android entry points such as web intents, share intents, selected text, manual scanner input, and notification listener events. Inputs are routed and normalized before moving into either URL/file protection or message protection. URL protection applies local heuristics and the TensorFlow Lite model. Message protection applies notification-specific parsing and scam rules. Results flow through a threat event bus to the warning UI and local threat journal.", styles["Body"]))
     story.append(p("The ML inference flow transforms a normalized URL into 15 structural and lexical features, standardizes them with bundled scaler values, executes a float TensorFlow Lite model with input shape [1, 15], and produces a phishing probability. The evidence layer remains responsible for the final ALLOW, WARN, or BLOCK action, while the model contributes to the reported score.", styles["Body"]))
     story.append(Spacer(1, 12))
 
     story.append(Paragraph("5. Machine Learning Model", styles["Heading1"]))
-    story.append(p("The machine learning component estimates phishing probability from engineered URL features. It complements the heuristic and reputation layers rather than replacing them. The training corpus described by the project contains more than 238,000 labeled URLs for binary classification of benign and phishing-like URLs. The deployed Android artifact is model.tflite, packaged with a matching scaler.json file.", styles["Body"]))
+    story.append(p("The machine learning component estimates phishing probability from engineered URL features. It complements the heuristic layer rather than replacing it. The training corpus described by the project contains more than 238,000 labeled URLs for binary classification of benign and phishing-like URLs. The deployed Android artifact is model.tflite, packaged with a matching scaler.json file.", styles["Body"]))
     feature_rows = [["No.", "Feature", "Purpose"]]
     features = [
         ("1", "URLLength", "Total normalized URL length"),
@@ -349,7 +349,7 @@ def build():
                 [
                     "<b>Click-time protection:</b> Intercepts HTTP and HTTPS links before browser handoff and can block unsafe navigation.",
                     "<b>Notification scanning:</b> Reviews supported messaging, email, and social notifications for URLs, urgency, financial language, credential requests, and sender context.",
-                    "<b>Risk scoring:</b> Converts local and provider evidence into GREEN, YELLOW, RED, or CRITICAL score bands and ALLOW, WARN, or BLOCK actions.",
+                    "<b>Risk scoring:</b> Converts local evidence into GREEN, YELLOW, RED, or CRITICAL score bands and ALLOW, WARN, or BLOCK actions.",
                     "<b>Manual scanning:</b> Provides in-app scanning for links, text, and supported file references.",
                     "<b>Offline functionality:</b> Local heuristics, notification rules, file heuristics, and TFLite inference continue without cloud services.",
                     "<b>Privacy-first design:</b> Scan history, preferences, URL features, and message analysis remain on the device by default.",
@@ -365,7 +365,7 @@ def build():
         story,
         "7. Implementation Details",
         [
-            p("The Android implementation uses intent filters to receive web-open actions, shared links, selected URL-like text, and supported file references. IntentRouterActivity checks whether click protection is enabled, identifies the incoming payload, and routes it toward loading and scanning screens. ScanRepository coordinates heuristic analysis, reputation evidence, and ML inference before a result is displayed.", styles["Body"]),
+            p("The Android implementation uses intent filters to receive web-open actions, shared links, selected URL-like text, and supported file references. IntentRouterActivity checks whether click protection is enabled, identifies the incoming payload, and routes it toward loading and scanning screens. ScanRepository coordinates heuristic analysis and ML inference before a result is displayed.", styles["Body"]),
             p("The ML path is managed through bundled application assets. model.tflite contains the TensorFlow Lite classifier, while scaler.json stores the feature means and scales required for standardization. The app extracts raw URL features in the documented order, transforms them into a Float32 tensor, invokes the interpreter, and blends the resulting probability with evidence-based scoring.", styles["Body"]),
             p("For notifications, SentinelNotificationListener receives events only after the user grants notification-listener access. NotificationAgentCoordinator parses the sender and message text, normalizes the event, extracts URL and content signals, suppresses near-duplicate notifications, and emits elevated events to the warning notification path and local journal.", styles["Body"]),
             p("The application uses Hilt for dependency injection, coroutines and flows for asynchronous state, and Room for persistent local threat history. Feature toggles are stored in private Android preferences and include real-time protection, notification protection, click protection, and text-selection analysis.", styles["Body"]),
@@ -379,7 +379,7 @@ def build():
         [
             p("Sentinel AI is designed so the primary detection paths run on the Android device. In the default repository configuration, message content, file content, URL feature vectors, and scan history are not sent to a Sentinel AI backend. The app does not require an account or cloud inference service for its core protection.", styles["Body"]),
             p("The TensorFlow Lite model and scaler are packaged with the application, which enables offline inference, low latency, a fixed model version per build, and reduced exposure of browsing and message data. Scan records are stored in the app private Room database, while preferences are stored in private Android preferences.", styles["Body"]),
-            p("The repository supports optional reputation integrations. OpenPhish can download a feed and compare scanned URLs locally; VirusTotal remains disabled unless a developer supplies an API key. If VirusTotal is enabled, scanned URLs are submitted externally and that configuration must be disclosed. For strict offline use, external reputation providers can be disabled while retaining local heuristics and ML inference.", styles["Body"]),
+            p("The repository does not use external APIs or cloud databases. Local heuristics and ML inference generate the final authoritative ScanResult and continue to operate fully offline. Scan history is retained locally, but historical scans DO NOT alter the score of future URLs.", styles["Body"]),
         ],
         styles,
     )
@@ -395,7 +395,7 @@ def build():
                     "<b>Malformed URL handling:</b> The runtime must generate a finite feature vector even when inputs are incomplete, unusual, or intentionally malformed.",
                     "<b>Real-time performance:</b> Click-time protection must analyze a link quickly enough that the user experience remains smooth.",
                     "<b>Android ML integration:</b> The TFLite model, scaler, tensor shapes, asset loading, and lifecycle management must work reliably across devices.",
-                    "<b>Privacy boundaries:</b> Optional reputation checks must be clearly separated from offline inference so user data handling remains transparent.",
+                    "<b>Privacy boundaries:</b> Scan history lookups must be clearly separated from offline inference so user data handling remains transparent.",
                 ],
                 styles["Bullet"],
             )
@@ -409,7 +409,7 @@ def build():
         [
             p("The project demonstrates a layered protection system that can evaluate URLs at click time, scan supported notifications, produce risk scores, and keep history locally. The example model predictions show near-zero probability for clearly safe domains, mid-range values for ambiguous login paths, and high confidence for brand-impersonation style phishing domains.", styles["Body"]),
             p("The project target and reported demonstration accuracy are approximately 99 percent for the URL classification task. Because the repository contains the deployed inference model and scaler but not the original training dataset, training scripts, or versioned evaluation report, this figure should be treated as a project-level reported result rather than a reproducible benchmark from the current repository alone.", styles["Body"]),
-            p("Model reliability is strengthened by using the classifier as one part of a layered decision system. Heuristic rules and provider evidence can still warn or block even when the model score is inconclusive, while unknown or failed reputation lookups do not reduce local risk. This avoids presenting missing evidence as safety.", styles["Body"]),
+            p("Model reliability is strengthened by using the classifier as one part of a layered decision system. Heuristic rules can still warn or block even when the model score is inconclusive. This avoids presenting missing evidence as safety.", styles["Body"]),
         ],
         styles,
     )

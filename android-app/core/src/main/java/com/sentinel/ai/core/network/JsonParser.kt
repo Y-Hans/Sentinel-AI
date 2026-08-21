@@ -10,10 +10,12 @@ import timber.log.Timber
  * Thin Gson wrapper for deserialising JSON response bodies.
  *
  * Providers call [parse] with the raw response body string received from
- * [HttpClientWrapper]. Parse failures are swallowed here and return `null`
- * — providers treat a `null` result as an inability to evaluate and return
- * `null` from `ReputationProvider.evaluate()`, which [ReputationManagerImpl]
- * already handles safely.
+ * [HttpClientWrapper].
+ *
+ * ## Failure contract
+ * All methods swallow [JsonSyntaxException] and return `null`.
+ *
+ * This forces the network caller to handle failures.
  *
  * Provided as a Hilt singleton by [com.sentinel.ai.core.di.NetworkModule].
  */

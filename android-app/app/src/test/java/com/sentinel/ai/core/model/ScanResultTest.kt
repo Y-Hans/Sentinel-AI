@@ -15,7 +15,6 @@ class ScanResultTest {
         assertEquals(ProtectionDecision.ALLOW, green.decision)
         assertEquals(ProtectionDecision.WARN, red.decision)
         assertEquals(ProtectionDecision.BLOCK, critical.decision)
-        assertTrue(green.providerFindings.isEmpty())
         assertEquals(null, green.localEvidence)
     }
 
@@ -28,12 +27,6 @@ class ScanResultTest {
                 LocalFinding("rule", "Rule", "DOMAIN", 30f, "Local reason")
             ),
             triggeredRuleCount = 1
-        )
-        val provider = ProviderFinding(
-            providerName = "Provider",
-            status = EvidenceSourceStatus.UNKNOWN,
-            verdict = "UNKNOWN",
-            reason = "No conclusive verdict."
         )
         val reason = ScanReason(
             source = ScanReasonSource.LOCAL_HEURISTIC,
@@ -48,13 +41,11 @@ class ScanResultTest {
             headline = "Suspicious link evidence detected",
             summary = "Proceed with caution.",
             reasons = listOf(reason),
-            providerFindings = listOf(provider),
             localEvidence = local,
             recommendedAction = ProtectionAction.PROCEED_WITH_CAUTION
         )
 
         assertEquals(local, result.localEvidence)
-        assertEquals(provider, result.providerFindings.single())
         assertEquals(reason, result.reasons.single())
         assertEquals(0.3f, result.confidence, 0f)
     }

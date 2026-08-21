@@ -53,7 +53,7 @@ Do not present the result as a guarantee that every page on a trusted domain is 
 
 Expected result:
 
-- The bundled mock reputation provider returns malicious evidence.
+- The bundled local heuristics return malicious evidence.
 - The final decision is `BLOCK`.
 - The screen explains that critical threat evidence was detected.
 - No browser continuation action is offered.
@@ -91,6 +91,6 @@ Show the generated warning and the corresponding history record. Use only test a
 ## Presentation Notes
 
 - Model output can vary when the model asset changes, so describe relative risk rather than promising a fixed percentage.
-- Reputation lookups may be unavailable when the device is offline. Local heuristics and TFLite inference still run.
-- The malicious fixture remains deterministic because it is recognized by the bundled mock provider.
+- Local heuristics and TFLite inference run fully offline.
+- The malicious fixture remains deterministic because it is recognized by the bundled local heuristics.
 

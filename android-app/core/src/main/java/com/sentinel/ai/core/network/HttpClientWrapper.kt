@@ -15,11 +15,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 
 /**
- * Coroutine-friendly HTTP execution layer shared by all reputation providers.
+ * Coroutine-friendly HTTP execution layer shared for HTTP requests.
  *
- * ## Single entry point
- * All outgoing HTTP calls go through [execute]. Providers never interact with
- * OkHttp directly.
+ * Designed to enforce uniform networking policies:
+ * All outgoing HTTP calls go through [execute].
  *
  * ## Error handling contract
  * | Scenario                        | Outcome                           | Retried?                   |

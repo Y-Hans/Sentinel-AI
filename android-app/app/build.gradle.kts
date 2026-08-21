@@ -20,11 +20,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "API_BASE_URL", "\"https://api.sentinel.ai/\"")
-        buildConfigField("String", "OPENPHISH_FEED_URL", "\"https://openphish.com/feed.txt\"")
-        buildConfigField("String", "OPENPHISH_API_KEY", "\"\"")
-        buildConfigField("String", "VIRUSTOTAL_API_KEY", "\"\"")
-        buildConfigField("String", "VIRUSTOTAL_LOOKUP_URL", "\"https://www.virustotal.com/api/v3/\"")
-        buildConfigField("String", "REPUTATION_LOOKUP_TIMEOUT_MS", "\"10000\"")
+        buildConfigField("String", "SENTINEL_VERSION", "\"2.1.0\"")
     }
 
     buildFeatures {
@@ -44,6 +40,12 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    testOptions {
+        unitTests.all {
+            it.maxHeapSize = "2g"
         }
     }
 }

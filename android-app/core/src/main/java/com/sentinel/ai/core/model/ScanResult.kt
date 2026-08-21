@@ -14,7 +14,6 @@ data class ScanResult(
     val headline: String = decision.defaultHeadline(),
     val summary: String = explanation,
     val reasons: List<ScanReason> = emptyList(),
-    val providerFindings: List<ProviderFinding> = emptyList(),
     val localEvidence: LocalEvidence? = null,
     val recommendedAction: ProtectionAction = decision.defaultAction(),
     val target: String? = null
@@ -32,18 +31,8 @@ enum class ProtectionAction {
     DO_NOT_CONTINUE
 }
 
-enum class EvidenceSourceStatus {
-    COMPLETED,
-    UNKNOWN,
-    UNAVAILABLE,
-    FAILED,
-    TIMED_OUT
-}
-
 enum class ScanReasonSource {
-    REPUTATION_PROVIDER,
-    LOCAL_HEURISTIC,
-    PROVIDER_STATUS
+    LOCAL_HEURISTIC
 }
 
 data class ScanReason(
@@ -51,14 +40,6 @@ data class ScanReason(
     val sourceName: String,
     val message: String,
     val riskLevel: RiskLevel? = null
-)
-
-data class ProviderFinding(
-    val providerName: String,
-    val status: EvidenceSourceStatus,
-    val verdict: String? = null,
-    val confidence: Float = 0f,
-    val reason: String
 )
 
 data class LocalFinding(

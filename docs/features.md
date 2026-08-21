@@ -7,7 +7,7 @@ Sentinel AI can register as the Android handler for web links and inspect a dest
 - Accepts `http` and `https` view intents.
 - Accepts shared links and selected web text.
 - Normalizes the URL without visiting it.
-- Applies 20 explainable URL rules, reputation evidence, and the on-device URL model.
+- Applies 20 explainable URL rules and the on-device URL model.
 - Shows a result before continuing.
 - Removes the browser action for a `BLOCK` decision.
 
@@ -55,11 +55,16 @@ The action decision is intentionally simpler:
 
 | Decision | Trigger | User guidance |
 | --- | --- | --- |
-| `ALLOW` | No strong local or provider evidence | Continue with normal caution |
-| `WARN` | Local score at least 30 or a suspicious provider verdict | Verify the destination before continuing |
-| `BLOCK` | Local score at least 90 or a malicious provider verdict | Do not continue |
+| `ALLOW` | No strong local evidence | Continue with normal caution |
+| `WARN` | Local score at least 30 | Verify the destination before continuing |
+| `BLOCK` | Local score at least 90 | Do not continue |
 
-Malicious provider evidence cannot be averaged below `BLOCK`, suspicious evidence cannot fall below `WARN`, and unknown or failed lookups do not reduce the local score. Reasons are retained so the user can see which signals affected the result.
+Reasons are retained so the user can see which signals affected the result.
+
+## Scan History
+
+- Scan history is retained locally, but historical scans DO NOT alter the score of future URLs.
+- The final authoritative decision is produced exclusively by local heuristics and on-device ML.
 
 ## Manual Scanning and History
 

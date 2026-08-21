@@ -23,8 +23,4 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideThreatDao(database: SentinelDatabase): ThreatDao = database.threatDao()
-
-    @Provides
-    @Singleton
-    fun provideUrlReputationDao(database: SentinelDatabase): com.sentinel.ai.core.data.local.UrlReputationDao = database.urlReputationDao()
 }

@@ -37,15 +37,15 @@ import retrofit2.converter.gson.GsonConverterFactory
  *
  * ## What was not changed
  * Retrofit is still provided for any future use-case that needs a typed
- * service interface. Current reputation providers use [HttpClientWrapper]
+ * service interface. Current consumers use [HttpClientWrapper]
  * directly.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // A fixed base URL is required by Retrofit. Reputation providers build
-    // their own absolute URLs and do not use Retrofit service interfaces.
+    // A fixed base URL is required by Retrofit.
+    // Consumers build their own absolute URLs and do not use Retrofit service interfaces.
     private const val RETROFIT_BASE_URL = "https://api.sentinel.ai/"
 
     // -------------------------------------------------------------------------

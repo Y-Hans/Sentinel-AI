@@ -4,12 +4,13 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 
 /**
- * Single DI entry point for all networking objects.
+ * Groups networking dependencies into a single injectable unit.
  *
- * Consumers that need HTTP networking inject this class. It carries the
+ * This was created in Phase 3.8.1 to preserve the existing [ApiClient]
+ * signature while adding [HttpClientWrapper] capabilities. It contains the
  * shared [OkHttpClient] and [Retrofit] instances used before Phase 3.8.1,
  * and now also exposes [httpClientWrapper] — the primary networking
- * abstraction for reputation providers.
+ * abstraction for API requests.
  *
  * Provided as a Hilt singleton by [com.sentinel.ai.core.di.NetworkModule].
  */

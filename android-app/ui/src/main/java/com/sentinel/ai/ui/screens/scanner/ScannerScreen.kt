@@ -351,7 +351,7 @@ private fun scanStepsFor(scanType: ScanType): List<String> = buildList {
     add("Prepare a safe environment")
     add(if (scanType == FILE) "Inspect the file signature" else "Inspect the link structure")
     add("Match known threat patterns")
-    add("Cross-check against reputation data")
+    add("Run on-device ML inference")
     add("Finalize the verdict")
 }
 

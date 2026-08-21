@@ -7,7 +7,14 @@ import org.tensorflow.lite.Interpreter
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class MLInferenceManager(context: Context) {
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class MLInferenceManager @Inject constructor(
+    @ApplicationContext context: Context
+) : MLInferenceEngine {
 
     private val interpreter: Interpreter
     private val scaler: Scaler
@@ -54,7 +61,7 @@ class MLInferenceManager(context: Context) {
     }
 
     @Synchronized
-    fun predict(features: FloatArray): Float {
+    override fun predict(features: FloatArray): Float {
         require(features.size == FeatureExtractor.FEATURE_COUNT) {
             "Expected ${FeatureExtractor.FEATURE_COUNT} features, received ${features.size}"
         }

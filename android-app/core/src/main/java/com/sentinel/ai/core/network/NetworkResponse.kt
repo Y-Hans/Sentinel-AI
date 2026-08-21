@@ -16,8 +16,8 @@ sealed class NetworkResponse<out T> {
     /**
      * The request completed with a 2xx HTTP response.
      *
-     * HTTP metadata is included so future providers (e.g. Google Safe
-     * Browsing, VirusTotal) can inspect rate-limit and retry-after headers
+     * HTTP metadata is included so future providers
+     * can inspect rate-limit and retry-after headers
      * without any change to this API.
      *
      * @property data       The response body, typed as [T].

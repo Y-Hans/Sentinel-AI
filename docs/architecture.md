@@ -6,7 +6,7 @@ Sentinel AI is a multi-module Android application. Dependencies flow from the ap
 
 | Module | Responsibility |
 | --- | --- |
-| `app` | Application startup, intent routing, URL and file scan orchestration, ML inference, reputation integration, and warning delivery |
+| `app` | Application startup, intent routing, URL and file scan orchestration, ML inference, and warning delivery |
 | `core` | Domain models, event bus, validation, local Room storage, shared networking, and feature state |
 | `agents` | Notification parsing, supported-app routing, message event construction, and scam rules |
 | `services` | Guard and monitoring services plus background work |
@@ -31,8 +31,8 @@ Input routing and normalization
            v                        v
 URL/file protection          Message protection
   |-- Local heuristics         |-- Notification parser
-  |-- Reputation evidence      |-- Content and URL signals
-  `-- On-device URL ML         `-- Scam rule engine
+  `-- On-device URL ML         |-- Content and URL signals
+                               `-- Scam rule engine
            |                        |
            +-----------+------------+
                        v
@@ -65,22 +65,31 @@ ScanLoadingActivity / ScannerViewModel
           v
 ScanRepository
           |
-          +--> Link or file heuristic analysis
-          |        |
-          |        +--> optional reputation providers
-          |        |
-          |        `--> ALLOW / WARN / BLOCK evidence decision
-          |
-          +--> URL feature extraction --> scaler --> TFLite inference
+          v
+URL Normalization
           |
           v
-Result screen
-  - ALLOW: Continue
-  - WARN: Continue Anyway
-  - BLOCK: no browser handoff
+Heuristic Analysis
+          |
+          v
+ML Analysis
+          |
+          v
+Result Fusion
+          |
+          v
+Final ScanResult
+          |
+          +--> Threat Event / UI
+          |
+          v
+Scan History Update
+          |
+          v
+Local Room Memory
 ```
 
-URL analysis emits a threat event for local history. The returned URL result also receives the ML-adjusted reported score before it is shown by the scan screen.
+URL analysis emits a threat event for local history. The returned URL result receives the fused score from local heuristics and ML predictions before it is shown by the scan screen.
 
 ## Notification Pipeline
 
@@ -135,13 +144,8 @@ Blend with evidence-based URL score
 
 The model and scaler are packaged in `app/src/main/assets`, so inference does not require a model server. See [ML Model](ml-model.md) for the feature contract and scoring formula.
 
-## Reputation Boundary
+## Final ScanResult
 
-The evidence layer supports three providers:
-
-- OpenPhish downloads a feed and compares the scanned URL against it locally.
-- VirusTotal can submit a URL for analysis only when a developer supplies an API key; the repository default leaves that key blank.
-- A deterministic mock provider supplies stable safe, suspicious, and malicious fixtures for development and demonstrations.
-
-Provider failures, timeouts, and unknown verdicts are retained as status evidence and do not lower a local risk score.
+The final authoritative ScanResult is produced exclusively by local heuristics and the on-device ML model.
+While scan history is retained locally in Room for user review, historical scans DO NOT alter the score of future URLs.
 

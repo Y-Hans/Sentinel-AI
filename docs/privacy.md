@@ -52,30 +52,16 @@ Sentinel AI requests permissions only for the protection mode that uses them:
 | Default browser role | Intercept links for click-time analysis |
 | Display over other apps | Present urgent alerts |
 | File/media read access | Inspect user-shared supported files where Android requires it |
-| Internet | Retrieve optional reputation data or call a configured reputation provider |
 
 Users can disable real-time protection or individual notification, click, and text-selection modes.
 
 ## Network Boundaries
 
-The app contains optional reputation integrations, so privacy claims must distinguish local inference from network reputation checks.
-
-### OpenPhish
-
-The default build can download the OpenPhish feed. Matching occurs on the device: the scanned URL is compared with the downloaded feed and is not included in the feed request. As with any network request, the feed service can observe connection metadata such as the device's public IP address and request time.
-
-### VirusTotal
-
-The repository default leaves the VirusTotal API key blank, which disables VirusTotal submission. If a developer supplies a key, the provider posts the scanned URL to VirusTotal for analysis. That configuration is not a strict on-device-only mode and must be disclosed to users.
-
-### Strict Offline Configuration
-
-For a strictly offline build, keep the VirusTotal API key blank and disable the OpenPhish feed URL at build time. Local heuristics, notification rules, file heuristics, and TensorFlow Lite inference continue to operate without those providers.
+All processing is done via local heuristics and the on-device ML model to generate the final authoritative ScanResult. Existing logging and privacy safeguards remain applicable. Scan history is retained locally in the private Room database for user review, but historical scans DO NOT alter the score of future URLs. This local history never leaves the device.
 
 ## Data Minimization
 
 - Grant only the permissions needed for enabled protection modes.
 - Keep scan records only as long as they are useful to the user.
-- Avoid enabling external URL submission without clear consent and disclosure.
 - Do not reuse notification or contact data for advertising, profiling, or unrelated analytics.
 

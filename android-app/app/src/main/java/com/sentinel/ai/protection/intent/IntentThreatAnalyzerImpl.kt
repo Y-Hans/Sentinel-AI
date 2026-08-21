@@ -5,30 +5,29 @@ import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.ml.FeatureExtractor
-import com.sentinel.ai.ml.MLInferenceManager
+import com.sentinel.ai.ml.MLInferenceEngine
 import com.sentinel.ai.protection.intent.file.FileScanner
 import com.sentinel.ai.protection.intent.link.LinkScanner
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
 import com.sentinel.ai.protection.intent.model.UrlPayload
-import com.sentinel.ai.protection.intent.reputation.ReputationManager
-import com.sentinel.ai.protection.intent.reputation.ReputationTarget
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.sentinel.ai.core.model.RiskLevel
+import com.sentinel.ai.core.model.ScanReason
+import com.sentinel.ai.core.model.ScanReasonSource
+import com.sentinel.ai.core.model.LocalEvidence
+import com.sentinel.ai.core.model.toProtectionDecision
+import com.sentinel.ai.core.model.defaultHeadline
+import com.sentinel.ai.core.model.defaultAction
 
 @Singleton
 class IntentThreatAnalyzerImpl @Inject constructor(
     private val linkScanner: LinkScanner,
     private val fileScanner: FileScanner,
     private val threatEventBus: ThreatEventBus,
-    private val reputationManager: ReputationManager,
-    @ApplicationContext private val context: Context
+    private val mlInferenceEngine: MLInferenceEngine
 ) : IntentThreatAnalyzer {
-
-    private val mlInferenceManager by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        MLInferenceManager(context)
-    }
 
     override suspend fun analyze(payload: IntentPayload): ScanResult {
         return when (payload) {
@@ -37,29 +36,52 @@ class IntentThreatAnalyzerImpl @Inject constructor(
                 val mlScore = try {
                     val features = FeatureExtractor.extract(payload.url)
                     if (features.size == FeatureExtractor.FEATURE_COUNT) {
-                        (mlInferenceManager.predict(features) * 100f).coerceIn(0f, 100f)
+                        (mlInferenceEngine.predict(features) * 100f).coerceIn(0f, 100f)
                     } else null
                 } catch (e: Exception) {
                     null
                 }
 
-                val finalResult = reputationManager.enrich(
-                    heuristicResult = heuristicResult,
-                    mlScore = mlScore,
-                    target = ReputationTarget.Url(payload.url)
+                // Combine heuristics and ML
+                val finalRiskScore = if (mlScore != null) {
+                    (heuristicResult.riskScore * 0.7f + mlScore * 0.3f).coerceIn(0f, 100f)
+                } else {
+                    heuristicResult.riskScore
+                }
+
+                val finalRiskLevel = when {
+                    finalRiskScore >= 90f -> RiskLevel.CRITICAL
+                    finalRiskScore >= 70f -> RiskLevel.RED
+                    finalRiskScore >= 40f -> RiskLevel.YELLOW
+                    else -> RiskLevel.GREEN
+                }
+                
+                val reasons = heuristicResult.reasons.toMutableList()
+                if (mlScore != null) {
+                    reasons.add(ScanReason(
+                        source = ScanReasonSource.LOCAL_HEURISTIC,
+                        sourceName = "ML Classifier",
+                        message = "Machine learning model score: ${mlScore.toInt()}/100",
+                        riskLevel = if (mlScore >= 70f) RiskLevel.RED else null
+                    ))
+                }
+
+                val finalResult = heuristicResult.copy(
+                    riskScore = finalRiskScore,
+                    riskLevel = finalRiskLevel,
+                    reasons = reasons,
+                    decision = finalRiskLevel.toProtectionDecision(),
+                    headline = finalRiskLevel.toProtectionDecision().defaultHeadline(),
+                    recommendedAction = finalRiskLevel.toProtectionDecision().defaultAction()
                 )
+
                 threatEventBus.emit(ThreatEvent.LinkThreatDetected(finalResult))
                 finalResult
             }
             is FilePayload -> {
                 val heuristicResult = fileScanner.scan(payload.uri)
-                val finalResult = reputationManager.enrich(
-                    heuristicResult = heuristicResult,
-                    mlScore = null,
-                    target = null
-                )
-                threatEventBus.emit(ThreatEvent.FileThreatDetected(finalResult))
-                finalResult
+                threatEventBus.emit(ThreatEvent.FileThreatDetected(heuristicResult))
+                heuristicResult
             }
         }
     }
