@@ -2,6 +2,7 @@ package com.sentinel.ai.agents.whatsapp
 
 import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
+import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.event.schema.EventValidator
 import com.sentinel.ai.core.event.schema.EventSchemaGson
 import com.sentinel.ai.core.event.schema.ValidationResult
@@ -9,6 +10,9 @@ import com.sentinel.ai.core.event.schema.ScamRiskLevel
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.core.warning.WarningNotificationDispatcher
+import com.sentinel.ai.core.warning.WarningSeverity
+import com.sentinel.ai.core.warning.toWarningUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.nio.charset.StandardCharsets
@@ -21,7 +25,9 @@ import javax.inject.Singleton
 class NotificationAgentCoordinator @Inject constructor(
     private val parser: NotificationParser,
     private val builder: NotificationEventBuilder,
-    private val threatEventBus: ThreatEventBus
+    private val threatEventBus: ThreatEventBus,
+    private val threatJournal: ThreatJournal,
+    private val warningDispatcher: WarningNotificationDispatcher
 ) {
     private val _lastStatus = MutableStateFlow("IDLE")
     val lastStatus: StateFlow<String> = _lastStatus
@@ -92,8 +98,32 @@ class NotificationAgentCoordinator @Inject constructor(
             _lastStatus.value = "IGNORED"
             return
         }
+
+        // 1. Direct durable Room persistence (awaiting completion)
+        threatJournal.recordScanResult(result)
+
+        // 2. Direct warning notification dispatch for elevated threats
+        dispatchWarningIfNeeded(result)
+
+        // 3. Optional transient event bus emission for reactive UI consumers
         threatEventBus.emit(ThreatEvent.WhatsAppThreatDetected(result))
+
         _lastStatus.value = "COMPLETED"
+    }
+
+    private fun dispatchWarningIfNeeded(result: ScanResult) {
+        if (result.decision == ProtectionDecision.BLOCK) {
+            warningDispatcher.showWarning(result, highPriority = true)
+            return
+        }
+
+        val warning = result.toWarningUiModel()
+        when (warning.severity) {
+            WarningSeverity.MEDIUM -> warningDispatcher.showWarning(result, highPriority = false)
+            WarningSeverity.HIGH -> warningDispatcher.showWarning(result, highPriority = true)
+            WarningSeverity.CRITICAL -> warningDispatcher.showWarning(result, highPriority = true)
+            WarningSeverity.NONE -> Unit
+        }
     }
 
     private companion object {

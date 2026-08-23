@@ -2,10 +2,8 @@ package com.sentinel.ai
 
 import android.app.Application
 import com.sentinel.ai.core.utils.Logger
-import android.content.Intent
 import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.feature.FeatureManager
-import com.sentinel.ai.warning.ThreatEventSubscriberService
 import com.sentinel.ai.ui.protection.ProtectionControl
 import dagger.hilt.android.HiltAndroidApp
 
@@ -17,6 +15,5 @@ class SentinelApp : Application() {
         Logger.init(isDebug = BuildConfig.DEBUG)
         ThreatJournal.initialize(this)
         ProtectionControl.sync(this)
-        startService(Intent(this, ThreatEventSubscriberService::class.java))
     }
 }

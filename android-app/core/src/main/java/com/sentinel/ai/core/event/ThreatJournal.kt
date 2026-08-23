@@ -11,9 +11,7 @@ import com.sentinel.ai.core.model.Alert
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.core.model.Threat
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,12 +19,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 
 object ThreatJournal {
 
-    private val persistenceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private const val TAG = "ThreatJournal"
 
     private val _scanResults = MutableStateFlow<List<ScanResult>>(emptyList())
     val scanResults: StateFlow<List<ScanResult>> = _scanResults.asStateFlow()
@@ -51,14 +49,76 @@ object ThreatJournal {
         }
     }
 
-    fun record(event: ThreatEvent) {
+    fun initialize(dao: ThreatDao, preload: Boolean = true) {
+        synchronized(this) {
+            threatDao = dao
+            if (preload) {
+                restoreState()
+            } else {
+                _scanResults.value = emptyList()
+                _threats.value = emptyList()
+                _alerts.value = emptyList()
+            }
+            initialized = true
+        }
+    }
+
+    fun resetForTesting() {
+        synchronized(this) {
+            threatDao = null
+            initialized = false
+            _scanResults.value = emptyList()
+            _threats.value = emptyList()
+            _alerts.value = emptyList()
+        }
+    }
+
+    suspend fun recordScanResult(scanResult: ScanResult) {
+        val dao = threatDao ?: run {
+            Timber.tag(TAG).w("ThreatJournal is not initialized; cannot record scan result=%s", scanResult.id)
+            throw IllegalStateException("ThreatJournal is not initialized with a ThreatDao")
+        }
+
+        try {
+            dao.upsertThreatRecord(scanResult.toEntity())
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Failed to persist scan result to database: %s", scanResult.id)
+            throw e
+        }
+
+        _scanResults.update { current ->
+            current.updateById(scanResult.id, scanResult)
+        }
+        rebuildAlerts()
+    }
+
+    suspend fun recordThreat(threat: Threat) {
+        val dao = threatDao ?: run {
+            Timber.tag(TAG).w("ThreatJournal is not initialized; cannot record threat=%s", threat.id)
+            throw IllegalStateException("ThreatJournal is not initialized with a ThreatDao")
+        }
+
+        try {
+            dao.upsertThreatRecord(threat.toEntity())
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Failed to persist threat to database: %s", threat.id)
+            throw e
+        }
+
+        _threats.update { current ->
+            current.updateById(threat.id, threat)
+        }
+        rebuildAlerts()
+    }
+
+    suspend fun record(event: ThreatEvent) {
         when (event) {
-            is ThreatEvent.SmsThreatDetected -> appendScanResult(event.scanResult)
-            is ThreatEvent.CallThreatDetected -> appendScanResult(event.scanResult)
-            is ThreatEvent.LinkThreatDetected -> appendScanResult(event.scanResult)
-            is ThreatEvent.FileThreatDetected -> appendScanResult(event.scanResult)
-            is ThreatEvent.WhatsAppThreatDetected -> appendScanResult(event.scanResult)
-            is ThreatEvent.CriticalThreatAlert -> appendThreat(event.threat)
+            is ThreatEvent.SmsThreatDetected -> recordScanResult(event.scanResult)
+            is ThreatEvent.CallThreatDetected -> recordScanResult(event.scanResult)
+            is ThreatEvent.LinkThreatDetected -> recordScanResult(event.scanResult)
+            is ThreatEvent.FileThreatDetected -> recordScanResult(event.scanResult)
+            is ThreatEvent.WhatsAppThreatDetected -> recordScanResult(event.scanResult)
+            is ThreatEvent.CriticalThreatAlert -> recordThreat(event.threat)
             ThreatEvent.GuardActivated,
             ThreatEvent.GuardDeactivated -> Unit
         }
@@ -76,40 +136,6 @@ object ThreatJournal {
         }.distinctUntilChanged()
     }
 
-    private fun appendScanResult(scanResult: ScanResult) {
-        _scanResults.update { current ->
-            current.updateById(scanResult.id, scanResult)
-        }
-        rebuildAlerts()
-        persistScanResult(scanResult)
-    }
-
-    private fun appendThreat(threat: Threat) {
-        _threats.update { current ->
-            current.updateById(threat.id, threat)
-        }
-        rebuildAlerts()
-        persistThreat(threat)
-    }
-
-    private fun persistScanResult(scanResult: ScanResult) {
-        val dao = threatDao ?: return
-        persistenceScope.launch {
-            runCatching {
-                dao.upsertThreatRecord(scanResult.toEntity())
-            }
-        }
-    }
-
-    private fun persistThreat(threat: Threat) {
-        val dao = threatDao ?: return
-        persistenceScope.launch {
-            runCatching {
-                dao.upsertThreatRecord(threat.toEntity())
-            }
-        }
-    }
-
     private fun rebuildAlerts() {
         val derivedAlerts = buildList {
             addAll(_scanResults.value.map { it.toAlert() })
@@ -120,12 +146,15 @@ object ThreatJournal {
         _alerts.value = derivedAlerts
     }
 
-    private fun restoreState() {
+    fun restoreState() {
         val dao = threatDao ?: return
         val persistedRecords = runBlocking(Dispatchers.IO) {
-            runCatching {
+            try {
                 dao.getAllThreatRecords()
-            }.getOrDefault(emptyList())
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Failed to restore state from database")
+                emptyList()
+            }
         }
 
         _scanResults.value = persistedRecords

@@ -12,7 +12,7 @@ Sentinel AI is a multi-module Android application. Dependencies flow from the ap
 | `services` | Guard and monitoring services plus background work |
 | `ui` | Compose screens, navigation, view models, design components, settings, scanner, dashboard, and history |
 
-The app uses Hilt for dependency injection, coroutines and flows for asynchronous state, and Room for persistent threat history.
+The app uses Hilt for dependency injection, coroutines and flows for asynchronous state, and Room with durable suspending ThreatJournal persistence for threat history.
 
 ## System View
 
@@ -110,13 +110,26 @@ NotificationAgentCoordinator
   - suppress near-duplicate notifications
           |
           v
-ThreatEventBus
+ONE Authoritative ScanResult
           |
-          +--> Local history
-          `--> Warning notification for elevated risk
+          +--------------------------------------------+
+          |                                            |
+          v                                            v
+    ThreatJournal                        WarningNotificationDispatcher
+          |                                            |
+          v                                            v
+     Room Database                         WarningNotificationHelper
+          |                                            |
+          v                                            v
+  In-Memory StateFlows                        System Warning Notification
+          |
+          v
+  Dashboard / History
 ```
 
 The pipeline uses message text, URL characteristics, urgency, financial or credential language, and known-contact status. Notification analysis is separate from the URL TFLite classifier.
+
+Persistence and warning delivery are directly executed by `NotificationAgentCoordinator` via `ThreatJournal` and `WarningNotificationDispatcher`. Sentinel's own transient subscriber lifecycle (`ThreatEventSubscriberService`) has been removed, ensuring that a detected notification threat cannot disappear before durable Room persistence or warning dispatch due to process lifecycle interruptions. `ThreatEventBus` remains strictly for optional reactive UI observation and is not on the critical persistence path.
 
 ## ML Inference Flow
 

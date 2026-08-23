@@ -21,7 +21,7 @@ See [Features](docs/features.md) for the complete feature description.
 1. Sentinel AI receives a URL through the scanner, an Android web intent, shared content, or selected text. It can also observe notifications after the user grants notification access.
 2. Local rules inspect URL structure or message content for signals such as deceptive domains, urgency language, redirects, and credential requests.
 3. URL scans also extract 15 numeric features and run a bundled TensorFlow Lite model on the device. The local heuristics and on-device ML produce the final authoritative ScanResult.
-4. The app presents an `ALLOW`, `WARN`, or `BLOCK` decision and records the event in local history.
+4. The app presents an `ALLOW`, `WARN`, or `BLOCK` decision and durably records the result in local Room persistence before presenting dashboard, history, and warning notifications.
 
 See [Architecture](docs/architecture.md) for the component and data flows.
 

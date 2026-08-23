@@ -66,9 +66,13 @@ Reasons are retained so the user can see which signals affected the result.
 - Scan history is retained locally, but historical scans DO NOT alter the score of future URLs.
 - The final authoritative decision is produced exclusively by local heuristics and on-device ML.
 
+## Notification Protection and History
+
+Incoming message notifications from supported communication apps are evaluated against scam heuristic rules. Detected threats produce an authoritative `ScanResult` that is directly persisted to the local Room database and dispatches a system warning notification for elevated risks (`WARN` / `BLOCK`) without depending on a transient event subscriber service.
+
 ## Manual Scanning and History
 
-The in-app scanner supports link, text, and file scan modes. Completed threat events are written to a Room database through the local threat journal and appear in dashboard, alert, detail, and history views.
+The in-app scanner supports link, text, and file scan modes. Threat events and scan results are durably persisted to a Room database through ThreatJournal before updating reactive in-memory state, ensuring reliable display in dashboard, alert, detail, and history views.
 
 History remains on the device and is restored when the app restarts.
 

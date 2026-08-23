@@ -23,4 +23,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideThreatDao(database: SentinelDatabase): ThreatDao = database.threatDao()
+
+    @Provides
+    @Singleton
+    fun provideThreatJournal(): com.sentinel.ai.core.event.ThreatJournal = com.sentinel.ai.core.event.ThreatJournal
 }

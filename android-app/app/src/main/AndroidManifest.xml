@@ -127,10 +127,6 @@
             </intent-filter>
         </service>
 
-        <service
-            android:name="com.sentinel.ai.warning.ThreatEventSubscriberService"
-            android:exported="false" />
-
     </application>
 
 </manifest>
