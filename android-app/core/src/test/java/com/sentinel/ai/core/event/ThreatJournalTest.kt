@@ -9,6 +9,7 @@ import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.core.model.Threat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -237,6 +238,31 @@ class ThreatJournalTest {
         assertNotNull(found)
         assertEquals("lookup-id", found?.id)
         assertEquals("com.whatsapp", found?.source)
+    }
+
+    @Test
+    fun `concurrent writes to recordScanResult maintain StateFlow consistency and thread safety`() = runTest {
+        ThreatJournal.initialize(fakeDao, preload = false)
+
+        val count = 20
+        val jobs = (1..count).map { i ->
+            async {
+                val scan = createSampleScanResult(
+                    id = "concurrent-scan-$i",
+                    timestamp = 1_700_000_000_000L + (i * 1000L),
+                    score = (50 + i).toFloat()
+                )
+                ThreatJournal.recordScanResult(scan)
+            }
+        }
+        jobs.awaitAll()
+
+        assertEquals(count, fakeDao.persistedRecords.size)
+        assertEquals(count, ThreatJournal.scanResults.value.size)
+        assertEquals(count, ThreatJournal.alerts.value.size)
+        // Verify list is strictly sorted descending by timestamp
+        val timestamps = ThreatJournal.scanResults.value.map { it.timestamp }
+        assertEquals(timestamps.sortedDescending(), timestamps)
     }
 
     private fun createSampleScanResult(

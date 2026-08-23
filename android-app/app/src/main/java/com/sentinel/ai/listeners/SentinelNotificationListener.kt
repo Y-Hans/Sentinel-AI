@@ -60,10 +60,14 @@ class SentinelNotificationListener : NotificationListenerService() {
         )
 
         serviceScope.launch {
-            notificationAgentCoordinator.onWhatsAppNotification(
-                snapshot = snapshot,
-                isKnownContact = isKnownContact(snapshot)
-            )
+            try {
+                notificationAgentCoordinator.onWhatsAppNotification(
+                    snapshot = snapshot,
+                    isKnownContact = isKnownContact(snapshot)
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to process notification for package=${snapshot.packageName}", e)
+            }
         }
     }
 
@@ -130,44 +134,42 @@ class SentinelNotificationListener : NotificationListenerService() {
         }.getOrDefault(false)
     }
 
-    // ================= HELPERS =================
-
-    private fun isPhoneNumber(text: String): Boolean {
-        return text.matches(Regex("^[+0-9\\s()-]+$"))
-    }
-
-    private fun normalizeNumber(number: String): String {
-        return number
-            .replace("\\s".toRegex(), "")
-            .replace("-", "")
-            .replace("(", "")
-            .replace(")", "")
-            .replace("+91", "")
-            .filter(Char::isDigit)
-            .takeLast(10)
-    }
-
-    private fun isNameMatch(a: String, b: String): Boolean {
-        val na = normalizeName(a)
-        val nb = normalizeName(b)
-
-        return na.isNotEmpty() &&
-                nb.isNotEmpty() &&
-                (na.contains(nb) || nb.contains(na))
-    }
-
-    private fun normalizeName(name: String): String {
-        return name.lowercase()
-            .replace("[^a-z ]".toRegex(), "")
-            .trim()
-    }
-
     override fun onDestroy() {
         serviceScope.cancel()
         super.onDestroy()
     }
 
-    private companion object {
+    internal companion object {
         const val TAG = "SentinelNotification"
+
+        internal fun isPhoneNumber(text: String): Boolean {
+            return text.matches(Regex("^[+0-9\\s()-]+$"))
+        }
+
+        internal fun normalizeNumber(number: String): String {
+            return number
+                .replace("\\s".toRegex(), "")
+                .replace("-", "")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("+91", "")
+                .filter(Char::isDigit)
+                .takeLast(10)
+        }
+
+        internal fun isNameMatch(a: String, b: String): Boolean {
+            val na = normalizeName(a)
+            val nb = normalizeName(b)
+
+            return na.isNotEmpty() &&
+                    nb.isNotEmpty() &&
+                    (na.contains(nb) || nb.contains(na))
+        }
+
+        internal fun normalizeName(name: String): String {
+            return name.lowercase()
+                .replace("[^a-z ]".toRegex(), "")
+                .trim()
+        }
     }
 }

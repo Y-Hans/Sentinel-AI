@@ -13,6 +13,7 @@ import com.sentinel.ai.core.warning.WarningNotificationDispatcher
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -379,6 +380,172 @@ class WhatsAppAgentCoordinatorTest {
         }
         assertEquals("COMPLETED", coordinator.lastStatus.value)
         collector.cancel()
+    }
+
+    @Test
+    fun `rapid concurrent notifications do not get cancelled or lost and are persisted safely`() = runTest {
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = ThreatEventBus(),
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher
+        )
+
+        val count = 10
+        val jobs = (1..count).map { i ->
+            async {
+                coordinator.onWhatsAppNotification(
+                    WhatsAppNotificationSnapshot(
+                        packageName = "com.whatsapp",
+                        notificationKey = "burst-key-$i",
+                        sender = "Attacker $i",
+                        message = "Urgent transfer $i required immediately for bank account",
+                        timestampMs = 1_719_218_400_000L + (i * 1000L)
+                    )
+                )
+            }
+        }
+        jobs.awaitAll()
+
+        assertEquals(count, fakeDao.persistedRecords.size)
+        assertEquals(count, ThreatJournal.scanResults.value.size)
+        assertEquals(count, fakeDispatcher.dispatchedWarnings.size)
+        assertEquals("COMPLETED", coordinator.lastStatus.value)
+    }
+
+    @Test
+    fun `rapid concurrent duplicate burst suppresses duplicates while allowing distinct notifications`() = runTest {
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = ThreatEventBus(),
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher
+        )
+
+        // 5 copies of message A from Sender A and 5 copies of message B from Sender B
+        val jobs = (1..10).map { i ->
+            val isA = i <= 5
+            async {
+                coordinator.onWhatsAppNotification(
+                    WhatsAppNotificationSnapshot(
+                        packageName = "com.whatsapp",
+                        notificationKey = if (isA) "burst-a-$i" else "burst-b-$i",
+                        sender = if (isA) "Sender A" else "Sender B",
+                        message = if (isA) "Urgent payment to account A" else "Urgent payment to account B",
+                        timestampMs = 1_719_218_400_000L
+                    )
+                )
+            }
+        }
+        jobs.awaitAll()
+
+        // Exactly 2 distinct logical notifications persisted and warned
+        assertEquals(2, fakeDao.persistedRecords.size)
+        assertEquals(2, ThreatJournal.scanResults.value.size)
+        assertEquals(2, fakeDispatcher.dispatchedWarnings.size)
+    }
+
+    @Test
+    fun `persisted history can be restored by a fresh ThreatJournal instance`() = runTest {
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = ThreatEventBus(),
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher
+        )
+
+        // Persist 3 distinct notifications
+        for (i in 1..3) {
+            coordinator.onWhatsAppNotification(
+                WhatsAppNotificationSnapshot(
+                    packageName = "com.whatsapp",
+                    notificationKey = "restore-key-$i",
+                    sender = "Sender $i",
+                    message = "Urgent payment $i required",
+                    timestampMs = 1_719_218_400_000L + (i * 10_000L)
+                )
+            )
+        }
+
+        assertEquals(3, fakeDao.persistedRecords.size)
+
+        // Simulate process death / recreation
+        ThreatJournal.resetForTesting()
+        assertEquals(0, ThreatJournal.scanResults.value.size)
+        assertEquals(0, ThreatJournal.alerts.value.size)
+
+        // Initialize fresh instance with preload = true
+        ThreatJournal.initialize(fakeDao, preload = true)
+
+        assertEquals(3, ThreatJournal.scanResults.value.size)
+        assertEquals(3, ThreatJournal.alerts.value.size)
+        // Verify descending order
+        assertEquals(1_719_218_430_000L, ThreatJournal.scanResults.value[0].timestamp)
+        assertEquals(1_719_218_420_000L, ThreatJournal.scanResults.value[1].timestamp)
+        assertEquals(1_719_218_410_000L, ThreatJournal.scanResults.value[2].timestamp)
+    }
+
+    @Test
+    fun `deduplication behavior is intentional across different senders messages and risk decisions`() = runTest {
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = ThreatEventBus(),
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher
+        )
+
+        // 1. Same sender, different messages -> NOT duplicate
+        coordinator.onWhatsAppNotification(
+            WhatsAppNotificationSnapshot(
+                packageName = "com.whatsapp",
+                notificationKey = "k1",
+                sender = "Alice",
+                message = "Urgent invoice 1",
+                timestampMs = 1_719_218_400_000L
+            )
+        )
+        coordinator.onWhatsAppNotification(
+            WhatsAppNotificationSnapshot(
+                packageName = "com.whatsapp",
+                notificationKey = "k2",
+                sender = "Alice",
+                message = "Urgent invoice 2",
+                timestampMs = 1_719_218_401_000L
+            )
+        )
+        assertEquals(2, fakeDao.persistedRecords.size)
+        assertEquals(2, fakeDispatcher.dispatchedWarnings.size)
+
+        // 2. Different senders, same message -> NOT duplicate
+        coordinator.onWhatsAppNotification(
+            WhatsAppNotificationSnapshot(
+                packageName = "com.whatsapp",
+                notificationKey = "k3",
+                sender = "Bob",
+                message = "Urgent invoice 1",
+                timestampMs = 1_719_218_402_000L
+            )
+        )
+        assertEquals(3, fakeDao.persistedRecords.size)
+        assertEquals(3, fakeDispatcher.dispatchedWarnings.size)
+
+        // 3. Same sender, same message within duplicate window -> IS duplicate (WARN level suppressed)
+        coordinator.onWhatsAppNotification(
+            WhatsAppNotificationSnapshot(
+                packageName = "com.whatsapp",
+                notificationKey = "k4",
+                sender = "Bob",
+                message = "Urgent invoice 1",
+                timestampMs = 1_719_218_402_500L
+            )
+        )
+        assertEquals("IGNORED", coordinator.lastStatus.value)
+        assertEquals(3, fakeDao.persistedRecords.size)
+        assertEquals(3, fakeDispatcher.dispatchedWarnings.size)
     }
 
     private class FakeThreatDao : ThreatDao {
