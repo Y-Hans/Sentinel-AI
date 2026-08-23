@@ -63,7 +63,7 @@ class DashboardViewModel @Inject constructor(
             ThreatJournal.scanResults.collectLatest { scans ->
                 _uiState.update { current ->
                     current.copy(
-                        recentScans = scans.filter { !it.target.isNullOrBlank() }.take(3),
+                        recentScans = scans.take(3),
                         latestScan = scans.firstOrNull(),
                         scanCount = scans.size
                     )

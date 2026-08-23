@@ -150,8 +150,11 @@ fun DashboardContent(
                     }
                 } else {
                     uiState.recentScans.take(3).forEachIndexed { index, scan ->
+                        val sender = senderPresentationResolver(scan.senderDisplayName, scan.senderIdentifier)
                         RecentActivityRow(
                             scan = scan,
+                            senderPresentation = sender,
+                            appLabel = appLabelResolver(scan.source),
                             timeLabel = timeFormatter.format(Date(scan.timestamp)),
                             onClick = { onThreatSelected(scan.id) }
                         )
@@ -193,6 +196,8 @@ fun DashboardContent(
 @Composable
 private fun RecentActivityRow(
     scan: ScanResult,
+    senderPresentation: SenderPresentation,
+    appLabel: String,
     timeLabel: String,
     onClick: () -> Unit
 ) {
@@ -204,7 +209,7 @@ private fun RecentActivityRow(
     }
 
     PremiumListRow(
-        title = scan.target?.takeIf { it.isNotBlank() } ?: scan.source,
+        title = com.sentinel.ai.ui.screens.history.historyTarget(scan, senderPresentation, appLabel),
         description = timeLabel,
         trailing = {
             Row(

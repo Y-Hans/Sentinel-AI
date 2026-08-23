@@ -3,6 +3,7 @@ package com.sentinel.ai.protection.intent
 import android.content.Context
 import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
+import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.ml.FeatureExtractor
 import com.sentinel.ai.ml.MLInferenceEngine
@@ -26,7 +27,8 @@ class IntentThreatAnalyzerImpl @Inject constructor(
     private val linkScanner: LinkScanner,
     private val fileScanner: FileScanner,
     private val threatEventBus: ThreatEventBus,
-    private val mlInferenceEngine: MLInferenceEngine
+    private val mlInferenceEngine: MLInferenceEngine,
+    private val threatJournal: ThreatJournal
 ) : IntentThreatAnalyzer {
 
     override suspend fun analyze(payload: IntentPayload): ScanResult {
@@ -75,12 +77,23 @@ class IntentThreatAnalyzerImpl @Inject constructor(
                     recommendedAction = finalRiskLevel.toProtectionDecision().defaultAction()
                 )
 
+                // 1. Direct durable Room persistence (awaiting completion)
+                threatJournal.recordScanResult(finalResult)
+
+                // 2. Optional transient event bus emission for reactive UI consumers
                 threatEventBus.emit(ThreatEvent.LinkThreatDetected(finalResult))
+
                 finalResult
             }
             is FilePayload -> {
                 val heuristicResult = fileScanner.scan(payload.uri)
+
+                // 1. Direct durable Room persistence (awaiting completion)
+                threatJournal.recordScanResult(heuristicResult)
+
+                // 2. Optional transient event bus emission for reactive UI consumers
                 threatEventBus.emit(ThreatEvent.FileThreatDetected(heuristicResult))
+
                 heuristicResult
             }
         }

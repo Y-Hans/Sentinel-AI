@@ -238,6 +238,13 @@ private fun HistoryResultSheet(
     onClose: () -> Unit
 ) {
     val accent = riskColor(result.riskLevel)
+    val displayTarget = when {
+        !result.target.isNullOrBlank() -> result.target.orEmpty()
+        !result.senderDisplayName.isNullOrBlank() -> result.senderDisplayName.orEmpty()
+        !result.senderIdentifier.isNullOrBlank() -> result.senderIdentifier.orEmpty()
+        else -> result.source
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,7 +266,7 @@ private fun HistoryResultSheet(
         Spacer(modifier = Modifier.height(SentinelSpacing.LG))
         PremiumPanel {
             Text(
-                text = result.senderIdentifier ?: result.source,
+                text = displayTarget,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -287,16 +294,17 @@ private fun HistoryResultSheet(
     }
 }
 
-private fun historyTarget(
+internal fun historyTarget(
     item: ScanResult,
     senderPresentation: SenderPresentation,
     appLabel: String
 ): String = when {
-    !item.senderIdentifier.isNullOrBlank() -> item.senderIdentifier.orEmpty()
-    item.source.startsWith("http", ignoreCase = true) -> item.source
+    !item.target.isNullOrBlank() -> item.target.orEmpty()
     senderPresentation.primaryText.isNotBlank() && senderPresentation.primaryText != "Unknown sender" ->
         senderPresentation.primaryText
-    else -> appLabel
+    !item.senderIdentifier.isNullOrBlank() -> item.senderIdentifier.orEmpty()
+    appLabel.isNotBlank() -> appLabel
+    else -> item.source
 }
 
 private fun historyStatus(decision: ProtectionDecision): String = when (decision) {

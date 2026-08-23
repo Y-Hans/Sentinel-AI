@@ -16,13 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,6 +49,7 @@ import com.sentinel.ai.ui.components.SentinelSectionHeader
 import com.sentinel.ai.ui.components.ThreatExplanationCard
 import com.sentinel.ai.ui.components.ThreatLevelChip
 import com.sentinel.ai.ui.components.riskColor
+import com.sentinel.ai.ui.theme.SentinelFull
 import com.sentinel.ai.ui.theme.SentinelSize
 import com.sentinel.ai.ui.theme.SentinelShapes
 import com.sentinel.ai.ui.theme.SentinelSpacing
@@ -115,7 +117,7 @@ internal fun ThreatDetailsContent(
                     .padding(SentinelSpacing.None),
                 content = {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
@@ -242,7 +244,8 @@ internal fun ThreatDetailsContent(
                 verticalArrangement = Arrangement.spacedBy(SentinelSpacing.SM)
             ) {
                 suspiciousIndicators.forEach { indicator ->
-                    ThreatLevelChip(
+                    ThreatIndicatorBadge(
+                        text = indicator,
                         state = riskStateOf(selectedThreat.riskLevel),
                         modifier = Modifier.padding(vertical = SentinelSpacing.XXS)
                     )
@@ -292,6 +295,41 @@ private fun riskStateOf(level: RiskLevel): com.sentinel.ai.ui.components.RiskSta
     RiskLevel.YELLOW -> com.sentinel.ai.ui.components.RiskState.Suspicious
     RiskLevel.RED -> com.sentinel.ai.ui.components.RiskState.Dangerous
     RiskLevel.CRITICAL -> com.sentinel.ai.ui.components.RiskState.Dangerous
+}
+
+@Composable
+private fun ThreatIndicatorBadge(
+    text: String,
+    state: com.sentinel.ai.ui.components.RiskState,
+    modifier: Modifier = Modifier
+) {
+    val baseColor = riskColor(state)
+    Box(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(baseColor.copy(alpha = 0.16f))
+            .padding(
+                horizontal = SentinelSpacing.SM,
+                vertical = SentinelSpacing.XXS
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SentinelSpacing.XS)
+        ) {
+            Surface(
+                color = baseColor,
+                modifier = Modifier.size(SentinelSize.IndicatorDot),
+                shape = SentinelFull
+            ) {}
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                color = baseColor
+            )
+        }
+    }
 }
 
 private fun rememberTimestampFormatter(): SimpleDateFormat {
