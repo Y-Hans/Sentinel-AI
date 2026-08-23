@@ -71,10 +71,7 @@ class SentinelNotificationListener : NotificationListenerService() {
         }
     }
 
-    // ================= FIXED FUNCTION =================
-
     private fun isKnownContact(snapshot: com.sentinel.ai.agents.whatsapp.WhatsAppNotificationSnapshot): Boolean {
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) !=
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -83,55 +80,9 @@ class SentinelNotificationListener : NotificationListenerService() {
         }
 
         val sender = snapshot.title?.trim().orEmpty()
+        if (sender.isEmpty()) return false
 
-        return runCatching {
-            contentResolver.query(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                arrayOf(
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
-                ),
-                null,
-                null,
-                null
-            )?.use { cursor ->
-
-                val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-
-                val isSenderPhone = isPhoneNumber(sender)
-                val normalizedSenderPhone = normalizeNumber(sender)
-
-                while (cursor.moveToNext()) {
-
-                    val contactNumber = if (numberIndex >= 0) cursor.getString(numberIndex).orEmpty() else ""
-                    val contactName = if (nameIndex >= 0) cursor.getString(nameIndex).orEmpty() else ""
-
-                    // 🔥 CASE 1: Sender is PHONE (WhatsApp unsaved)
-                    if (isSenderPhone) {
-                        val normalizedContact = normalizeNumber(contactNumber)
-
-                        if (normalizedContact.isNotEmpty() &&
-                            normalizedContact == normalizedSenderPhone
-                        ) {
-                            return@use true
-                        }
-                    }
-
-                    // 🔥 CASE 2: Sender is NAME (WhatsApp saved)
-                    else {
-                        if (isNameMatch(sender, contactName)) {
-                            return@use true
-                        }
-                    }
-                }
-
-                false
-            } ?: false
-
-        }.onFailure {
-            Log.e(TAG, "Contact lookup failed", it)
-        }.getOrDefault(false)
+        return isKnownSender(sender, contentResolver)
     }
 
     override fun onDestroy() {
@@ -142,19 +93,118 @@ class SentinelNotificationListener : NotificationListenerService() {
     internal companion object {
         const val TAG = "SentinelNotification"
 
+        internal fun isKnownSender(sender: String, contentResolver: android.content.ContentResolver): Boolean {
+            val trimmed = sender.trim()
+            if (trimmed.isEmpty()) return false
+
+            return if (isPhoneNumber(trimmed)) {
+                isKnownPhoneNumber(trimmed, contentResolver)
+            } else {
+                isKnownContactName(trimmed, contentResolver)
+            }
+        }
+
+        internal fun isKnownPhoneNumber(phoneNumber: String, contentResolver: android.content.ContentResolver): Boolean {
+            return runCatching {
+                // 1. Targeted indexed query via PhoneLookup
+                val lookupUri = android.net.Uri.withAppendedPath(
+                    ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                    android.net.Uri.encode(phoneNumber)
+                )
+                val foundInLookup = contentResolver.query(
+                    lookupUri,
+                    arrayOf(ContactsContract.PhoneLookup._ID),
+                    null,
+                    null,
+                    null
+                )?.use { cursor ->
+                    cursor.moveToFirst()
+                } ?: false
+
+                if (foundInLookup) return true
+
+                // 2. Targeted fallback query on Phone table matching suffix digits
+                val normalizedDigits = phoneNumber.filter(Char::isDigit)
+                if (normalizedDigits.length >= 7) {
+                    val searchSuffix = normalizedDigits.takeLast(10)
+                    contentResolver.query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                        "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
+                        arrayOf("%$searchSuffix"),
+                        null
+                    )?.use { cursor ->
+                        val numberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                        while (cursor.moveToNext()) {
+                            val contactNumber = if (numberIdx >= 0) cursor.getString(numberIdx).orEmpty() else ""
+                            if (phoneNumbersMatch(phoneNumber, contactNumber)) {
+                                return@use true
+                            }
+                        }
+                        false
+                    } ?: false
+                } else {
+                    false
+                }
+            }.onFailure {
+                Log.e(TAG, "Contact phone lookup failed", it)
+            }.getOrDefault(false)
+        }
+
+        internal fun isKnownContactName(name: String, contentResolver: android.content.ContentResolver): Boolean {
+            val normalized = normalizeName(name)
+            if (normalized.isEmpty()) return false
+
+            return runCatching {
+                contentResolver.query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME),
+                    "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} = ? COLLATE NOCASE",
+                    arrayOf(name.trim()),
+                    null
+                )?.use { cursor ->
+                    val nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                    while (cursor.moveToNext()) {
+                        val contactName = if (nameIdx >= 0) cursor.getString(nameIdx).orEmpty() else ""
+                        if (isNameMatch(name, contactName)) {
+                            return@use true
+                        }
+                    }
+                    false
+                } ?: false
+            }.onFailure {
+                Log.e(TAG, "Contact name query failed", it)
+            }.getOrDefault(false)
+        }
+
         internal fun isPhoneNumber(text: String): Boolean {
-            return text.matches(Regex("^[+0-9\\s()-]+$"))
+            val trimmed = text.trim()
+            val digits = trimmed.filter(Char::isDigit)
+            return digits.length in 7..15 && trimmed.matches(Regex("^[+0-9\\s()\\-.]+$"))
         }
 
         internal fun normalizeNumber(number: String): String {
-            return number
-                .replace("\\s".toRegex(), "")
-                .replace("-", "")
-                .replace("(", "")
-                .replace(")", "")
-                .replace("+91", "")
-                .filter(Char::isDigit)
-                .takeLast(10)
+            val trimmed = number.trim()
+            val hasPlus = trimmed.contains("+")
+            val digits = trimmed.filter(Char::isDigit)
+            return if (hasPlus && digits.isNotEmpty()) "+$digits" else digits
+        }
+
+        internal fun phoneNumbersMatch(a: String, b: String): Boolean {
+            val na = normalizeNumber(a)
+            val nb = normalizeNumber(b)
+            if (na.isEmpty() || nb.isEmpty()) return false
+            if (na == nb) return true
+
+            val da = na.filter(Char::isDigit)
+            val db = nb.filter(Char::isDigit)
+            if (da == db) return true
+
+            val minLength = minOf(da.length, db.length)
+            if (minLength >= 7 && (da.endsWith(db) || db.endsWith(da))) {
+                return true
+            }
+            return false
         }
 
         internal fun isNameMatch(a: String, b: String): Boolean {
@@ -163,12 +213,13 @@ class SentinelNotificationListener : NotificationListenerService() {
 
             return na.isNotEmpty() &&
                     nb.isNotEmpty() &&
-                    (na.contains(nb) || nb.contains(na))
+                    na == nb
         }
 
         internal fun normalizeName(name: String): String {
-            return name.lowercase()
-                .replace("[^a-z ]".toRegex(), "")
+            return name.lowercase(java.util.Locale.ROOT)
+                .replace("[^a-z0-9 ]".toRegex(), "")
+                .replace("\\s+".toRegex(), " ")
                 .trim()
         }
     }
