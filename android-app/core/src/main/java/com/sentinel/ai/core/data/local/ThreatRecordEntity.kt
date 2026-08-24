@@ -60,7 +60,7 @@ internal fun Threat.toEntity(): ThreatRecordEntity {
     )
 }
 
-internal fun ThreatRecordEntity.toScanResult(): ScanResult {
+fun ThreatRecordEntity.toScanResult(): ScanResult {
     return ScanResult(
         id = id,
         source = source,

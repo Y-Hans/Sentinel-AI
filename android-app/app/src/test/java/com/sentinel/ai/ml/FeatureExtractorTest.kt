@@ -10,7 +10,9 @@ class FeatureExtractorTest {
     fun `extracts the fifteen model features in training order`() {
         val url = "https://login.example.com/a1"
 
-        val features = FeatureExtractor.extract(url)
+        val result = FeatureExtractor.extract(url)
+        assertTrue(result is FeatureExtractionResult.Success)
+        val features = (result as FeatureExtractionResult.Success).features
 
         assertEquals(FeatureExtractor.FEATURE_COUNT, features.size)
         assertEquals(url.length.toFloat(), features[0])
@@ -41,7 +43,9 @@ class FeatureExtractorTest {
         )
 
         inputs.forEach { input ->
-            val features = FeatureExtractor.extract(input)
+            val result = FeatureExtractor.extract(input)
+            assertTrue(result is FeatureExtractionResult.Success)
+            val features = (result as FeatureExtractionResult.Success).features
 
             assertEquals("Unexpected feature count for $input", 15, features.size)
             assertTrue("Non-finite feature for $input", features.all(Float::isFinite))
@@ -50,7 +54,9 @@ class FeatureExtractorTest {
 
     @Test
     fun `detects IPv4 without throwing on URI parsing`() {
-        val features = FeatureExtractor.extract("http://192.168.1.1/login")
+        val result = FeatureExtractor.extract("http://192.168.1.1/login")
+        assertTrue(result is FeatureExtractionResult.Success)
+        val features = (result as FeatureExtractionResult.Success).features
 
         assertEquals(1f, features[2])
         assertEquals(0f, features[4])
@@ -59,7 +65,9 @@ class FeatureExtractorTest {
 
     @Test
     fun `scheme-less URLs use the same normalized representation as Python`() {
-        val features = FeatureExtractor.extract("google.com")
+        val result = FeatureExtractor.extract("google.com")
+        assertTrue(result is FeatureExtractionResult.Success)
+        val features = (result as FeatureExtractionResult.Success).features
 
         assertEquals(18f, features[0])
         assertEquals(10f, features[1])

@@ -7,6 +7,13 @@ import com.sentinel.ai.core.event.ThreatEventBus
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/**
+ * FUTURE EXTENSION POINT: SentinelGuardService
+ * Class: UNUSED BUT INTENTIONAL (Scaffolding)
+ *
+ * This service is a placeholder for a future persistent foreground guard.
+ * It currently does not provide any active security functionality or foreground protection.
+ */
 @AndroidEntryPoint
 class SentinelGuardService : Service() {
 

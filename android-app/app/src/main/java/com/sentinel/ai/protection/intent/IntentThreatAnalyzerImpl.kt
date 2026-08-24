@@ -36,10 +36,14 @@ class IntentThreatAnalyzerImpl @Inject constructor(
             is UrlPayload -> {
                 val heuristicResult = linkScanner.scan(payload.url)
                 val mlScore = try {
-                    val features = FeatureExtractor.extract(payload.url)
-                    if (features.size == FeatureExtractor.FEATURE_COUNT) {
-                        (mlInferenceEngine.predict(features) * 100f).coerceIn(0f, 100f)
-                    } else null
+                    when (val result = FeatureExtractor.extract(payload.url)) {
+                        is com.sentinel.ai.ml.FeatureExtractionResult.Success -> {
+                            if (result.features.size == FeatureExtractor.FEATURE_COUNT) {
+                                (mlInferenceEngine.predict(result.features) * 100f).coerceIn(0f, 100f)
+                            } else null
+                        }
+                        is com.sentinel.ai.ml.FeatureExtractionResult.Failure -> null
+                    }
                 } catch (e: Exception) {
                     null
                 }

@@ -10,11 +10,9 @@
 ## Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd sentinel-ai
+git clone https://github.com/Y-Hans/Sentinel-AI.git
+cd Sentinel-AI/android-app
 ```
-
-Replace `<repository-url>` with the repository's Git URL. The Android Gradle project is inside the `android-app` directory.
 
 ## Open in Android Studio
 

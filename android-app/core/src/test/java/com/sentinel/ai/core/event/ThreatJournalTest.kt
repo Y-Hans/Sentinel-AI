@@ -96,7 +96,9 @@ class ThreatJournalTest {
         val blockingDao = object : ThreatDao {
             val records = mutableMapOf<String, ThreatRecordEntity>()
 
-            override suspend fun getAllThreatRecords(): List<ThreatRecordEntity> = records.values.toList()
+            override suspend fun getRecentThreatRecords(limit: Int): List<ThreatRecordEntity> = records.values.toList()
+
+            override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<ThreatRecordEntity> = emptyList()
 
             override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {
                 executionOrder += "dao_start"
@@ -265,6 +267,36 @@ class ThreatJournalTest {
         assertEquals(timestamps.sortedDescending(), timestamps)
     }
 
+    @Test
+    fun `test6 Concurrent initialization and record keeps newly recorded scan in memory`() = runTest {
+        val daoGate = CompletableDeferred<Unit>()
+        val executionOrder = mutableListOf<String>()
+        val blockingDao = object : ThreatDao {
+            val records = mutableMapOf<String, ThreatRecordEntity>()
+            override suspend fun getRecentThreatRecords(limit: Int): List<ThreatRecordEntity> {
+                executionOrder += "restore_start"
+                daoGate.await()
+                executionOrder += "restore_end"
+                return records.values.toList()
+            }
+            override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<ThreatRecordEntity> = emptyList()
+            override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {
+                records["${record.id}|${record.recordType}"] = record
+            }
+        }
+
+        ThreatJournal.initialize(blockingDao, preload = false)
+        val deferredRestore = async(kotlinx.coroutines.Dispatchers.IO) { ThreatJournal.restoreState() }
+
+        val newScan = createSampleScanResult(id = "concurrent-scan", timestamp = 1_700_000_000_000L)
+        ThreatJournal.recordScanResult(newScan)
+
+        daoGate.complete(Unit)
+        deferredRestore.await()
+
+        assertEquals("concurrent-scan", ThreatJournal.scanResults.value.first().id)
+    }
+
     private fun createSampleScanResult(
         id: String,
         timestamp: Long,
@@ -285,8 +317,18 @@ class ThreatJournalTest {
         val persistedRecords = mutableMapOf<String, ThreatRecordEntity>()
         var shouldFailUpsert = false
 
-        override suspend fun getAllThreatRecords(): List<ThreatRecordEntity> {
+        override suspend fun getRecentThreatRecords(limit: Int): List<ThreatRecordEntity> {
             return persistedRecords.values.sortedByDescending { it.timestamp }
+        }
+
+        override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<ThreatRecordEntity> {
+            return persistedRecords.values
+                .filter {
+                    it.recordType == recordType &&
+                        (it.timestamp < cursorTimestamp || (it.timestamp == cursorTimestamp && it.id < cursorId))
+                }
+                .sortedWith(compareByDescending<ThreatRecordEntity> { it.timestamp }.thenByDescending { it.id })
+                .take(limit)
         }
 
         override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {

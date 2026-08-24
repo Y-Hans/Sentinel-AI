@@ -31,7 +31,7 @@ class BrowserLauncher {
         intent.setPackage("com.android.chrome")
 
         return try {
-            Log.d(TAG, "Launching Chrome with URL: $url")
+            Log.d(TAG, "Launching Chrome with URL: ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(url)}")
             context.startActivity(intent)
             true
         } catch (e: Exception) {

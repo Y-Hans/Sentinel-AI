@@ -23,22 +23,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * Hilt module that provides all networking singletons.
- *
- * ## What changed in Phase 3.8.1
- * - [provideNetworkConfig] — new, supplies all timeout/retry tuning
- * - [provideGson] — new, shared [Gson] instance used by both Retrofit and
- *   [JsonParser]
- * - [provideConnectivityChecker] — new, offline-first gate
- * - [provideHttpClientWrapper] — new, the primary networking abstraction
- * - [provideJsonParser] — new, thin Gson wrapper for providers
- * - [provideOkHttpClient] now reads timeouts from [NetworkConfig] and adds
- *   a `User-Agent` interceptor and a [HttpLoggingInterceptor]
- * - [provideApiClient] now includes [HttpClientWrapper]
- *
- * ## What was not changed
- * Retrofit is still provided for any future use-case that needs a typed
- * service interface. Current consumers use [HttpClientWrapper]
- * directly.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -49,7 +33,7 @@ object NetworkModule {
     private const val RETROFIT_BASE_URL = "https://api.sentinel.ai/"
 
     // -------------------------------------------------------------------------
-    // Phase 3.8.1 — new providers
+    // Dependency Injection — new providers
     // -------------------------------------------------------------------------
 
     @Provides
@@ -87,17 +71,15 @@ object NetworkModule {
     fun provideJsonParser(gson: Gson): JsonParser = JsonParser(gson)
 
     // -------------------------------------------------------------------------
-    // Existing providers — enhanced in Phase 3.8.1
+    // Existing providers — enhanced in Dependency Injection
     // -------------------------------------------------------------------------
 
     /**
      * Provides the shared [OkHttpClient].
      *
-     * Phase 3.8.1 changes:
-     * - Timeouts now read from [NetworkConfig] (no more hard-coded values)
-     * - Adds a `User-Agent` interceptor (applies to every outgoing request)
-     * - Adds [HttpLoggingInterceptor] at BODY level so request/response
-     *   details appear in Logcat during development
+     * - Timeouts read from [NetworkConfig]
+     * - Adds a `User-Agent` interceptor
+     * - Adds [HttpLoggingInterceptor]
      *
      * Note: [HttpLoggingInterceptor] logs at DEBUG level unconditionally here.
      * In a production build the Timber DEBUG tree is not planted (see
@@ -110,7 +92,7 @@ object NetworkModule {
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             timber.log.Timber.tag("OkHttp").d(message)
         }.apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.NONE
         }
 
         return OkHttpClient.Builder()

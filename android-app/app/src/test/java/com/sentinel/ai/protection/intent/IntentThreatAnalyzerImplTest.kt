@@ -273,8 +273,18 @@ class IntentThreatAnalyzerImplTest {
         val persistedRecords = mutableMapOf<String, ThreatRecordEntity>()
         var shouldFailUpsert = false
 
-        override suspend fun getAllThreatRecords(): List<ThreatRecordEntity> {
+        override suspend fun getRecentThreatRecords(limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> {
             return persistedRecords.values.sortedByDescending { it.timestamp }
+        }
+
+        override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> {
+            return persistedRecords.values
+                .filter {
+                    it.recordType == recordType &&
+                        (it.timestamp < cursorTimestamp || (it.timestamp == cursorTimestamp && it.id < cursorId))
+                }
+                .sortedWith(compareByDescending<com.sentinel.ai.core.data.local.ThreatRecordEntity> { it.timestamp }.thenByDescending { it.id })
+                .take(limit)
         }
 
         override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {

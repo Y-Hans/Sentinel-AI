@@ -56,7 +56,7 @@ class HttpClientWrapper @Inject constructor(
      */
     suspend fun execute(request: NetworkRequest): NetworkResponse<String> {
         if (!connectivityChecker.isConnected()) {
-            Timber.d("HttpClientWrapper: no network connectivity, skipping request to ${request.url}")
+            Timber.d("HttpClientWrapper: no network connectivity, skipping request to ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}")
             return NetworkResponse.NetworkUnavailable
         }
 
@@ -85,7 +85,7 @@ class HttpClientWrapper @Inject constructor(
 
         while (attempt <= config.maxRetries) {
             if (attempt > 0) {
-                Timber.w("HttpClientWrapper: retry attempt $attempt/${config.maxRetries} for ${request.url}")
+                Timber.w("HttpClientWrapper: retry attempt $attempt/${config.maxRetries} for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}")
                 delay(config.retryDelayMs)
             }
 
@@ -95,7 +95,7 @@ class HttpClientWrapper @Inject constructor(
                 lastResponse is NetworkResponse.Success -> return lastResponse
                 lastResponse is NetworkResponse.HttpError && lastResponse.code in 400..499 -> {
                     // 4xx: permanent client error, never retry
-                    Timber.w("HttpClientWrapper: HTTP ${lastResponse.code} for ${request.url} — not retrying (client error)")
+                    Timber.w("HttpClientWrapper: HTTP ${lastResponse.code} for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())} — not retrying (client error)")
                     return lastResponse
                 }
                 else -> {
@@ -105,7 +105,7 @@ class HttpClientWrapper @Inject constructor(
             }
         }
 
-        Timber.e("HttpClientWrapper: all ${ config.maxRetries} retry attempts exhausted for ${request.url}, last result: $lastResponse")
+        Timber.e("HttpClientWrapper: all ${ config.maxRetries} retry attempts exhausted for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}, last result: $lastResponse")
         return lastResponse
     }
 
@@ -125,14 +125,14 @@ class HttpClientWrapper @Inject constructor(
                 val headers = response.headers.toMultimap()
 
                 if (response.isSuccessful) {
-                    Timber.d("HttpClientWrapper: HTTP $code success for ${request.url}")
+                    Timber.d("HttpClientWrapper: HTTP $code success for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}")
                     NetworkResponse.Success(
                         data = bodyString,
                         statusCode = code,
                         headers = headers
                     )
                 } else {
-                    Timber.w("HttpClientWrapper: HTTP $code error for ${request.url} — ${response.message}")
+                    Timber.w("HttpClientWrapper: HTTP $code error for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())} — ${response.message}")
                     NetworkResponse.HttpError(code = code, message = response.message)
                 }
             }
@@ -140,10 +140,10 @@ class HttpClientWrapper @Inject constructor(
             // CancellationException must NEVER be swallowed. Re-throw immediately.
             throw e
         } catch (e: SocketTimeoutException) {
-            Timber.w(e, "HttpClientWrapper: timeout for ${request.url}")
+            Timber.w(e, "HttpClientWrapper: timeout for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}")
             NetworkResponse.Timeout
         } catch (e: IOException) {
-            Timber.w(e, "HttpClientWrapper: IO failure for ${request.url}")
+            Timber.w(e, "HttpClientWrapper: IO failure for ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(request.url.toString())}")
             NetworkResponse.IoFailure(cause = e)
         }
     }

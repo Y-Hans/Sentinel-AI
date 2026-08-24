@@ -121,6 +121,11 @@ fun HistoryScreen(
                             onClick = { selectedResult = item },
                             modifier = Modifier.padding(horizontal = SentinelSpacing.MD)
                         )
+                        if (index == sortedItems.lastIndex) {
+                            androidx.compose.runtime.LaunchedEffect(item.id) {
+                                viewModel.onAction(HistoryUiAction.LoadMore)
+                            }
+                        }
                         if (index < sortedItems.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 40.dp),

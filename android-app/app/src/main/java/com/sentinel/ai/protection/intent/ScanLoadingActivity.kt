@@ -72,9 +72,9 @@ class ScanLoadingActivity : ComponentActivity() {
         }
         val invalidUrl = payloadType == IntentPayloadExtras.TYPE_URL && payload == null
         Log.d(ML_TAG, "payload.javaClass.name=${payload?.javaClass?.name ?: "null"}")
-        Log.d(ML_TAG, "payload.toString()=${payload?.toString() ?: "null"}")
         if (payload is UrlPayload) {
-            Log.d(ML_TAG, "payload.url=${payload.url}")
+            val safeUrl = com.sentinel.ai.core.utils.UrlLogger.redactUrl(payload.url)
+            Log.d(ML_TAG, "payload.url=$safeUrl")
         } else {
             Log.d(ML_TAG, "Skipping ML: payload is not UrlPayload")
         }

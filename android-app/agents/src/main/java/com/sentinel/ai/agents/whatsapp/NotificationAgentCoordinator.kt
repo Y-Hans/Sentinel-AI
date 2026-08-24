@@ -44,28 +44,18 @@ class NotificationAgentCoordinator @Inject constructor(
     ) {
         _lastStatus.value = "CAPTURED"
         val raw = parser.parse(snapshot) ?: run {
-            logDebug("Notification ignored: package=${snapshot.packageName}, sender=${snapshot.title.orEmpty()}, message=${snapshot.bigText ?: snapshot.text.orEmpty()}")
             _lastStatus.value = "IGNORED"
             return
         }
-        logDebug(
-            "Notification accepted: package=${raw.normalized.packageName}, " +
-                "sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, " +
-                "timestamp=${raw.normalized.timestampMs}"
-        )
         val event = builder.build(raw, isKnownContact = isKnownContact) ?: run {
-            logDebug("Notification ignored: package=${raw.normalized.packageName}, sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, reason=event_not_built")
             _lastStatus.value = "IGNORED"
             return
         }
         val validation = EventValidator.validateMessage(event)
         if (validation is ValidationResult.Invalid) {
-            logWarn("Notification ignored: package=${raw.normalized.packageName}, sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, reason=invalid_event, errors=${validation.errors.joinToString()}")
             _lastStatus.value = "FAILED"
             return
         }
-
-        logDebug("WhatsAppAgent: ${EventSchemaGson.toJsonMessage(event)}")
 
         val fingerprint = raw.deduplicationFingerprint()
         val senderIdentifier = raw.bestEffortSenderIdentifier()
@@ -90,11 +80,6 @@ class NotificationAgentCoordinator @Inject constructor(
             timestamp = snapshot.timestampMs
         )
         if (result.decision != ProtectionDecision.BLOCK && isDuplicate(fingerprint)) {
-            logDebug(
-                "Notification ignored: package=${raw.normalized.packageName}, " +
-                    "sender=${raw.normalized.senderTitle}, message=${raw.normalized.messageText}, " +
-                    "reason=duplicate_notification"
-            )
             _lastStatus.value = "IGNORED"
             return
         }
@@ -130,18 +115,6 @@ class NotificationAgentCoordinator @Inject constructor(
         const val TAG = "NotificationAgent"
         const val DUPLICATE_WINDOW_MS = 3_000L
         const val MAX_DUPLICATE_CACHE_SIZE = 256
-    }
-
-    private fun logDebug(message: String) {
-        runCatching {
-            android.util.Log.d(TAG, message)
-        }
-    }
-
-    private fun logWarn(message: String) {
-        runCatching {
-            android.util.Log.w(TAG, message)
-        }
     }
 
     private fun WhatsAppRawNotificationData.deduplicationFingerprint(): String {

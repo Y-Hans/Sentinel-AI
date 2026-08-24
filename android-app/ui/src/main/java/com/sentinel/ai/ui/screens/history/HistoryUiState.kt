@@ -10,4 +10,5 @@ data class HistoryUiState(
 
 sealed interface HistoryUiAction {
     data object Refresh : HistoryUiAction
+    data object LoadMore : HistoryUiAction
 }

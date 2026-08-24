@@ -46,13 +46,7 @@ The URL classifier was trained from a dataset of more than 238,000 labeled URLs.
 
 Detailed features, inference steps, and limitations are documented in [ML Model](docs/ml-model.md).
 
-## Screenshots
 
-| Dashboard | Scan result | History |
-| --- | --- | --- |
-| Screenshot placeholder | Screenshot placeholder | Screenshot placeholder |
-
-Replace these placeholders with final device captures before submission.
 
 ## Getting Started
 

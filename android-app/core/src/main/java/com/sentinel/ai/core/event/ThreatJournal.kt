@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 object ThreatJournal {
@@ -39,12 +40,16 @@ object ThreatJournal {
     private var initialized = false
     private var threatDao: ThreatDao? = null
 
+    private val journalScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
+
     fun initialize(context: Context) {
         if (initialized) return
         synchronized(this) {
             if (initialized) return
             threatDao = SentinelDatabase.getInstance(context).threatDao()
-            restoreState()
+            journalScope.launch {
+                restoreState()
+            }
             initialized = true
         }
     }
@@ -53,7 +58,9 @@ object ThreatJournal {
         synchronized(this) {
             threatDao = dao
             if (preload) {
-                restoreState()
+                runBlocking(Dispatchers.IO) {
+                    restoreState()
+                }
             } else {
                 _scanResults.value = emptyList()
                 _threats.value = emptyList()
@@ -146,30 +153,34 @@ object ThreatJournal {
         _alerts.value = derivedAlerts
     }
 
-    fun restoreState() {
+    suspend fun restoreState() {
         val dao = threatDao ?: return
-        val persistedRecords = runBlocking(Dispatchers.IO) {
-            try {
-                dao.getAllThreatRecords()
-            } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to restore state from database")
-                emptyList()
-            }
+        val persistedRecords = try {
+            dao.getRecentThreatRecords(100)
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Failed to restore state from database")
+            emptyList()
         }
 
-        _scanResults.value = persistedRecords
+        val newScans = persistedRecords
             .asSequence()
             .filter { it.recordType == ThreatRecordEntity.TYPE_SCAN_RESULT }
             .map { it.toScanResult() }
-            .sortedByDescending { it.timestamp }
             .toList()
 
-        _threats.value = persistedRecords
+        _scanResults.update { current ->
+            (current + newScans).distinctBy { it.id }.sortedByDescending { it.timestamp }.take(100)
+        }
+
+        val newThreats = persistedRecords
             .asSequence()
             .filter { it.recordType == ThreatRecordEntity.TYPE_THREAT }
             .map { it.toThreat() }
-            .sortedByDescending { it.timestamp }
             .toList()
+
+        _threats.update { current ->
+            (current + newThreats).distinctBy { it.id }.sortedByDescending { it.timestamp }.take(100)
+        }
 
         rebuildAlerts()
     }

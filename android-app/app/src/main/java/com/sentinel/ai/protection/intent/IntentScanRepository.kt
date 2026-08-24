@@ -20,10 +20,9 @@ class IntentScanRepository @Inject constructor(
         val payload = UrlPayload(link)
         val parsedUrl = UrlNormalizer.parse(link)
         Log.d(TAG, "payload.javaClass.name=${payload.javaClass.name}")
-        Log.d(TAG, "payload.toString()=$payload")
         Log.d(
             TAG,
-            "URL input=${payload.url}, scheme=${parsedUrl.scheme}, valid=${parsedUrl.isValid}"
+            "URL input=${com.sentinel.ai.core.utils.UrlLogger.redactUrl(payload.url)}, scheme=${parsedUrl.scheme}, valid=${parsedUrl.isValid}"
         )
 
         return analyzer.analyze(payload)

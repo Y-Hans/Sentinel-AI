@@ -37,7 +37,6 @@ class IntentRouterActivity : ComponentActivity() {
 
         Log.i(TAG, "Routing payload type: ${payload.payloadTypeLabel}")
         Log.d(ML_TAG, "Router payload class=${payload.javaClass.name}")
-        Log.d(ML_TAG, "Router payload=$payload")
         val isViewIntent = intent.action == Intent.ACTION_VIEW
         val scanIntent = Intent(this, ScanLoadingActivity::class.java).apply {
             putExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE, payload.payloadTypeKey)

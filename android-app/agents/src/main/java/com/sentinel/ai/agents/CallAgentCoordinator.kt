@@ -6,6 +6,14 @@ import com.sentinel.ai.core.event.ThreatEventBus
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * FUTURE EXTENSION POINT: CallAgentCoordinator
+ * Class: UNUSED BUT INTENTIONAL (Scaffolding)
+ *
+ * This class is a placeholder for future call-scanning capabilities.
+ * It currently does not provide any active security functionality or call interception.
+ * See Phase 4 roadmap for implementation details.
+ */
 @Singleton
 class CallAgentCoordinator @Inject constructor(
     private val threatEventBus: ThreatEventBus

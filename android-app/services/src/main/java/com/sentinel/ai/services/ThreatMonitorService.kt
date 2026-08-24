@@ -7,6 +7,13 @@ import com.sentinel.ai.core.event.ThreatEventBus
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/**
+ * FUTURE EXTENSION POINT: ThreatMonitorService
+ * Class: UNUSED BUT INTENTIONAL (Scaffolding)
+ *
+ * This service is a placeholder to coordinate threat event dispatch.
+ * It currently does not provide any active security functionality.
+ */
 @AndroidEntryPoint
 class ThreatMonitorService : Service() {
 

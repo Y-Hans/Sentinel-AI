@@ -139,9 +139,10 @@ class WhatsAppAgentCoordinatorTest {
         val executionOrder = mutableListOf<String>()
 
         val blockingDao = object : ThreatDao {
-            val records = mutableMapOf<String, ThreatRecordEntity>()
-            override suspend fun getAllThreatRecords(): List<ThreatRecordEntity> = records.values.toList()
-            override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {
+            val records = mutableMapOf<String, com.sentinel.ai.core.data.local.ThreatRecordEntity>()
+            override suspend fun getRecentThreatRecords(limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> = records.values.toList()
+            override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> = emptyList()
+            override suspend fun upsertThreatRecord(record: com.sentinel.ai.core.data.local.ThreatRecordEntity) {
                 executionOrder += "dao_upsert_start"
                 daoGate.await()
                 records["${record.id}|${record.recordType}"] = record
@@ -552,8 +553,18 @@ class WhatsAppAgentCoordinatorTest {
         val persistedRecords = mutableMapOf<String, ThreatRecordEntity>()
         var shouldFailUpsert = false
 
-        override suspend fun getAllThreatRecords(): List<ThreatRecordEntity> {
+        override suspend fun getRecentThreatRecords(limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> {
             return persistedRecords.values.sortedByDescending { it.timestamp }
+        }
+
+        override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> {
+            return persistedRecords.values
+                .filter {
+                    it.recordType == recordType &&
+                        (it.timestamp < cursorTimestamp || (it.timestamp == cursorTimestamp && it.id < cursorId))
+                }
+                .sortedWith(compareByDescending<com.sentinel.ai.core.data.local.ThreatRecordEntity> { it.timestamp }.thenByDescending { it.id })
+                .take(limit)
         }
 
         override suspend fun upsertThreatRecord(record: ThreatRecordEntity) {

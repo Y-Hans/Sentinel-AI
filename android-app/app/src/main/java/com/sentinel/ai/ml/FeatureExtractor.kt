@@ -3,12 +3,17 @@ package com.sentinel.ai.ml
 import android.util.Log
 import com.sentinel.ai.protection.intent.link.UrlNormalizer
 
+sealed interface FeatureExtractionResult {
+    data class Success(val features: FloatArray) : FeatureExtractionResult
+    data class Failure(val reason: String, val cause: Throwable? = null) : FeatureExtractionResult
+}
+
 object FeatureExtractor {
 
     const val FEATURE_COUNT = 15
 
-    fun extract(url: String): FloatArray {
-        Log.d("ML_DEBUG", "Extracting features for: $url")
+    fun extract(url: String): FeatureExtractionResult {
+        timber.log.Timber.d("Extracting features for: ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(url)}")
 
         return try {
             val parsedUrl = UrlNormalizer.parse(url)
@@ -51,11 +56,13 @@ object FeatureExtractor {
             check(features.size == FEATURE_COUNT && features.all(Float::isFinite)) {
                 "Feature extraction produced invalid values"
             }
-            Log.d("ML_DEBUG", "Features: ${features.joinToString()}")
-            features
+            timber.log.Timber.d("Features: ${features.joinToString()}")
+            FeatureExtractionResult.Success(features)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (exception: Exception) {
-            Log.e("ML_DEBUG", "Feature extraction failed for URL: $url", exception)
-            ZERO_FEATURES.copyOf()
+            timber.log.Timber.e(exception, "Feature extraction failed for URL: ${com.sentinel.ai.core.utils.UrlLogger.redactUrl(url)}")
+            FeatureExtractionResult.Failure("Extraction failed", exception)
         }
     }
 
