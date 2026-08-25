@@ -207,6 +207,58 @@ class HistoryPresentationTest {
         assertEquals("https://bank-secure.xyz", result)
     }
 
+    @Test
+    fun `resolveSenderPresentation resolves contact name when known`() {
+        val fakeResolver = object : com.sentinel.ai.core.sender.ContactResolver {
+            override fun resolve(identifier: String): com.sentinel.ai.core.sender.ContactResolution {
+                return if (identifier == "+1234567890") {
+                    com.sentinel.ai.core.sender.ContactResolution.matchFound("Alice", identifier)
+                } else {
+                    com.sentinel.ai.core.sender.ContactResolution.noMatch(identifier)
+                }
+            }
+        }
+
+        val presentation = com.sentinel.ai.ui.util.resolveSenderPresentation(
+            senderDisplayName = null,
+            senderIdentifier = "+1234567890",
+            contactResolver = fakeResolver
+        )
+
+        assertEquals("Alice", presentation.primaryText)
+        assertEquals("+1234567890", presentation.secondaryText)
+    }
+
+    @Test
+    fun `resolveSenderPresentation falls back to Unknown Contact when identifier unknown`() {
+        val fakeResolver = object : com.sentinel.ai.core.sender.ContactResolver {
+            override fun resolve(identifier: String): com.sentinel.ai.core.sender.ContactResolution {
+                return com.sentinel.ai.core.sender.ContactResolution.noMatch(identifier)
+            }
+        }
+
+        val presentation = com.sentinel.ai.ui.util.resolveSenderPresentation(
+            senderDisplayName = null,
+            senderIdentifier = "+9999999999",
+            contactResolver = fakeResolver
+        )
+
+        assertEquals("Unknown Contact", presentation.primaryText)
+        assertEquals("+9999999999", presentation.secondaryText)
+    }
+
+    @Test
+    fun `resolveSenderPresentation uses display name when identifier is null`() {
+        val presentation = com.sentinel.ai.ui.util.resolveSenderPresentation(
+            senderDisplayName = "HDFC Bank",
+            senderIdentifier = null,
+            contactResolver = null
+        )
+
+        assertEquals("HDFC Bank", presentation.primaryText)
+        assertEquals(null, presentation.secondaryText)
+    }
+
     private fun scanResult(
         target: String?,
         source: String,
