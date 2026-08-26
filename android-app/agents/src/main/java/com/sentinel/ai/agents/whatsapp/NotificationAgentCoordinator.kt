@@ -10,6 +10,10 @@ import com.sentinel.ai.core.event.schema.ScamRiskLevel
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.agents.sender.SenderClassifier
+import com.sentinel.ai.core.fusion.DefaultRiskFusionEngine
+import com.sentinel.ai.core.fusion.FusionContext
+import com.sentinel.ai.core.fusion.RiskFusionEngine
 import com.sentinel.ai.core.warning.WarningNotificationDispatcher
 import com.sentinel.ai.core.warning.WarningSeverity
 import com.sentinel.ai.core.warning.toWarningUiModel
@@ -27,7 +31,10 @@ class NotificationAgentCoordinator @Inject constructor(
     private val builder: NotificationEventBuilder,
     private val threatEventBus: ThreatEventBus,
     private val threatJournal: ThreatJournal,
-    private val warningDispatcher: WarningNotificationDispatcher
+    private val warningDispatcher: WarningNotificationDispatcher,
+    private val threatAnalyzer: NotificationThreatAnalyzer = NotificationThreatAnalyzer(),
+    private val riskFusionEngine: RiskFusionEngine = DefaultRiskFusionEngine(),
+    private val senderClassifier: SenderClassifier = SenderClassifier()
 ) {
     private val _lastStatus = MutableStateFlow("IDLE")
     val lastStatus: StateFlow<String> = _lastStatus
@@ -63,22 +70,36 @@ class NotificationAgentCoordinator @Inject constructor(
             ?.trim()
             ?.takeIf { it.isNotEmpty() && !it.equals(senderIdentifier, ignoreCase = true) }
 
-        val result = ScanResult(
-            id = stableScanResultId(fingerprint, raw.normalized.timestampMs),
+        val senderProfile = senderClassifier.classify(
+            rawIdentifier = senderIdentifier ?: senderDisplayName,
+            displayName = senderDisplayName
+        )
+
+        val evidence = threatAnalyzer.extractEvidence(
+            messageText = raw.messageText.orEmpty(),
+            urls = event.event.urls.orEmpty(),
+            isKnownContact = isKnownContact
+        )
+
+        val fusionContext = FusionContext(
             source = raw.normalized.packageName,
-            senderDisplayName = senderDisplayName,
-            senderIdentifier = senderIdentifier,
-            riskLevel = when (event.event.scamRiskLevel) {
-                ScamRiskLevel.LOW -> RiskLevel.GREEN
-                ScamRiskLevel.MEDIUM -> RiskLevel.YELLOW
-                ScamRiskLevel.HIGH -> RiskLevel.RED
-                ScamRiskLevel.CRITICAL -> RiskLevel.CRITICAL
-                null -> RiskLevel.GREEN
-            },
-            riskScore = (event.event.scamRiskScore ?: 0).toFloat(),
-            explanation = event.event.scamExplanations?.joinToString("; ") ?: "WhatsApp message captured and normalized",
+            target = raw.messageText,
+            senderProfile = senderProfile,
+            isKnownContact = isKnownContact,
             timestamp = snapshot.timestampMs
         )
+
+        val fusionResult = riskFusionEngine.fuse(evidence, fusionContext)
+
+        val result = fusionResult.toScanResult(
+            id = stableScanResultId(fingerprint, raw.normalized.timestampMs),
+            source = raw.normalized.packageName,
+            target = raw.messageText,
+            senderDisplayName = senderDisplayName,
+            senderIdentifier = senderIdentifier,
+            timestamp = snapshot.timestampMs
+        )
+
         if (result.decision != ProtectionDecision.BLOCK && isDuplicate(fingerprint)) {
             _lastStatus.value = "IGNORED"
             return

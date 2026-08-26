@@ -21,16 +21,34 @@ class FileProtectionAgent @Inject constructor(
     private val riskEngine: FileHeuristicRiskEngine
 ) : FileScanner {
 
-    override suspend fun scan(uri: Uri): ScanResult {
+    override suspend fun scan(uri: Uri): List<com.sentinel.ai.core.evidence.ThreatEvidence> {
         val contentResolver = context.contentResolver
         val fileType = FileTypeDetector.detect(uri, contentResolver)
-        
-        val filename = getDisplayName(uri) 
-            ?: uri.lastPathSegment 
-            ?: uri.path 
+
+        val filename = getDisplayName(uri)
+            ?: uri.lastPathSegment
+            ?: uri.path
             ?: uri.toString()
-            
-        return riskEngine.toScanResult(filename, fileType.name)
+
+        val analysis = riskEngine.analyze(filename)
+
+        return listOf(
+            com.sentinel.ai.core.evidence.ThreatEvidence(
+                category = com.sentinel.ai.core.evidence.EvidenceCategory.FILE_HEURISTIC,
+                type = com.sentinel.ai.core.evidence.EvidenceType.SUSPICIOUS_FILE,
+                severity = when (analysis.riskLevel) {
+                    com.sentinel.ai.core.model.RiskLevel.CRITICAL -> com.sentinel.ai.core.evidence.EvidenceSeverity.CRITICAL
+                    com.sentinel.ai.core.model.RiskLevel.RED -> com.sentinel.ai.core.evidence.EvidenceSeverity.HIGH
+                    com.sentinel.ai.core.model.RiskLevel.YELLOW -> com.sentinel.ai.core.evidence.EvidenceSeverity.MEDIUM
+                    com.sentinel.ai.core.model.RiskLevel.GREEN -> com.sentinel.ai.core.evidence.EvidenceSeverity.LOW
+                },
+                sourceName = "FileHeuristicRiskEngine",
+                confidence = 0.9f,
+                indicatorText = "File Analysis",
+                explanation = "${analysis.explanation} Type: ${fileType.name}",
+                metadata = mapOf("score" to analysis.score.toString())
+            )
+        )
     }
 
     private fun getDisplayName(uri: Uri): String? {

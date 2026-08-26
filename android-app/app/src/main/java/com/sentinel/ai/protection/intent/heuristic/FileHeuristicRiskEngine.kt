@@ -50,20 +50,6 @@ class FileHeuristicRiskEngine @Inject constructor() {
         )
     }
 
-    fun toScanResult(filename: String, fileType: String): ScanResult {
-        val analysis = analyze(filename)
-        return ScanResult(
-            id = UUID.randomUUID().toString(),
-            source = "Intent (File)",
-            senderDisplayName = null,
-            senderIdentifier = null,
-            riskLevel = analysis.riskLevel,
-            riskScore = analysis.score,
-            explanation = "${analysis.explanation} Type: $fileType",
-            timestamp = System.currentTimeMillis()
-        )
-    }
-
     private fun buildExplanation(triggered: List<RuleResult>): String {
         if (triggered.isEmpty()) {
             return "No heuristic risk signals found. File appears safe."

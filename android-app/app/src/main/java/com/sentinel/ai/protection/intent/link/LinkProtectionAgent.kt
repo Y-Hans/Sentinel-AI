@@ -3,6 +3,7 @@ package com.sentinel.ai.protection.intent.link
 import com.sentinel.ai.core.model.LocalEvidence
 import com.sentinel.ai.core.model.LocalFinding
 import com.sentinel.ai.core.model.ScanResult
+import com.sentinel.ai.core.evidence.ThreatEvidence
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRiskEngine
 import java.util.UUID
 import javax.inject.Inject
@@ -22,39 +23,24 @@ class LinkProtectionAgent @Inject constructor(
         rule.id to rule.name
     }
 
-    override suspend fun scan(url: String): ScanResult {
+    override suspend fun scan(url: String): List<ThreatEvidence> {
         val analysis = riskEngine.analyze(url)
-        val findings = analysis.ruleResults.mapIndexedNotNull { index, result ->
-            if (!result.triggered || result.explanation == null) {
-                return@mapIndexedNotNull null
-            }
 
-            val (ruleId, ruleName) = ruleMetadata.getOrNull(index)
-                ?: ("local_rule_${index + 1}" to "Local heuristic rule ${index + 1}")
-            LocalFinding(
-                ruleId = ruleId,
-                ruleName = ruleName,
-                category = result.category.name,
-                scoreContribution = result.scoreContribution.coerceAtLeast(0f),
-                reason = result.explanation
-            )
-        }
-
-        return ScanResult(
-            id = UUID.randomUUID().toString(),
-            source = "Intent (Link)",
-            target = url.trim(),
-            senderDisplayName = null,
-            senderIdentifier = null,
-            riskLevel = analysis.riskLevel,
-            riskScore = analysis.score,
-            explanation = analysis.explanation,
-            timestamp = System.currentTimeMillis(),
-            localEvidence = LocalEvidence(
-                score = analysis.score,
-                riskLevel = analysis.riskLevel,
-                findings = findings,
-                triggeredRuleCount = analysis.triggeredRuleCount
+        return listOf(
+            ThreatEvidence(
+                category = com.sentinel.ai.core.evidence.EvidenceCategory.URL_HEURISTIC,
+                type = com.sentinel.ai.core.evidence.EvidenceType.SUSPICIOUS_LINK,
+                severity = when (analysis.riskLevel) {
+                    com.sentinel.ai.core.model.RiskLevel.CRITICAL -> com.sentinel.ai.core.evidence.EvidenceSeverity.CRITICAL
+                    com.sentinel.ai.core.model.RiskLevel.RED -> com.sentinel.ai.core.evidence.EvidenceSeverity.HIGH
+                    com.sentinel.ai.core.model.RiskLevel.YELLOW -> com.sentinel.ai.core.evidence.EvidenceSeverity.MEDIUM
+                    com.sentinel.ai.core.model.RiskLevel.GREEN -> com.sentinel.ai.core.evidence.EvidenceSeverity.LOW
+                },
+                sourceName = "LinkHeuristicRiskEngine",
+                confidence = 0.9f,
+                indicatorText = "Link Heuristics",
+                explanation = analysis.explanation,
+                metadata = mapOf("score" to analysis.score.toString())
             )
         )
     }

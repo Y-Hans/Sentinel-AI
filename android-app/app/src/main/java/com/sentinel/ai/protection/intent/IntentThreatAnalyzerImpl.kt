@@ -12,6 +12,13 @@ import com.sentinel.ai.protection.intent.link.LinkScanner
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
 import com.sentinel.ai.protection.intent.model.UrlPayload
+import com.sentinel.ai.core.evidence.EvidenceCategory
+import com.sentinel.ai.core.evidence.EvidenceSeverity
+import com.sentinel.ai.core.evidence.EvidenceType
+import com.sentinel.ai.core.evidence.ThreatEvidence
+import com.sentinel.ai.core.fusion.DefaultRiskFusionEngine
+import com.sentinel.ai.core.fusion.FusionContext
+import com.sentinel.ai.core.fusion.RiskFusionEngine
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.sentinel.ai.core.model.RiskLevel
@@ -28,13 +35,14 @@ class IntentThreatAnalyzerImpl @Inject constructor(
     private val fileScanner: FileScanner,
     private val threatEventBus: ThreatEventBus,
     private val mlInferenceEngine: MLInferenceEngine,
-    private val threatJournal: ThreatJournal
+    private val threatJournal: ThreatJournal,
+    private val riskFusionEngine: RiskFusionEngine = DefaultRiskFusionEngine()
 ) : IntentThreatAnalyzer {
 
     override suspend fun analyze(payload: IntentPayload): ScanResult {
         return when (payload) {
             is UrlPayload -> {
-                val heuristicResult = linkScanner.scan(payload.url)
+                val heuristicEvidence = linkScanner.scan(payload.url)
                 val mlScore = try {
                     when (val result = FeatureExtractor.extract(payload.url)) {
                         is com.sentinel.ai.ml.FeatureExtractionResult.Success -> {
@@ -48,37 +56,45 @@ class IntentThreatAnalyzerImpl @Inject constructor(
                     null
                 }
 
-                // Combine heuristics and ML
-                val finalRiskScore = if (mlScore != null) {
-                    (heuristicResult.riskScore * 0.7f + mlScore * 0.3f).coerceIn(0f, 100f)
-                } else {
-                    heuristicResult.riskScore
-                }
+                val evidenceList = mutableListOf<ThreatEvidence>()
+                evidenceList.addAll(heuristicEvidence)
 
-                val finalRiskLevel = when {
-                    finalRiskScore >= 90f -> RiskLevel.CRITICAL
-                    finalRiskScore >= 70f -> RiskLevel.RED
-                    finalRiskScore >= 40f -> RiskLevel.YELLOW
-                    else -> RiskLevel.GREEN
-                }
-                
-                val reasons = heuristicResult.reasons.toMutableList()
                 if (mlScore != null) {
-                    reasons.add(ScanReason(
-                        source = ScanReasonSource.LOCAL_HEURISTIC,
-                        sourceName = "ML Classifier",
-                        message = "Machine learning model score: ${mlScore.toInt()}/100",
-                        riskLevel = if (mlScore >= 70f) RiskLevel.RED else null
-                    ))
+                    evidenceList.add(
+                        ThreatEvidence(
+                            category = EvidenceCategory.URL_ML,
+                            type = EvidenceType.URL_ML_SCORE,
+                            severity = when {
+                                mlScore >= 90f -> EvidenceSeverity.CRITICAL
+                                mlScore >= 70f -> EvidenceSeverity.HIGH
+                                mlScore >= 40f -> EvidenceSeverity.MEDIUM
+                                else -> EvidenceSeverity.LOW
+                            },
+                            sourceName = "ML Classifier",
+                            confidence = 0.9f,
+                            indicatorText = "${mlScore.toInt()}/100",
+                            explanation = "Machine learning model score: ${mlScore.toInt()}/100",
+                            metadata = mapOf("mlScore" to mlScore.toString())
+                        )
+                    )
                 }
 
-                val finalResult = heuristicResult.copy(
-                    riskScore = finalRiskScore,
-                    riskLevel = finalRiskLevel,
-                    reasons = reasons,
-                    decision = finalRiskLevel.toProtectionDecision(),
-                    headline = finalRiskLevel.toProtectionDecision().defaultHeadline(),
-                    recommendedAction = finalRiskLevel.toProtectionDecision().defaultAction()
+                val timestamp = System.currentTimeMillis()
+                val fusionContext = FusionContext(
+                    source = "Intent (Link)",
+                    target = payload.url,
+                    timestamp = timestamp
+                )
+
+                val fusionResult = riskFusionEngine.fuse(evidenceList, fusionContext)
+
+                val finalResult = fusionResult.toScanResult(
+                    id = java.util.UUID.randomUUID().toString(),
+                    source = "Intent (Link)",
+                    target = payload.url,
+                    timestamp = timestamp,
+                    senderDisplayName = null,
+                    senderIdentifier = null
                 )
 
                 // 1. Direct durable Room persistence (awaiting completion)
@@ -90,15 +106,33 @@ class IntentThreatAnalyzerImpl @Inject constructor(
                 finalResult
             }
             is FilePayload -> {
-                val heuristicResult = fileScanner.scan(payload.uri)
+                val heuristicEvidence = fileScanner.scan(payload.uri)
+
+                val timestamp = System.currentTimeMillis()
+                val fusionContext = FusionContext(
+                    source = "Intent (File)",
+                    target = payload.uri.toString(),
+                    timestamp = timestamp
+                )
+
+                val fusionResult = riskFusionEngine.fuse(heuristicEvidence, fusionContext)
+
+                val finalResult = fusionResult.toScanResult(
+                    id = java.util.UUID.randomUUID().toString(),
+                    source = "Intent (File)",
+                    target = payload.uri.toString(),
+                    timestamp = timestamp,
+                    senderDisplayName = null,
+                    senderIdentifier = null
+                )
 
                 // 1. Direct durable Room persistence (awaiting completion)
-                threatJournal.recordScanResult(heuristicResult)
+                threatJournal.recordScanResult(finalResult)
 
                 // 2. Optional transient event bus emission for reactive UI consumers
-                threatEventBus.emit(ThreatEvent.FileThreatDetected(heuristicResult))
+                threatEventBus.emit(ThreatEvent.FileThreatDetected(finalResult))
 
-                heuristicResult
+                finalResult
             }
         }
     }

@@ -68,20 +68,6 @@ class LinkHeuristicRiskEngine @Inject constructor() {
         )
     }
 
-    fun toScanResult(url: String): ScanResult {
-        val analysis = analyze(url)
-        return ScanResult(
-            id = UUID.randomUUID().toString(),
-            source = "Intent (Link)",
-            senderDisplayName = null,
-            senderIdentifier = null,
-            riskLevel = analysis.riskLevel,
-            riskScore = analysis.score,
-            explanation = analysis.explanation,
-            timestamp = System.currentTimeMillis()
-        )
-    }
-
     private fun buildExplanation(triggered: List<RuleResult>): String {
         if (triggered.isEmpty()) {
             return "No heuristic risk signals found. URL appears safe."
