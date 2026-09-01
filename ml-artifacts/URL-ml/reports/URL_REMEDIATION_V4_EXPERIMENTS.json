@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-08-29T11:23:44.704162+00:00",
+  "experiments": {
+    "challenger_hardsource_v2_extra40": {
+      "experiment_id": "challenger_hardsource_v2_extra40",
+      "architecture": "ExtraTreesClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.4525,
+      "remediation_dataset_sha256": "ab4168c474363eba0f62691beb2a39ac22c3936078fc30b8d3c9869112f5a43c",
+      "remediation_rows": 2450,
+      "remediation_weight": 5.0,
+      "fit_seconds": 3.069216200000028,
+      "artifact": "model/challengers/challenger_hardsource_v2_extra40/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_fpr": 0.00993169651098394,
+        "malicious_recall": 0.8184699160864132,
+        "confusion_matrix": [
+          [
+            26816,
+            269
+          ],
+          [
+            4067,
+            18337
+          ]
+        ],
+        "roc_auc": 0.9853849074657907
+      },
+      "test": {
+        "n": 43433,
+        "benign_fpr": 0.010767308540349846,
+        "malicious_recall": 0.9243573145921953,
+        "confusion_matrix": [
+          [
+            26919,
+            293
+          ],
+          [
+            1227,
+            14994
+          ]
+        ],
+        "roc_auc": 0.9924288135627165
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.1669218989280245,
+        "malicious_recall": 0.9690844233055886,
+        "confusion_matrix": [
+          [
+            1632,
+            327
+          ],
+          [
+            26,
+            815
+          ]
+        ],
+        "roc_auc": 0.97768128925979
+      },
+      "serialized_model_bytes": 4824825
+    },
+    "challenger_hardsource_v2_rf40": {
+      "experiment_id": "challenger_hardsource_v2_rf40",
+      "architecture": "RandomForestClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.2455,
+      "remediation_dataset_sha256": "ab4168c474363eba0f62691beb2a39ac22c3936078fc30b8d3c9869112f5a43c",
+      "remediation_rows": 2450,
+      "remediation_weight": 5.0,
+      "fit_seconds": 5.779171700000006,
+      "artifact": "model/challengers/challenger_hardsource_v2_rf40/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_fpr": 0.009857854901236847,
+        "malicious_recall": 0.990224959828602,
+        "confusion_matrix": [
+          [
+            26818,
+            267
+          ],
+          [
+            219,
+            22185
+          ]
+        ],
+        "roc_auc": 0.9978476863209473
+      },
+      "test": {
+        "n": 43433,
+        "benign_fpr": 0.010767308540349846,
+        "malicious_recall": 0.9831699648603662,
+        "confusion_matrix": [
+          [
+            26919,
+            293
+          ],
+          [
+            273,
+            15948
+          ]
+        ],
+        "roc_auc": 0.9982623769111245
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.40837161817253703,
+        "malicious_recall": 0.9821640903686087,
+        "confusion_matrix": [
+          [
+            1159,
+            800
+          ],
+          [
+            15,
+            826
+          ]
+        ],
+        "roc_auc": 0.9831725764619408
+      },
+      "serialized_model_bytes": 7463561
+    }
+  },
+  "frozen_champion_untouched": true
+}

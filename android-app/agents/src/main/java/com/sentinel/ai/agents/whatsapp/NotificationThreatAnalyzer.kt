@@ -7,6 +7,7 @@ import com.sentinel.ai.core.evidence.EvidenceCategory
 import com.sentinel.ai.core.evidence.EvidenceSeverity
 import com.sentinel.ai.core.evidence.EvidenceType
 import com.sentinel.ai.core.evidence.ThreatEvidence
+import com.sentinel.ai.core.ml.messages.MessageScanner
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,35 +17,114 @@ import javax.inject.Singleton
 data class NotificationAnalysisInput(
     val messageText: String,
     val urls: List<UrlAnalysisItem> = emptyList(),
-    val isKnownContact: Boolean = false
+    val isKnownContact: Boolean = false,
+    val sender: String? = null
 )
 
 /**
  * Signal analyzer responsible for extracting structured [ThreatEvidence] observations
- * from notification text, attached URLs, and contact parameters.
+ * from notification text, attached URLs, ML classification, and contact parameters.
  *
  * NOTE: This analyzer observes and emits evidence; it does NOT compute final global risk scores,
  * assign RiskLevels, or determine ProtectionDecisions.
  */
 @Singleton
-class NotificationThreatAnalyzer @Inject constructor() : ThreatAnalyzer<NotificationAnalysisInput> {
+class NotificationThreatAnalyzer @Inject constructor(
+    private val messageScanner: MessageScanner
+) : ThreatAnalyzer<NotificationAnalysisInput> {
+
+    private var isTestingWithoutScanner: Boolean = false
+
+    constructor(isTest: Boolean) : this(MessageScanner.createNoOp()) {
+        this.isTestingWithoutScanner = isTest
+    }
+
+    constructor() : this(isTest = true)
+
+    constructor(testScanner: MessageScanner, @Suppress("UNUSED_PARAMETER") forTesting: Unit = Unit) : this(testScanner) {
+        this.isTestingWithoutScanner = false
+    }
 
     override val analyzerName: String = "NotificationThreatAnalyzer"
 
     override suspend fun analyze(input: NotificationAnalysisInput): AnalysisResult {
         return AnalysisResult(
-            evidence = extractEvidence(input.messageText, input.urls, input.isKnownContact)
+            evidence = extractEvidence(
+                messageText = input.messageText,
+                urls = input.urls,
+                isKnownContact = input.isKnownContact,
+                senderHeader = input.sender
+            )
         )
     }
 
     fun extractEvidence(
         messageText: String,
         urls: List<UrlAnalysisItem> = emptyList(),
-        isKnownContact: Boolean = false
+        isKnownContact: Boolean = false,
+        senderHeader: String? = null
     ): List<ThreatEvidence> {
         val evidenceList = mutableListOf<ThreatEvidence>()
 
-        // 1. URL-level observations
+        // 1. Messages-ML Champion V2 evaluation
+        if (!isTestingWithoutScanner && messageText.isNotBlank()) {
+            var mlFailure: Throwable? = null
+            val mlResult = try {
+                messageScanner.scan(messageText, senderHeader)
+            } catch (e: Throwable) {
+                mlFailure = e
+                null
+            }
+
+            if (mlResult != null && mlResult.probabilities.size >= 3) {
+                val pNonBenign = mlResult.pNonBenign
+                val mlScore = (pNonBenign * 100f).coerceIn(0f, 100f)
+                val severity = when {
+                    pNonBenign >= 0.90f -> EvidenceSeverity.CRITICAL
+                    pNonBenign >= 0.704f -> EvidenceSeverity.HIGH
+                    pNonBenign >= 0.40f -> EvidenceSeverity.MEDIUM
+                    else -> EvidenceSeverity.LOW
+                }
+
+                evidenceList.add(
+                    ThreatEvidence(
+                        category = EvidenceCategory.MESSAGE_ML,
+                        type = EvidenceType.MESSAGE_ML_SCORE,
+                        severity = severity,
+                        sourceName = "Messages-ML Champion V2",
+                        confidence = 0.95f,
+                        indicatorText = "${mlScore.toInt()}/100 (${mlResult.label})",
+                        explanation = "Messages ML model predicted ${mlResult.label} (score: ${mlScore.toInt()}/100)",
+                        metadata = mapOf(
+                            "score" to mlScore.toString(),
+                            "label" to mlResult.label,
+                            "pNonBenign" to pNonBenign.toString(),
+                            "classIndex" to mlResult.classIndex.toString(),
+                            "pBenign" to mlResult.probabilities[0].toString(),
+                            "pSuspicious" to mlResult.probabilities[1].toString(),
+                            "pMalicious" to mlResult.probabilities[2].toString()
+                        )
+                    )
+                )
+            }
+
+            if (mlFailure != null) {
+                evidenceList.add(
+                    ThreatEvidence(
+                        category = EvidenceCategory.MESSAGE_ML,
+                        type = EvidenceType.MESSAGE_ML_SCORE,
+                        severity = EvidenceSeverity.CRITICAL,
+                        sourceName = "Messages-ML Champion V2",
+                        confidence = 1.0f,
+                        indicatorText = "Messages ML unavailable",
+                        explanation = "Message threat model could not be evaluated; blocking until local analysis is available",
+                        metadata = mapOf("status" to "unavailable", "score" to "100.0")
+                    )
+                )
+            }
+        }
+
+        // 2. URL-level observations
         urls.forEach { url ->
             if (url.isShortened) {
                 evidenceList.add(
@@ -76,7 +156,7 @@ class NotificationThreatAnalyzer @Inject constructor() : ThreatAnalyzer<Notifica
             }
         }
 
-        // 2. Message text observations
+        // 3. Message text observations
         val lower = messageText.lowercase()
 
         if (lower.contains("urgent")) {
@@ -191,7 +271,7 @@ class NotificationThreatAnalyzer @Inject constructor() : ThreatAnalyzer<Notifica
             )
         }
 
-        // 3. Contact status observation
+        // 4. Contact status observation
         if (!isKnownContact) {
             evidenceList.add(
                 ThreatEvidence(

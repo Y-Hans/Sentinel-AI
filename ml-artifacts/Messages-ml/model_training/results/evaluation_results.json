@@ -1,0 +1,241 @@
+{
+  "otp_evaluation": {
+    "legitimate_authentication_otp": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/10",
+      "sample_count": 20
+    },
+    "legitimate_delivery_otp": {
+      "sample_count": 0
+    },
+    "protective_otp_warning": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 12
+    },
+    "reverse_otp_theft": {
+      "accuracy": 0.6666666666666666,
+      "macro_f1": 0.4,
+      "malicious_precision": 1.0,
+      "malicious_recall": 0.6666666666666666,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 3
+    },
+    "ambiguous_otp": {
+      "accuracy": 0.518796992481203,
+      "macro_f1": 0.4985790001108022,
+      "malicious_precision": 0.7960526315789473,
+      "malicious_recall": 0.4336917562724014,
+      "benign_fpr": 0.5,
+      "fp_over_n": "11/22",
+      "sample_count": 399
+    }
+  },
+  "hard_negative_evaluation": {
+    "false_positives": 5,
+    "total_samples": 22,
+    "fpr": 0.22727272727272727,
+    "fp_over_n": "5/22"
+  },
+  "threat_vector_evaluation": {
+    "NONE": {
+      "accuracy": 0.8921933085501859,
+      "macro_f1": 0.3143418467583497,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.04337050805452292,
+      "fp_over_n": "35/807",
+      "sample_count": 807
+    },
+    "BANK_KYC_SUSPENSION": {
+      "accuracy": 0.7476828012358393,
+      "macro_f1": 0.2852091926929876,
+      "malicious_precision": 1.0,
+      "malicious_recall": 0.7476828012358393,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 971
+    },
+    "CREDENTIAL_REQUEST": {
+      "accuracy": 0.46965699208443273,
+      "macro_f1": 0.2130460801915021,
+      "malicious_precision": 1.0,
+      "malicious_recall": 0.46965699208443273,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 1137
+    },
+    "COMMERCIAL_SPAM": {
+      "accuracy": 0.7007299270072993,
+      "macro_f1": 0.27467811158798283,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 274
+    },
+    "DELIVERY_SCAM": {
+      "accuracy": 0.4117647058823529,
+      "macro_f1": 0.19444444444444445,
+      "malicious_precision": 1.0,
+      "malicious_recall": 0.4117647058823529,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 187
+    },
+    "APK_MALWARE_DROPPER": {
+      "accuracy": 0.5862068965517241,
+      "macro_f1": 0.3509803921568628,
+      "malicious_precision": 0.9333333333333333,
+      "malicious_recall": 0.56,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 29
+    },
+    "OTP_DISCLOSURE_REQUEST": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 10
+    },
+    "PAYMENT_SCAM": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 10
+    },
+    "PART_TIME_JOB_SCAM": "INSUFFICIENT SAMPLE SIZE",
+    "TRAFFIC_CHALLAN_PHISHING": "INSUFFICIENT SAMPLE SIZE",
+    "ELECTRICITY_DISCONNECTION_SCAM": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 10
+    }
+  },
+  "source_generalization": {
+    "SRC_MENDELEY_SMISHING_2022": {
+      "accuracy": 0.831096196868009,
+      "macro_f1": 0.5628875888723961,
+      "malicious_precision": 0.4222222222222222,
+      "malicious_recall": 0.2111111111111111,
+      "benign_fpr": 0.02452316076294278,
+      "fp_over_n": "18/734",
+      "sample_count": 894
+    },
+    "SRC_IMC25_FISHING_SMISHING": {
+      "accuracy": 0.6026711185308848,
+      "macro_f1": 0.3345052430591791,
+      "malicious_precision": 0.969786293294031,
+      "malicious_recall": 0.5973672265093055,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 2396
+    },
+    "SRC_UCI_SMS_SPAM_2011": {
+      "accuracy": 0.813953488372093,
+      "macro_f1": 0.534269902085994,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.03125,
+      "fp_over_n": "1/32",
+      "sample_count": 43
+    },
+    "SRC_CURATED_HARD_NEGATIVES_V1": {
+      "accuracy": 0.75,
+      "macro_f1": 0.7497556207233627,
+      "malicious_precision": 0.5897435897435898,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.3902439024390244,
+      "fp_over_n": "16/41",
+      "sample_count": 64
+    }
+  },
+  "language_generalization": {
+    "en": {
+      "accuracy": 0.6665679597275689,
+      "macro_f1": 0.6094978603597639,
+      "malicious_precision": 0.9417952314165497,
+      "malicious_recall": 0.5836592785745328,
+      "benign_fpr": 0.043532338308457715,
+      "fp_over_n": "35/804",
+      "sample_count": 3377
+    },
+    "hinglish": {
+      "accuracy": 0.9444444444444444,
+      "macro_f1": 0.8765432098765431,
+      "malicious_precision": 0.9285714285714286,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/3",
+      "sample_count": 18
+    },
+    "UNKNOWN": "INSUFFICIENT SAMPLE SIZE"
+  },
+  "sender_generalization": {
+    "ALPHANUMERIC_HEADER": {
+      "accuracy": 0.8028169014084507,
+      "macro_f1": 0.7431747818744722,
+      "malicious_precision": 0.8181818181818182,
+      "malicious_recall": 0.7714285714285715,
+      "benign_fpr": 0.16666666666666666,
+      "fp_over_n": "5/30",
+      "sample_count": 71
+    },
+    "PHONE_NUMBER": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 1.0,
+      "malicious_recall": 1.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/0",
+      "sample_count": 23
+    },
+    "SHORTCODE": "INSUFFICIENT SAMPLE SIZE",
+    "UNKNOWN": {
+      "accuracy": 0.6630336058128974,
+      "macro_f1": 0.6067874434767657,
+      "malicious_precision": 0.9437229437229437,
+      "malicious_recall": 0.579273693534101,
+      "benign_fpr": 0.03861003861003861,
+      "fp_over_n": "30/777",
+      "sample_count": 3303
+    }
+  },
+  "test_evaluation": {
+    "accuracy": 0.6709363957597173,
+    "macro_f1": 0.6246689763595721,
+    "malicious_precision": 0.9521785334750266,
+    "malicious_recall": 0.5758354755784062,
+    "benign_fpr": 0.03076923076923077,
+    "fp_over_n": "16/520",
+    "sample_count": 2264
+  },
+  "ood_evaluation": {
+    "accuracy": 0.666077738515901,
+    "macro_f1": 0.6070650543096172,
+    "malicious_precision": 0.9602510460251046,
+    "malicious_recall": 0.5780856423173804,
+    "benign_fpr": 0.0196078431372549,
+    "fp_over_n": "5/255",
+    "sample_count": 1132
+  }
+}

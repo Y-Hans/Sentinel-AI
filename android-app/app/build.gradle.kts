@@ -44,6 +44,7 @@ android {
     }
 
     testOptions {
+        unitTests.isIncludeAndroidResources = true
         unitTests.all {
             it.maxHeapSize = "2g"
         }
@@ -76,6 +77,7 @@ dependencies {
     testImplementation(libs.okhttp)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation(libs.gson)
+    testImplementation("org.robolectric:robolectric:4.11.1")
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

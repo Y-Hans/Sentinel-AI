@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,13 +39,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sentinel.ai.core.data.ScanRepository
+import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.core.validation.UrlInputValidator
-import com.sentinel.ai.protection.intent.link.BrowserLauncher
+import com.sentinel.ai.core.browser.BrowserLauncher
 import com.sentinel.ai.protection.intent.model.FilePayload
 import com.sentinel.ai.protection.intent.model.IntentPayload
 import com.sentinel.ai.protection.intent.model.UrlPayload
+import com.sentinel.ai.ui.components.SecurityTipProvider
 import com.sentinel.ai.ui.theme.SentinelTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -54,30 +60,53 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ScanLoadingActivity : ComponentActivity() {
 
+    private var payload: IntentPayload? = null
+    private var payloadType: String? = null
+    private var invalidUrl = false
+    private var contentRendered = false
+
     @Inject
     lateinit var scanRepository: ScanRepository
+
+    @Inject
+    lateinit var securityTipProvider: SecurityTipProvider
+
+    @Inject
+    lateinit var browserLauncher: BrowserLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val payloadType = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE)
+        payloadType = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_TYPE)
         val payloadValue = intent.getStringExtra(IntentPayloadExtras.EXTRA_PAYLOAD_VALUE)
-        val payload = when (payloadType) {
+        val parsedPayload = when (payloadType) {
             IntentPayloadExtras.TYPE_URL -> payloadValue
                 ?.takeIf(UrlInputValidator::isValid)
                 ?.let { UrlPayload(it.trim()) }
             IntentPayloadExtras.TYPE_FILE -> payloadValue?.let { FilePayload(Uri.parse(it)) }
             else -> null
         }
-        val invalidUrl = payloadType == IntentPayloadExtras.TYPE_URL && payload == null
-        Log.d(ML_TAG, "payload.javaClass.name=${payload?.javaClass?.name ?: "null"}")
-        if (payload is UrlPayload) {
-            val safeUrl = com.sentinel.ai.core.utils.UrlLogger.redactUrl(payload.url)
+        payload = parsedPayload
+        invalidUrl = payloadType == IntentPayloadExtras.TYPE_URL && payload == null
+        Log.d(ML_TAG, "payload.javaClass.name=${parsedPayload?.javaClass?.name ?: "null"}")
+        if (parsedPayload is UrlPayload) {
+            val safeUrl = com.sentinel.ai.core.utils.UrlLogger.redactUrl(parsedPayload.url)
             Log.d(ML_TAG, "payload.url=$safeUrl")
         } else {
             Log.d(ML_TAG, "Skipping ML: payload is not UrlPayload")
         }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (contentRendered) return
+        contentRendered = true
+
+        val scanPayload = payload
+        val scanPayloadType = payloadType
+        val scanInvalidUrl = invalidUrl
 
         setContent {
             SentinelTheme {
@@ -85,22 +114,32 @@ class ScanLoadingActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var uiState by remember { mutableStateOf<ScanUiState>(ScanUiState.Loading) }
+                    var uiState by remember { mutableStateOf<ScanUiState>(ScanUiState.Loading(securityTipProvider.getRandomTip())) }
 
-                    LaunchedEffect(payload) {
-                        if (payload == null) {
+                    LaunchedEffect(scanPayload) {
+                        if (scanPayload == null) {
                             uiState = ScanUiState.Error(
-                                if (invalidUrl) "Enter a valid URL" else "Unsupported or missing payload data."
+                                if (scanInvalidUrl) "Enter a valid URL" else "Unsupported or missing payload data."
                             )
                             return@LaunchedEffect
                         }
                         try {
                             delay(1000) // Delay to display "Analyzing..." state clearly to the user
-                            val result = when (payload) {
-                                is UrlPayload -> scanRepository.scanLink(payload.url)
-                                is FilePayload -> scanRepository.scanFile(payload.uri)
+                            val result = when (scanPayload) {
+                                is UrlPayload -> scanRepository.scanLink(scanPayload.url)
+                                is FilePayload -> scanRepository.scanFile(scanPayload.uri)
                             }
-                            uiState = ScanUiState.Success(result, payload)
+
+                            if (shouldAutoLaunch(result, scanPayload)) {
+                                val launched = openUrlInBrowser((scanPayload as UrlPayload).url)
+                                if (launched) {
+                                    finish()
+                                } else {
+                                    uiState = ScanUiState.Error("No application available to open this link.")
+                                }
+                            } else {
+                                uiState = ScanUiState.Success(result, scanPayload)
+                            }
                         } catch (e: Exception) {
                             Log.e(TAG, "Analysis failed", e)
                             uiState = ScanUiState.Error(e.message ?: "Failed to perform analysis.")
@@ -109,12 +148,12 @@ class ScanLoadingActivity : ComponentActivity() {
 
                     when (val state = uiState) {
                         is ScanUiState.Loading -> {
-                            val displayType = when (payloadType) {
+                            val displayType = when (scanPayloadType) {
                                 IntentPayloadExtras.TYPE_URL -> "URL"
                                 IntentPayloadExtras.TYPE_FILE -> "FILE"
                                 else -> "Payload"
                             }
-                            ScanLoadingContent(payloadType = displayType)
+                            ScanLoadingContent(payloadType = displayType, currentTip = state.tip)
                         }
                         is ScanUiState.Success -> {
                             ScanResultContent(
@@ -142,7 +181,7 @@ class ScanLoadingActivity : ComponentActivity() {
         }
     }
 
-    private fun openUrlInBrowser(url: String) = BrowserLauncher().launch(this, url)
+    private fun openUrlInBrowser(url: String) = browserLauncher.launch(url)
 
     private companion object {
         const val TAG = "ScanLoadingActivity"
@@ -150,14 +189,19 @@ class ScanLoadingActivity : ComponentActivity() {
     }
 }
 
+internal fun shouldAutoLaunch(result: ScanResult, payload: IntentPayload): Boolean =
+    payload is UrlPayload &&
+        result.riskLevel == RiskLevel.GREEN &&
+        result.decision == ProtectionDecision.ALLOW
+
 private sealed interface ScanUiState {
-    data object Loading : ScanUiState
+    data class Loading(val tip: String) : ScanUiState
     data class Success(val result: ScanResult, val payload: IntentPayload) : ScanUiState
     data class Error(val message: String) : ScanUiState
 }
 
 @Composable
-private fun ScanLoadingContent(payloadType: String) {
+private fun ScanLoadingContent(payloadType: String, currentTip: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -165,6 +209,8 @@ private fun ScanLoadingContent(payloadType: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+
         Text(
             text = "Sentinel AI",
             style = MaterialTheme.typography.headlineMedium,
@@ -190,6 +236,32 @@ private fun ScanLoadingContent(payloadType: String) {
                 .padding(top = 20.dp)
                 .size(64.dp)
         )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Info,
+                    contentDescription = "Security Tip",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Tip: $currentTip",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

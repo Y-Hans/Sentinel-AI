@@ -1,0 +1,402 @@
+{
+  "generated_at": "2026-08-29T11:14:00.706607+00:00",
+  "dataset_sha256": "cbabd318016cbe8f047c511431a44dbb6b74ab7796780ff73a359b8012a98380",
+  "rows": 238168,
+  "labels": {
+    "0": 136807,
+    "1": 101361
+  },
+  "sources": {
+    "original": 235368,
+    "hard": 2800
+  },
+  "splits": {
+    "train": 145246,
+    "validation": 49489,
+    "test": 43433,
+    "hard_source_holdout": 2800,
+    "train_val_group_overlap": 0,
+    "train_test_group_overlap": 0
+  },
+  "hard_source_domains": 688,
+  "hard_source_benign_domains": 99,
+  "feature_family_results": {
+    "full": {
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "threshold": 0.333,
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.00993169651098394,
+        "malicious_recall": 0.9878593108373505,
+        "confusion_matrix": [
+          [
+            26816,
+            269
+          ],
+          [
+            272,
+            22132
+          ]
+        ],
+        "roc_auc": 0.9978421063421354
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.009591356754373071,
+        "malicious_recall": 0.9852660131927748,
+        "confusion_matrix": [
+          [
+            26951,
+            261
+          ],
+          [
+            239,
+            15982
+          ]
+        ],
+        "roc_auc": 0.998290960582915
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.9938744257274119,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            12,
+            1947
+          ],
+          [
+            0,
+            841
+          ]
+        ],
+        "roc_auc": 0.5125695060269411
+      }
+    },
+    "source_reduced_no_identity": {
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "HyphenCount",
+        "PathQueryLength",
+        "DomainVowelRatio"
+      ],
+      "threshold": 0.34900000000000003,
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.009857854901236847,
+        "malicious_recall": 0.9922781646134619,
+        "confusion_matrix": [
+          [
+            26818,
+            267
+          ],
+          [
+            173,
+            22231
+          ]
+        ],
+        "roc_auc": 0.9977971888310643
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.008672644421578715,
+        "malicious_recall": 0.9916774551507306,
+        "confusion_matrix": [
+          [
+            26976,
+            236
+          ],
+          [
+            135,
+            16086
+          ]
+        ],
+        "roc_auc": 0.9981205006770051
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.9938744257274119,
+        "malicious_recall": 0.9928656361474435,
+        "confusion_matrix": [
+          [
+            12,
+            1947
+          ],
+          [
+            6,
+            835
+          ]
+        ],
+        "roc_auc": 0.445489854745226
+      }
+    },
+    "domain_invariant_structure": {
+      "features": [
+        "URLLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "HyphenCount",
+        "PathQueryLength"
+      ],
+      "threshold": 0.35600000000000004,
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.009820934096363301,
+        "malicious_recall": 0.9917871808605606,
+        "confusion_matrix": [
+          [
+            26819,
+            266
+          ],
+          [
+            184,
+            22220
+          ]
+        ],
+        "roc_auc": 0.9977060782910249
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.009481111274437747,
+        "malicious_recall": 0.9900745946612416,
+        "confusion_matrix": [
+          [
+            26954,
+            258
+          ],
+          [
+            161,
+            16060
+          ]
+        ],
+        "roc_auc": 0.9976641383540152
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.9938744257274119,
+        "malicious_recall": 0.9785969084423306,
+        "confusion_matrix": [
+          [
+            12,
+            1947
+          ],
+          [
+            18,
+            823
+          ]
+        ],
+        "roc_auc": 0.4356787387580962
+      }
+    },
+    "base_only": {
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol"
+      ],
+      "threshold": 0.375,
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.009525567657374931,
+        "malicious_recall": 0.9881271201571148,
+        "confusion_matrix": [
+          [
+            26827,
+            258
+          ],
+          [
+            266,
+            22138
+          ]
+        ],
+        "roc_auc": 0.9971402246038702
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.009628105247684845,
+        "malicious_recall": 0.9881634917699279,
+        "confusion_matrix": [
+          [
+            26950,
+            262
+          ],
+          [
+            192,
+            16029
+          ]
+        ],
+        "roc_auc": 0.9975068896458581
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.9938744257274119,
+        "malicious_recall": 0.995243757431629,
+        "confusion_matrix": [
+          [
+            12,
+            1947
+          ],
+          [
+            4,
+            837
+          ]
+        ],
+        "roc_auc": 0.5652053178142408
+      }
+    }
+  },
+  "feature_distribution_evidence": {
+    "URLLength": {
+      "hard_benign_mean": 33.22919857069934,
+      "original_benign_mean": 27.228694915771484,
+      "hard_benign_median": 31.0,
+      "original_benign_median": 27.0
+    },
+    "DomainLength": {
+      "hard_benign_mean": 12.64267483409903,
+      "original_benign_mean": 19.228694915771484,
+      "hard_benign_median": 12.0,
+      "original_benign_median": 19.0
+    },
+    "IsDomainIP": {
+      "hard_benign_mean": 0.0,
+      "original_benign_mean": 0.0,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "NoOfSubDomain": {
+      "hard_benign_mean": 0.4777947932618683,
+      "original_benign_mean": 1.082070231437683,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 1.0
+    },
+    "IsHTTPS": {
+      "hard_benign_mean": 0.9586523736600306,
+      "original_benign_mean": 1.0,
+      "hard_benign_median": 1.0,
+      "original_benign_median": 1.0
+    },
+    "HasSuspiciousWords": {
+      "hard_benign_mean": 0.05410923940786115,
+      "original_benign_mean": 0.0011568580521270633,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "SpecialCharRatio": {
+      "hard_benign_mean": 0.19769763430314657,
+      "original_benign_mean": 0.1980130523443222,
+      "hard_benign_median": 0.1951219512195122,
+      "original_benign_median": 0.19230769574642181
+    },
+    "DigitRatio": {
+      "hard_benign_mean": 0.02076446363686942,
+      "original_benign_mean": 0.0020295761059969664,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "HasAtSymbol": {
+      "hard_benign_mean": 0.0,
+      "original_benign_mean": 0.0,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "SuspiciousTLD": {
+      "hard_benign_mean": 0.0,
+      "original_benign_mean": 0.012799596413969994,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "BrandImpersonationScore": {
+      "hard_benign_mean": 0.004772843287391526,
+      "original_benign_mean": 0.008175607770681381,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "HyphenCount": {
+      "hard_benign_mean": 0.0,
+      "original_benign_mean": 0.08320479094982147,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "PathQueryLength": {
+      "hard_benign_mean": 12.565084226646247,
+      "original_benign_mean": 0.0,
+      "hard_benign_median": 9.0,
+      "original_benign_median": 0.0
+    },
+    "KnownBrandDomain": {
+      "hard_benign_mean": 0.333843797856049,
+      "original_benign_mean": 0.00015573090058751404,
+      "hard_benign_median": 0.0,
+      "original_benign_median": 0.0
+    },
+    "DomainVowelRatio": {
+      "hard_benign_mean": 0.3460500420684187,
+      "original_benign_mean": 0.3726457357406616,
+      "hard_benign_median": 0.3333333333333333,
+      "original_benign_median": 0.375
+    }
+  },
+  "forensic_rows": 2800,
+  "hard_false_positives": 1947,
+  "frozen_champion_artifact": "model/champion/model.joblib",
+  "frozen_champion_untouched": true
+}

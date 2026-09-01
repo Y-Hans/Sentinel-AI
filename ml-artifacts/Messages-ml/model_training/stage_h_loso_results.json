@@ -1,0 +1,37 @@
+{
+  "SRC_ADV_PAIR_LEGIT": {
+    "macro_f1": 0.3125,
+    "malicious_recall": 0.0,
+    "size": 275
+  },
+  "SRC_ADV_PAIR_MALICIOUS": {
+    "macro_f1": 0.3125,
+    "malicious_recall": 0.45454545454545453,
+    "size": 275
+  },
+  "SRC_CURATED_HARD_NEGATIVES_V1": {
+    "macro_f1": 0.09150326797385622,
+    "malicious_recall": 0.7291666666666666,
+    "size": 230
+  },
+  "SRC_IMC25_FISHING_SMISHING": {
+    "macro_f1": 0.23509817299585622,
+    "malicious_recall": 0.36064951096761944,
+    "size": 11343
+  },
+  "SRC_MENDELEY_SMISHING_2022": {
+    "macro_f1": 0.43850671759788806,
+    "malicious_recall": 0.366412213740458,
+    "size": 4095
+  },
+  "SRC_SYNTHETIC_HARD_NEGATIVES_V2": {
+    "macro_f1": 0.2727272727272727,
+    "malicious_recall": 0.0,
+    "size": 320
+  },
+  "SRC_UCI_SMS_SPAM_2011": {
+    "macro_f1": 0.5364222123850277,
+    "malicious_recall": 0.0,
+    "size": 187
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-08-29T11:22:14.067743+00:00",
+  "result": {
+    "experiment_id": "challenger_hybrid_v4_extra_logistic",
+    "architecture": "weighted_score_hybrid",
+    "features": [
+      "URLLength",
+      "DomainLength",
+      "IsDomainIP",
+      "NoOfSubDomain",
+      "IsHTTPS",
+      "HasSuspiciousWords",
+      "SpecialCharRatio",
+      "DigitRatio",
+      "HasAtSymbol",
+      "SuspiciousTLD",
+      "BrandImpersonationScore",
+      "HyphenCount",
+      "PathQueryLength",
+      "KnownBrandDomain",
+      "DomainVowelRatio"
+    ],
+    "seed": 42,
+    "threshold": 0.4855,
+    "extra_trees_weight": 0.8,
+    "logistic_weight": 0.19999999999999996,
+    "remediation_dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+    "validation": {
+      "n": 49489,
+      "benign_fpr": 0.009968617315857485,
+      "malicious_recall": 0.8441796107837886,
+      "confusion_matrix": [
+        [
+          26815,
+          270
+        ],
+        [
+          3491,
+          18913
+        ]
+      ],
+      "roc_auc": 0.9883551049736398
+    },
+    "test": {
+      "n": 43433,
+      "benign_fpr": 0.009701602234308394,
+      "malicious_recall": 0.9265766598853338,
+      "confusion_matrix": [
+        [
+          26948,
+          264
+        ],
+        [
+          1191,
+          15030
+        ]
+      ],
+      "roc_auc": 0.9940367815966337
+    },
+    "hard_source_holdout": {
+      "n": 2800,
+      "benign_fpr": 0.21388463501786625,
+      "malicious_recall": 0.9785969084423306,
+      "confusion_matrix": [
+        [
+          1540,
+          419
+        ],
+        [
+          18,
+          823
+        ]
+      ],
+      "roc_auc": 0.9796102503218476
+    },
+    "component_artifacts": [
+      "model/challengers/challenger_source_invariant_v2_extra40/model.joblib",
+      "model/challengers/challenger_source_invariant_v3_logistic/model.joblib"
+    ]
+  },
+  "alpha_search": "validation-only grid 0.05",
+  "frozen_champion_untouched": true
+}

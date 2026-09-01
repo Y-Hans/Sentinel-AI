@@ -2,77 +2,79 @@
 
 ## Click-Time Protection
 
-Sentinel AI can register as the Android handler for web links and inspect a destination before browser handoff.
+Sentinel AI registers as an Android default browser candidate to intercept, inspect, and adjudicate links in real time before hand-off:
 
-- Accepts `http` and `https` view intents.
-- Accepts shared links and selected web text.
-- Normalizes the URL without visiting it.
-- Applies 20 explainable URL rules and the on-device URL model.
-- Shows a result before continuing.
-- Removes the browser action for a `BLOCK` decision.
+- **Intent Interception:** Accepts `http` and `https` view intents, shared links, and selected web text.
+- **Normalization:** Cleans and normalizes URLs without network connections.
+- **Hybrid Threat Analysis:**
+  - Evaluates 20 explainable lexical and structural heuristic rules.
+  - Runs **URL-ML Champion V7** (67 continuous features, 350 gradient boosted trees, safe-brand clamping).
+- **Risk Fusion:** Fuses heuristic and ML evidence into a single authoritative `ScanResult`.
+- **Enforcement & Fast Path:**
+  - `GREEN + ALLOW`: Seamlessly opens the destination in the user's preferred browser (Safe-Link Fast Path).
+  - `WARN`: Presents a detailed threat breakdown with an optional "Continue Anyway" override.
+  - `BLOCK`: Hard blocks the destination; completely disables browser navigation.
 
-Click protection requires Sentinel AI to be selected as the device's default browser handler. Users can disable this mode independently.
+---
 
 ## Notification Scanning
 
-After notification-listener access is granted, Sentinel AI evaluates notifications from its supported-app registry, including major messaging, email, and social communication apps.
+With notification-listener access granted, Sentinel AI monitors incoming alerts from supported communication applications (e.g. WhatsApp, SMS, Telegram, banking/email apps):
 
-The notification pipeline checks:
+- **Sender Intelligence:** Analyzes DLT header formats, entity names, short codes, and known-contact status.
+- **Text Normalization:** Applies NFKD Unicode normalization, zero-width stripping, and homoglyph mapping.
+- **Multimodal Message ML:**
+  - Runs **Messages-ML Champion V2** (70 deterministic tabular features + 1,500 word TF-IDF + 500 char_wb TF-IDF, standard scaling, 309 HistGradientBoosting trees).
+- **Explainable Scam Rules:** Flags urgency pressure, account suspension threats, fake legal notices, power disconnection coercion, and OTP/credential harvesting.
+- **Deduplication:** Suppresses duplicate notifications within a sliding time window.
+- **Warning Dispatch:** For elevated threats (`WARN` / `BLOCK`), dispatches immediate system warning alerts.
 
-- Extracted URLs, including shortened and raw-IP links.
-- Urgency and account-verification language.
-- Financial and credential-related terms.
-- Whether the sender can be matched to a known contact when contact permission is available.
-- Repeated notifications, which are deduplicated within a short time window.
+---
 
-Elevated results are recorded locally and can produce a warning notification. Message notification analysis uses local rules and does not invoke the URL TFLite model.
+## Manual In-App Scanner
 
-## Feature Toggles
+The manual scanner interface provides instant on-demand analysis:
+- **Link Scan:** Full URL analysis with detailed feature breakdown.
+- **Text Scan:** Inspects raw SMS, chat snippets, or emails for social engineering signals.
+- **File Scan:** Validates document extensions, hash indicators, and APK threats.
 
-The app provides both a master protection switch and focused controls:
+---
 
-| Control | Effect | Requirement |
+## Protection Controls & Preferences
+
+Sentinel AI provides granular toggles for all protection features:
+
+| Control | Functionality | Prerequisite |
 | --- | --- | --- |
-| Real-time protection | Starts or stops guard and monitor services | Standard app access |
-| Notification protection | Enables supported notification analysis | Notification-listener access |
-| Click protection | Enables inspection before opening web links | Sentinel AI selected as default browser |
-| Text selection | Adds analysis for selected URL-like text | No additional privileged permission |
+| **Real-Time Protection** | Master switch for background protection services | Standard app installation |
+| **Notification Protection** | Enables active monitoring of incoming notifications | Android Notification Listener Access |
+| **Click-Time Protection** | Intercepts link clicks prior to browser loading | Default Browser set to Sentinel AI |
+| **Text Selection Scan** | Adds "Scan with Sentinel" option to text selection menu | Standard Android context menu |
 
-Settings are stored in private Android preferences and persist across app restarts.
+All settings persist locally across device reboots in private preferences.
+
+---
 
 ## Risk Scoring System
 
-Local URL rules contribute to a score from 0 to 100. The local risk bands are:
+The `RiskFusionEngine` evaluates all emitted `ThreatEvidence` items to compute a normalized compound score ($0\text{--}100$):
 
-| Score | Risk level |
-| ---: | --- |
-| 0 to less than 30 | `GREEN` |
-| 30 to less than 70 | `YELLOW` |
-| 70 to less than 90 | `RED` |
-| 90 to 100 | `CRITICAL` |
+| Score Band | Risk Level | Meaning |
+| ---: | :--- | :--- |
+| **$0\text{--}39$** | `GREEN` | Clean or verified safe destination / message |
+| **$40\text{--}69$** | `YELLOW` | Low-to-moderate suspicious indicators detected |
+| **$70\text{--}89$** | `RED` | High-confidence scam or phishing signals detected |
+| **$90\text{--}100$** | `CRITICAL` | Confirmed malicious payload, credential theft attempt, or ML-unavailable failure |
 
-The action decision is intentionally simpler:
+Authoritative Action Decisions:
+- **`ALLOW` (Score $< 40$):** Safe to proceed.
+- **`WARN` (Score $40\text{--}89$):** User alerted with explainable evidence; requires user confirmation.
+- **`BLOCK` (Score $\ge 90$):** High severity; navigation disabled.
 
-| Decision | Trigger | User guidance |
-| --- | --- | --- |
-| `ALLOW` | No strong local evidence | Continue with normal caution |
-| `WARN` | Local score at least 30 | Verify the destination before continuing |
-| `BLOCK` | Local score at least 90 | Do not continue |
+---
 
-Reasons are retained so the user can see which signals affected the result.
+## Local Threat Journal & History
 
-## Scan History
-
-- Scan history is retained locally, but historical scans DO NOT alter the score of future URLs.
-- The final authoritative decision is produced exclusively by local heuristics and on-device ML.
-
-## Notification Protection and History
-
-Incoming message notifications from supported communication apps are evaluated against scam heuristic rules. Detected threats produce an authoritative `ScanResult` that is directly persisted to the local Room database and dispatches a system warning notification for elevated risks (`WARN` / `BLOCK`) without depending on a transient event subscriber service.
-
-## Manual Scanning and History
-
-The in-app scanner supports link, text, and file scan modes. Threat events and scan results are durably persisted to a Room database through ThreatJournal before updating reactive in-memory state, ensuring reliable display in dashboard, alert, detail, and history views.
-
-History remains on the device and is restored when the app restarts.
-
+- All scan results and threat events are committed directly to a local **Room SQLite** database via `ThreatJournal`.
+- Scans and threats persist across app lifecycles.
+- **Privacy Guarantee:** History is stored strictly on-device; historical records never alter future scan scores.

@@ -1,0 +1,15 @@
+{
+  "campaign":"URL-ML V6",
+  "decision":"DATA_REQUIRED",
+  "promotion":false,
+  "candidate":"model/challengers/v6_char_tfidf_logreg",
+  "threshold":0.0785,
+  "gates":{"test_fpr":true,"test_recall":true,"hard_fpr":false,"hard_recall":true,"adversarial_recall":true,"size":true,"android_qualified":false},
+  "metrics":{"test_benign_fpr":0.007860198150111505,"test_malicious_recall":0.996631833491666,"hard_source_benign_fpr":0.6983154670750383,"hard_source_malicious_recall":1.0,"adversarial_recall":0.9958974358974358,"bundle_bytes":2523835},
+  "hashes":{"frozen_champion":"bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a","candidate_model":"1a87c62b033c97bb840b38718975e073e1048a61d07362fa8492aa2de3935f74","cleaned_dataset":"6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f","hard_dataset":"fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f","remediation_v3":"0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e"},
+  "threshold_selection":"validation_only",
+  "protected_data_used_for_fit":false,
+  "independent_reproduction":"serialized artifact hard evaluation exact; repeated predictions exact",
+  "tests":{"python_compile":"pass","existing_tflite_smoke":"pass","pytest":"unavailable_no_pytest_module"},
+  "remaining_blocker":"new genuinely sourced and adjudicated source-diverse benign data"
+}

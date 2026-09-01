@@ -1,0 +1,11 @@
+{
+  "phase": "final_representation_remediation",
+  "source": "URL_FINAL_REMEDIATION_FORENSIC.json",
+  "residual_false_positives": 327,
+  "residual_domains": 67,
+  "dominant_cluster": "ordinary/deep provider paths",
+  "representation_gaps": ["path-token composition", "delimiter/query structure", "protocol interaction", "domain-independent lexical structure"],
+  "identity_ablation_sufficient": false,
+  "heldout_data_used_for_training": false,
+  "decision": "BOTH_REQUIRED"
+}

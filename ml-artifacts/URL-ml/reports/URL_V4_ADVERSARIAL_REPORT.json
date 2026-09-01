@@ -1,0 +1,7 @@
+{
+  "decision": "not_ready",
+  "protected_suite_used_for_training": false,
+  "family_level_v4_claim": "not_ready_for_adversarial_release",
+  "reason": "hard-source false-positive failure remains catastrophic",
+  "historical_baseline": "URL_FINAL_REMEDIATION_ADVERSARIAL.csv"
+}

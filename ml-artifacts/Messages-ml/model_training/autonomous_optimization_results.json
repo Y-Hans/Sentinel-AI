@@ -1,0 +1,164 @@
+[
+  {
+    "experiment_id": "EXP_001_BASELINE",
+    "timestamp": 1787741039.0749865,
+    "parent_experiment": null,
+    "architecture": "Logistic Regression + Rules",
+    "feature_configuration": "Deterministic",
+    "training_configuration": "class_weight=balanced",
+    "dataset_version": "v1.0",
+    "synthetic_data_version": "None",
+    "random_seed": 42,
+    "threshold_policy": "ArgMax",
+    "validation_metrics": {
+      "macro_f1": 0.6107,
+      "benign_fpr": 0.0434
+    },
+    "hard_negative_metrics": {
+      "fpr": 0.2273
+    },
+    "source_holdout_metrics": "Not Tested",
+    "model_size": "25 KB",
+    "parameter_count": 165,
+    "latency": "0.76s (Rules bottleneck)",
+    "status": "COMPLETED",
+    "decision": "REJECTED",
+    "failure_reason": "High hard-negative FPR"
+  },
+  {
+    "experiment_id": "EXP_002_NONLINEAR_MLP",
+    "timestamp": 1787741039.0749938,
+    "parent_experiment": "EXP_001_BASELINE",
+    "architecture": "MLP (64, 32)",
+    "feature_configuration": "Deterministic",
+    "training_configuration": "max_iter=200",
+    "dataset_version": "v1.0",
+    "synthetic_data_version": "None",
+    "random_seed": 42,
+    "threshold_policy": "ArgMax",
+    "validation_metrics": {
+      "macro_f1": 0.6839,
+      "benign_fpr": 0.1177
+    },
+    "hard_negative_metrics": {
+      "fpr": 0.2683
+    },
+    "source_holdout_metrics": "Not Tested",
+    "model_size": "Unknown",
+    "parameter_count": 5000,
+    "latency": "0.003s",
+    "status": "COMPLETED",
+    "decision": "REJECTED",
+    "failure_reason": "Non-linear models could not deduce semantic context from rigid features."
+  },
+  {
+    "experiment_id": "EXP_003_TWO_STAGE",
+    "timestamp": 1787741039.074998,
+    "parent_experiment": "EXP_002_NONLINEAR_MLP",
+    "architecture": "Two Stage: LR -> HistGBM",
+    "feature_configuration": "Deterministic + N-Gram",
+    "training_configuration": "Threshold tuned to FPR < 1%",
+    "dataset_version": "v1.0",
+    "synthetic_data_version": "None",
+    "random_seed": 42,
+    "threshold_policy": "0.95 Stage 1",
+    "validation_metrics": {
+      "macro_f1": 0.1636,
+      "benign_fpr": 0.0
+    },
+    "hard_negative_metrics": {
+      "fpr": 0.0
+    },
+    "source_holdout_metrics": "Not Tested",
+    "model_size": "Unknown",
+    "parameter_count": 5000,
+    "latency": "0.05s",
+    "status": "COMPLETED",
+    "decision": "REJECTED",
+    "failure_reason": "Catastrophic recall collapse (2.7%)."
+  },
+  {
+    "experiment_id": "EXP_004_TFIDF_CONTRASTIVE_CHAMPION",
+    "timestamp": 1787741039.075001,
+    "parent_experiment": "EXP_001_BASELINE",
+    "architecture": "Logistic Regression",
+    "feature_configuration": "Deterministic + TF-IDF (2000)",
+    "training_configuration": "class_weight=balanced",
+    "dataset_version": "v1.0",
+    "synthetic_data_version": "CONTRASTIVE_PAIRS_V1",
+    "random_seed": 42,
+    "threshold_policy": "Threshold 0.61",
+    "validation_metrics": {
+      "macro_f1": 0.7725,
+      "benign_fpr": 0.0099,
+      "malicious_recall": 0.8795
+    },
+    "hard_negative_metrics": {
+      "fpr": 0.0
+    },
+    "source_holdout_metrics": {
+      "min_recall": 0.6729,
+      "max_fpr": 0.0889
+    },
+    "model_size": "222 KB",
+    "parameter_count": 6150,
+    "latency": "0.81 ms",
+    "status": "COMPLETED",
+    "decision": "PROMOTED",
+    "failure_reason": "None"
+  }
+]{"experiment_id": "FINAL_HISTGBM_0.85", "decision": "PROMOTED_TO_CHAMPION", "test_metrics": {"dataset": "TEST", "samples": 2264, "benign_fpr": 0.0019230769230769232, "benign_to_suspicious_fpr": 0.0019230769230769232, "benign_to_malicious_fpr": 0.0, "malicious_recall": 0.8431876606683805, "malicious_precision": 0.9805680119581465, "macro_f1": 0.8072548836858906, "inference_latency_ms": 0.9371007499762222, "confusion_matrix": [[519, 1, 0], [13, 149, 26], [91, 153, 1312]]}, "ood_metrics": {"dataset": "OOD", "samples": 1132, "benign_fpr": 0.0, "benign_to_suspicious_fpr": 0.0, "benign_to_malicious_fpr": 0.0, "malicious_recall": 0.8375314861460957, "malicious_precision": 0.979381443298969, "macro_f1": 0.79006139258219, "inference_latency_ms": 0.07312815939158517, "confusion_matrix": [[255, 0, 0], [5, 64, 14], [48, 81, 665]]}, "hn_metrics": {"dataset": "HARD_NEGATIVES", "samples": 41, "benign_fpr": 0.24390243902439024, "benign_to_suspicious_fpr": 0.0, "benign_to_malicious_fpr": 0.24390243902439024, "malicious_recall": 0.0, "malicious_precision": 0.0, "macro_f1": 0.4305555555555556, "inference_latency_ms": 0.14240567277117475, "confusion_matrix": [[31, 0, 10], [0, 0, 0], [0, 0, 0]]}}\n{"experiment_id": "FINAL_HISTGBM_0.85", "decision": "PROMOTED_TO_CHAMPION", "test_metrics": {"dataset": "TEST", "samples": 2264, "benign_fpr": 0.0019230769230769232, "benign_to_suspicious_fpr": 0.0019230769230769232, "benign_to_malicious_fpr": 0.0, "malicious_recall": 0.8431876606683805, "malicious_precision": 0.9805680119581465, "macro_f1": 0.8072548836858906, "inference_latency_ms": 0.9371007499762222, "confusion_matrix": [[519, 1, 0], [13, 149, 26], [91, 153, 1312]]}, "ood_metrics": {"dataset": "OOD", "samples": 1132, "benign_fpr": 0.0, "benign_to_suspicious_fpr": 0.0, "benign_to_malicious_fpr": 0.0, "malicious_recall": 0.8375314861460957, "malicious_precision": 0.979381443298969, "macro_f1": 0.79006139258219, "inference_latency_ms": 0.07312815939158517, "confusion_matrix": [[255, 0, 0], [5, 64, 14], [48, 81, 665]]}, "hn_metrics": {"dataset": "HARD_NEGATIVES", "samples": 41, "benign_fpr": 0.24390243902439024, "benign_to_suspicious_fpr": 0.0, "benign_to_malicious_fpr": 0.24390243902439024, "malicious_recall": 0.0, "malicious_precision": 0.0, "macro_f1": 0.4305555555555556, "inference_latency_ms": 0.14240567277117475, "confusion_matrix": [[31, 0, 10], [0, 0, 0], [0, 0, 0]]}}\n{"experiment_id": "CHALLENGER_A_1x", "timestamp": "2026-08-27T03:20:40.593717+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8277634961439588, "test_f1": 0.7918714483903528, "ood_fpr": 0.0, "ood_recall": 0.801007556675063, "hn_fpr": 0.0, "hn_fp": 0, "size_kb": 1804.2451171875, "credential_recall": 0.6950477845351868}
+{"experiment_id": "CHALLENGER_B_3x", "timestamp": "2026-08-27T03:20:40.593860+00:00", "decision": "REJECTED", "threshold": 0.7, "test_fpr": 0.015384615384615385, "test_recall": 0.8624678663239075, "test_f1": 0.812551276656996, "ood_fpr": 0.00392156862745098, "ood_recall": 0.845088161209068, "hn_fpr": 0.0, "hn_fp": 0, "size_kb": 1749.275390625, "credential_recall": 0.733275412684622}
+{"experiment_id": "CHALLENGER_C_charngram", "timestamp": "2026-08-27T03:20:40.593923+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8541131105398457, "test_f1": 0.8130360732148197, "ood_fpr": 0.0, "ood_recall": 0.8337531486146096, "hn_fpr": 0.0, "hn_fp": 0, "size_kb": 1794.87890625, "credential_recall": null}
+{"experiment_id": "CHALLENGER_D_charngram_3x", "timestamp": "2026-08-27T03:20:40.593973+00:00", "decision": "PROMOTED", "threshold": 0.9, "test_fpr": 0.0, "test_recall": 0.8624678663239075, "test_f1": 0.8189166224754363, "ood_fpr": 0.0, "ood_recall": 0.8476070528967254, "hn_fpr": 0.0, "hn_fp": 0, "size_kb": 1717.0732421875, "credential_recall": null}
+{"experiment_id": "CHALLENGER_E", "round": 2, "timestamp": "2026-08-27T03:55:06.312139+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8284061696658098, "ood_fpr": 0.0, "ood_recall": 0.8173803526448362, "hn_fpr": 0.0, "credential_recall": 0.7089487402258905, "size_kb": 1647.6494140625}
+{"experiment_id": "CHALLENGER_F", "round": 2, "timestamp": "2026-08-27T03:55:06.312312+00:00", "decision": "REJECTED", "threshold": 0.85, "test_fpr": 0.0, "test_recall": 0.8868894601542416, "ood_fpr": 0.0, "ood_recall": 0.8916876574307305, "hn_fpr": 0.0, "credential_recall": 0.788010425716768, "size_kb": 1940.154296875}
+{"experiment_id": "CHALLENGER_G", "round": 2, "timestamp": "2026-08-27T03:55:06.312354+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8431876606683805, "ood_fpr": 0.0, "ood_recall": 0.8198992443324937, "hn_fpr": 0.0, "credential_recall": 0.7263249348392702, "size_kb": 1976.3896484375}
+{"experiment_id": "CHALLENGER_H", "round": 2, "timestamp": "2026-08-27T03:55:06.312379+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.846401028277635, "ood_fpr": 0.0, "ood_recall": 0.8425692695214105, "hn_fpr": 0.0, "credential_recall": 0.733275412684622, "size_kb": 1788.9931640625}
+{"experiment_id": "CHALLENGER_I", "round": 3, "timestamp": "2026-08-27T04:19:36.279388+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8406169665809768, "test_f1": 0.7980520552178975, "ood_fpr": 0.0, "ood_recall": 0.8375314861460957, "hn_fpr": 0.0, "hn_fp": 0, "credential_recall": 0.7302345786272806, "size_kb": 1734.71875}
+{"experiment_id": "CHALLENGER_J", "round": 3, "timestamp": "2026-08-27T04:19:36.279551+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8406169665809768, "test_f1": 0.7980520552178975, "ood_fpr": 0.0, "ood_recall": 0.8375314861460957, "hn_fpr": 0.0, "hn_fp": 0, "credential_recall": 0.7302345786272806, "size_kb": 1734.71875}
+{"experiment_id": "CHALLENGER_K", "round": 3, "timestamp": "2026-08-27T04:19:36.279622+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8341902313624678, "test_f1": 0.7951104847749142, "ood_fpr": 0.0, "ood_recall": 0.8324937027707808, "hn_fpr": 0.0, "hn_fp": 0, "credential_recall": 0.7276281494352737, "size_kb": 1657.1083984375}
+{"experiment_id": "CHALLENGER_L", "round": 3, "timestamp": "2026-08-27T04:19:36.279679+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8367609254498715, "test_f1": 0.8009800652392846, "ood_fpr": 0.0, "ood_recall": 0.8060453400503779, "hn_fpr": 0.0, "hn_fp": 0, "credential_recall": 0.7189400521285838, "size_kb": 2445.1923828125}
+{"experiment_id": "CHALLENGER_M", "round": 3, "timestamp": "2026-08-27T04:19:36.279728+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8367609254498715, "test_f1": 0.8009800652392846, "ood_fpr": 0.0, "ood_recall": 0.8060453400503779, "hn_fpr": 0.0, "hn_fp": 0, "credential_recall": 0.7189400521285838, "size_kb": 2445.1923828125}
+{"experiment_id": "CHALLENGER_N_enhanced", "round": 4, "timestamp": "2026-08-27T08:42:01.163585+00:00", "threshold": 0.95, "enhanced_features": true, "size_kb": 1803.185546875, "credential_recall": 0.7324066029539531, "hn_fp": 0}
+{"experiment_id": "CHALLENGER_O_targeted", "round": 4, "timestamp": "2026-08-27T08:42:09.682768+00:00", "threshold": 0.95, "enhanced_features": true, "size_kb": 1822.6103515625, "credential_recall": 0.7454387489139879, "hn_fp": 0}
+{"experiment_id": "CHALLENGER_P", "round": 5, "timestamp": "2026-08-27T09:14:50.219265+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8534704370179949, "test_f1": 0.8134213880013591, "ood_fpr": 0.0, "ood_recall": 0.8312342569269522, "hn_fp": 0, "credential_recall": 0.7402258905299739, "size_kb": 1782.1630859375, "all_gates_pass": false}
+{"experiment_id": "CHALLENGER_Q", "round": 5, "timestamp": "2026-08-27T09:14:50.219406+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8386889460154242, "test_f1": 0.798538325926997, "ood_fpr": 0.0, "ood_recall": 0.8148614609571788, "hn_fp": 0, "credential_recall": 0.7245873153779322, "size_kb": 1683.01953125, "all_gates_pass": false}
+{"experiment_id": "CHALLENGER_R", "round": 5, "timestamp": "2026-08-27T09:14:50.219460+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8451156812339332, "test_f1": 0.8089650159460978, "ood_fpr": 0.0, "ood_recall": 0.8249370277078085, "hn_fp": 0, "credential_recall": 0.7263249348392702, "size_kb": 1710.5, "all_gates_pass": false}
+{"experiment_id": "CHALLENGER_S", "round": 5, "timestamp": "2026-08-27T09:14:50.219498+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8483290488431876, "test_f1": 0.8110219422879622, "ood_fpr": 0.0, "ood_recall": 0.8375314861460957, "hn_fp": 0, "credential_recall": 0.7406602953953084, "size_kb": 1745.25390625, "all_gates_pass": false}
+{"experiment_id": "CHALLENGER_T", "round": 5, "timestamp": "2026-08-27T09:14:50.219531+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8508997429305912, "test_f1": 0.8099194303140594, "ood_fpr": 0.0, "ood_recall": 0.8350125944584383, "hn_fp": 0, "credential_recall": 0.7463075586446568, "size_kb": 1916.0048828125, "all_gates_pass": false}
+{"experiment_id": "CHALLENGER_U", "round": 5, "timestamp": "2026-08-27T09:14:50.219562+00:00", "decision": "REJECTED", "threshold": 0.95, "test_fpr": 0.0, "test_recall": 0.8386889460154242, "test_f1": 0.798538325926997, "ood_fpr": 0.0, "ood_recall": 0.8148614609571788, "hn_fp": 0, "credential_recall": 0.7245873153779322, "size_kb": 1683.01953125, "all_gates_pass": false}
+{"experiment_id": "V_sub_sw3_char", "round": 6, "timestamp": "2026-08-27T09:42:39.823487+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.9046142700614228, "test_fpr": 0.0, "test_recall": 0.8502570694087404, "ood_fpr": 0.0, "ood_recall": 0.8299748110831234, "hn_fp": 0, "credential_recall": 0.7341442224152911, "size_kb": 1836.671875, "all_gates_pass": false}
+{"experiment_id": "W_sub_sw5_char", "round": 6, "timestamp": "2026-08-27T09:42:39.823629+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.8573001258059627, "test_fpr": 0.0, "test_recall": 0.8521850899742931, "ood_fpr": 0.0, "ood_recall": 0.8488664987405542, "hn_fp": 0, "credential_recall": 0.7437011294526499, "size_kb": 1855.955078125, "all_gates_pass": false}
+{"experiment_id": "X_sub_sw5_word", "round": 6, "timestamp": "2026-08-27T09:42:39.823703+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.6942843264849687, "test_fpr": 0.0, "test_recall": 0.8380462724935732, "ood_fpr": 0.0, "ood_recall": 0.8022670025188917, "hn_fp": 0, "credential_recall": 0.7124239791485665, "size_kb": 1850.419921875, "all_gates_pass": false}
+{"experiment_id": "Y_sub_sw3_word", "round": 6, "timestamp": "2026-08-27T09:42:39.823753+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.6934399936094303, "test_fpr": 0.0, "test_recall": 0.8393316195372751, "ood_fpr": 0.0, "ood_recall": 0.809823677581864, "hn_fp": 0, "credential_recall": 0.7037358818418766, "size_kb": 1846.2041015625, "all_gates_pass": false}
+{"experiment_id": "Z_nosub_sw5_word", "round": 6, "timestamp": "2026-08-27T09:42:39.823797+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.8444438791356752, "test_fpr": 0.0, "test_recall": 0.8264781491002571, "ood_fpr": 0.0, "ood_recall": 0.8047858942065491, "hn_fp": 0, "credential_recall": 0.6954821894005213, "size_kb": 1743.3369140625, "all_gates_pass": false}
+{"experiment_id": "AA_nosub_sw5_char", "round": 6, "timestamp": "2026-08-27T09:42:39.823838+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.9168894151329465, "test_fpr": 0.0, "test_recall": 0.8637532133676092, "ood_fpr": 0.0, "ood_recall": 0.8400503778337531, "hn_fp": 0, "credential_recall": 0.7463075586446568, "size_kb": 1914.2509765625, "all_gates_pass": false}
+{"experiment_id": "BB_nosub_sw3_word", "round": 6, "timestamp": "2026-08-27T09:42:39.823876+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.6757394037973088, "test_fpr": 0.0, "test_recall": 0.8425449871465296, "ood_fpr": 0.0, "ood_recall": 0.818639798488665, "hn_fp": 0, "credential_recall": 0.7167680278019114, "size_kb": 1896.3017578125, "all_gates_pass": false}
+{"experiment_id": "CC_nosub_sw5_w2k", "round": 6, "timestamp": "2026-08-27T09:42:39.823913+00:00", "decision": "REJECTED", "threshold": 0.95, "msedcl_p": 0.706480338786996, "test_fpr": 0.0, "test_recall": 0.8097686375321337, "ood_fpr": 0.0, "ood_recall": 0.7682619647355163, "hn_fp": 0, "credential_recall": 0.6711555169417898, "size_kb": 1721.7470703125, "all_gates_pass": false}
+{"experiment_id": "F_exact", "round": 7, "timestamp": "2026-08-27T10:48:50.609925+00:00", "msedcl_p": 0.8220908661852151, "hn_max_p": 0.8220908661852151, "credential_recall": 0.7919200695047784, "all_gates_pass": false, "threshold": 0.823}
+{"experiment_id": "F_sw1.5_char", "round": 7, "timestamp": "2026-08-27T10:48:50.610006+00:00", "msedcl_p": 0.8669223153135521, "hn_max_p": 0.8669223153135521, "credential_recall": 0.7536924413553432, "all_gates_pass": false, "threshold": 0.867}
+{"experiment_id": "F_sw2.0_char", "round": 7, "timestamp": "2026-08-27T10:48:50.610034+00:00", "msedcl_p": 0.9045984187101566, "hn_max_p": 0.9045984187101566, "credential_recall": 0.758905299739357, "all_gates_pass": false, "threshold": 0.905}
+{"experiment_id": "F_sw1.5_word", "round": 7, "timestamp": "2026-08-27T10:48:50.610052+00:00", "msedcl_p": 0.6269166226417733, "hn_max_p": 0.6269166226417733, "credential_recall": 0.735881841876629, "all_gates_pass": false, "threshold": 0.627}
+{"experiment_id": "F_sw2.5_char", "round": 7, "timestamp": "2026-08-27T10:48:50.610066+00:00", "msedcl_p": 0.9005390897290105, "hn_max_p": 0.9005390897290105, "credential_recall": 0.7497827975673328, "all_gates_pass": false, "threshold": 0.901}
+{"experiment_id": "F_sw2.0_word", "round": 7, "timestamp": "2026-08-27T10:48:50.610079+00:00", "msedcl_p": 0.8133647050794512, "hn_max_p": 0.8133647050794512, "credential_recall": 0.7306689834926151, "all_gates_pass": false, "threshold": 0.814}
+{"experiment_id": "s22", "round": 9, "timestamp": "2026-08-27T14:59:42.925662+00:00", "msedcl_p": 0.7037477561891178, "hn_max_p": 0.7037477561891178, "credential_recall": 0.8058210251954822, "all_gates_pass": true, "threshold": 0.704, "seed": 22, "l2": 0.0}
+{"experiment_id": "s15", "round": 9, "timestamp": "2026-08-27T14:59:42.926609+00:00", "msedcl_p": 0.6849133804112384, "hn_max_p": 0.7292703577346366, "credential_recall": 0.792354474370113, "all_gates_pass": false, "threshold": 0.73, "seed": 15, "l2": 0.0}
+{"experiment_id": "s6", "round": 9, "timestamp": "2026-08-27T14:59:42.926701+00:00", "msedcl_p": 0.9067384422877056, "hn_max_p": 0.9067384422877056, "credential_recall": 0.7793223284100782, "all_gates_pass": false, "threshold": 0.907, "seed": 6, "l2": 0.0}
+{"experiment_id": "s4", "round": 9, "timestamp": "2026-08-27T14:59:42.926747+00:00", "msedcl_p": 0.8597751261923008, "hn_max_p": 0.8597751261923008, "credential_recall": 0.7736750651607298, "all_gates_pass": false, "threshold": 0.86, "seed": 4, "l2": 0.0}
+{"experiment_id": "s21", "round": 9, "timestamp": "2026-08-27T14:59:42.926799+00:00", "msedcl_p": 0.8448784106672134, "hn_max_p": 0.8448784106672134, "credential_recall": 0.7728062554300608, "all_gates_pass": false, "threshold": 0.845, "seed": 21, "l2": 0.0}
+{"experiment_id": "s17", "round": 9, "timestamp": "2026-08-27T14:59:42.926835+00:00", "msedcl_p": 0.8774164552639601, "hn_max_p": 0.8774164552639601, "credential_recall": 0.7688966116420504, "all_gates_pass": false, "threshold": 0.878, "seed": 17, "l2": 0.0}
+{"experiment_id": "s20", "round": 9, "timestamp": "2026-08-27T14:59:42.926865+00:00", "msedcl_p": 0.9396948244996615, "hn_max_p": 0.9396948244996615, "credential_recall": 0.7658557775847089, "all_gates_pass": false, "threshold": 0.94, "seed": 20, "l2": 0.0}
+{"experiment_id": "s10", "round": 9, "timestamp": "2026-08-27T14:59:42.926896+00:00", "msedcl_p": 0.8446542897133309, "hn_max_p": 0.8446542897133309, "credential_recall": 0.7654213727193745, "all_gates_pass": false, "threshold": 0.845, "seed": 10, "l2": 0.0}
+{"experiment_id": "s2", "round": 9, "timestamp": "2026-08-27T14:59:42.926923+00:00", "msedcl_p": 0.9309442705585587, "hn_max_p": 0.9309442705585587, "credential_recall": 0.76498696785404, "all_gates_pass": false, "threshold": 0.931, "seed": 2, "l2": 0.0}
+{"experiment_id": "s11", "round": 9, "timestamp": "2026-08-27T14:59:42.926953+00:00", "msedcl_p": 0.8329269611878616, "hn_max_p": 0.8329269611878616, "credential_recall": 0.7636837532580365, "all_gates_pass": false, "threshold": 0.833, "seed": 11, "l2": 0.0}
+{"experiment_id": "s18", "round": 9, "timestamp": "2026-08-27T14:59:42.926979+00:00", "msedcl_p": 0.8560947131576673, "hn_max_p": 0.8560947131576673, "credential_recall": 0.7628149435273676, "all_gates_pass": false, "threshold": 0.857, "seed": 18, "l2": 0.0}
+{"experiment_id": "s3", "round": 9, "timestamp": "2026-08-27T14:59:42.927011+00:00", "msedcl_p": 0.9295527253899961, "hn_max_p": 0.9295527253899961, "credential_recall": 0.761511728931364, "all_gates_pass": false, "threshold": 0.93, "seed": 3, "l2": 0.0}
+{"experiment_id": "s19", "round": 9, "timestamp": "2026-08-27T14:59:42.927044+00:00", "msedcl_p": 0.8288622683683698, "hn_max_p": 0.8288622683683698, "credential_recall": 0.7602085143353605, "all_gates_pass": false, "threshold": 0.829, "seed": 19, "l2": 0.0}
+{"experiment_id": "s14", "round": 9, "timestamp": "2026-08-27T14:59:42.927074+00:00", "msedcl_p": 0.8632881494170087, "hn_max_p": 0.8632881494170087, "credential_recall": 0.7554300608166812, "all_gates_pass": false, "threshold": 0.864, "seed": 14, "l2": 0.0}
+{"experiment_id": "s9", "round": 9, "timestamp": "2026-08-27T14:59:42.927102+00:00", "msedcl_p": 0.9264728884735787, "hn_max_p": 0.9264728884735787, "credential_recall": 0.7519548218940052, "all_gates_pass": false, "threshold": 0.927, "seed": 9, "l2": 0.0}
+{"experiment_id": "s5", "round": 9, "timestamp": "2026-08-27T14:59:42.927131+00:00", "msedcl_p": 0.8792343392451617, "hn_max_p": 0.8792343392451617, "credential_recall": 0.7489139878366637, "all_gates_pass": false, "threshold": 0.88, "seed": 5, "l2": 0.0}
+{"experiment_id": "s8", "round": 9, "timestamp": "2026-08-27T14:59:42.927162+00:00", "msedcl_p": 0.9253990882379963, "hn_max_p": 0.9253990882379963, "credential_recall": 0.7345786272806255, "all_gates_pass": false, "threshold": 0.926, "seed": 8, "l2": 0.0}
+{"experiment_id": "s16", "round": 9, "timestamp": "2026-08-27T14:59:42.927192+00:00", "msedcl_p": 0.8843210497578943, "hn_max_p": 0.8843210497578943, "credential_recall": 0.7345786272806255, "all_gates_pass": false, "threshold": 0.885, "seed": 16, "l2": 0.0}
+{"experiment_id": "s12", "round": 9, "timestamp": "2026-08-27T14:59:42.927225+00:00", "msedcl_p": 0.9719151175172736, "hn_max_p": 0.9719151175172736, "credential_recall": 0.7337098175499566, "all_gates_pass": false, "threshold": 0.972, "seed": 12, "l2": 0.0}
+{"experiment_id": "CREDENTIAL_AUDIT_F_EXACT", "round": 10, "timestamp": "2026-08-28T00:00:00+05:30", "dataset": "val.jsonl + test.jsonl + ood.jsonl; labels unchanged", "training_data": "train_expanded_v5.jsonl", "feature_configuration": "word_tfidf_1500 + char_tfidf_500 + 70 deterministic", "architecture": "HistGradientBoostingClassifier", "hyperparameters": {"max_depth": 7, "max_iter": 300, "random_state": 42, "class_weight": "balanced"}, "threshold": 0.823, "threshold_selection_policy": "prior VAL/HN-safe sweep; TEST/OOD not used for selection", "credential_population": 2302, "credential_recall_original_labels": 0.7919200695047784, "audit_verdict_counts": {"VERIFIED_MALICIOUS": 27, "SUSPICIOUS": 602, "BENIGN": 0, "ANTI_PHISHING": 17, "AMBIGUOUS": 1656}, "verified_malicious_misses": 0, "duplicate_groups": 41, "result": "FAIL", "reason_for_failure": "Nominal credential gate remains below 0.80 and population requires independent annotation review", "retain_as_baseline": true, "challenger_trained": false}

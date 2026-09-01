@@ -1,0 +1,831 @@
+{
+  "audit_timestamp": "2026-08-26T12:47:44.430513+00:00",
+  "champion_freeze": {
+    "freeze_timestamp": "2026-08-26T12:46:19.067459+00:00",
+    "model_artifact": {
+      "path": "C:\\Users\\user\\Programing files\\Yajat\\Projects\\sentinel-ml\\Messages-ml\\champion_model.pkl",
+      "size_bytes": 1540923,
+      "sha256": "d329e3e3c87e9beaa15a2c19b2acb1e1c7e78fd659ead64ae14b3b5f418fdeff"
+    },
+    "tfidf_artifact": {
+      "path": "C:\\Users\\user\\Programing files\\Yajat\\Projects\\sentinel-ml\\Messages-ml\\champion_tfidf.pkl",
+      "size_bytes": 78323,
+      "sha256": "ce023e6aeafd5d9196a6574512b65a34994631d65df6a0956c8d8af331b9e6a8"
+    },
+    "scaler_artifact": {
+      "path": "C:\\Users\\user\\Programing files\\Yajat\\Projects\\sentinel-ml\\Messages-ml\\champion_scaler.pkl",
+      "size_bytes": 50092,
+      "sha256": "cfe11482591c465a9c496658e7542461e55044c0051dfcdfb30ad3e12d4b1520"
+    },
+    "feature_configuration": {
+      "version": "1.0.0",
+      "active_groups": [
+        "STRUCTURAL",
+        "URGENCY",
+        "FEAR_THREAT",
+        "AUTH",
+        "OTP_INTENT",
+        "FINANCIAL",
+        "CTA",
+        "SENDER",
+        "LEGIT_INTENT"
+      ],
+      "ngram_hash_bins": 16,
+      "hash_seed": 42
+    },
+    "feature_names": [
+      "account_blocked_signal",
+      "avg_word_length",
+      "balance_keyword_present",
+      "banking_x_disclosure",
+      "currency_amount_present",
+      "deadline_word_count",
+      "debit_credit_count",
+      "delivery_otp_context",
+      "digit_count",
+      "digit_ratio",
+      "disconnection_signal",
+      "fear_x_cta",
+      "financial_x_credential",
+      "has_apk_reference",
+      "has_homoglyphs",
+      "has_legit_institution",
+      "has_legit_notice",
+      "has_raw_ip_url",
+      "has_shortener_url",
+      "has_time_limit_pattern",
+      "high_pressure_score",
+      "institutional_x_url",
+      "is_mixed_script",
+      "kyc_pan_signal",
+      "kyc_x_sender",
+      "legal_action_signal",
+      "legit_context_score",
+      "legit_institution_keyword_count",
+      "legit_notice_keyword_count",
+      "masked_account_present",
+      "message_length",
+      "newline_count",
+      "numeric_code_length",
+      "numeric_code_present",
+      "otp_disclosure_request",
+      "otp_generic_present",
+      "otp_intent_risk_score",
+      "otp_negation_warning",
+      "otp_present",
+      "otp_x_protective",
+      "password_present",
+      "penalty_signal",
+      "phone_number_count",
+      "pin_present",
+      "prize_lure_count",
+      "sender_has_bank_match",
+      "sender_is_alphanumeric",
+      "sender_is_dlt_shape",
+      "sender_is_phone_number",
+      "sender_is_shortcode",
+      "sender_phone_with_banking_body",
+      "special_char_count",
+      "special_char_ratio",
+      "suspension_x_protective",
+      "total_fear_signals_count",
+      "unauthorized_activity_signal",
+      "upi_collect_keyword_present",
+      "upi_vpa_count",
+      "uppercase_count",
+      "uppercase_ratio",
+      "urgency_word_count",
+      "urgency_x_credential",
+      "urgency_x_legit_intent",
+      "url_count",
+      "url_x_cta",
+      "url_x_sender",
+      "whatsapp_cta_present",
+      "whitespace_count",
+      "word_count",
+      "zero_width_count"
+    ],
+    "num_deterministic_features": 70,
+    "tfidf_configuration": {
+      "max_features": 2000,
+      "stop_words": "english",
+      "ngram_range": [
+        1,
+        2
+      ],
+      "vocabulary_size": 2000
+    },
+    "histgbm_configuration": {
+      "class": "sklearn.ensemble.HistGradientBoostingClassifier",
+      "random_state": 42,
+      "max_depth": 5,
+      "max_iter": 200,
+      "class_weight": "balanced",
+      "n_iter_": 158,
+      "classes_": [
+        0,
+        1,
+        2
+      ]
+    },
+    "preprocessing": {
+      "scaler_class": "sklearn.preprocessing.StandardScaler",
+      "feature_order": "hstack(deterministic, tfidf)",
+      "total_features": 2070
+    },
+    "training_dataset": "train_expanded_v2.jsonl",
+    "threshold": 0.85,
+    "threshold_type": "non_benign_combined_probability",
+    "threshold_formula": "pred = NON_BENIGN if P(SUSPICIOUS) + P(MALICIOUS) >= 0.85 else BENIGN"
+  },
+  "dataset_integrity": {
+    "split_counts": {
+      "train": {
+        "total_records": 15855,
+        "label_distribution": {
+          "MALICIOUS": 10972,
+          "BENIGN": 3714,
+          "SUSPICIOUS_SPAM": 1169
+        },
+        "source_distribution": {
+          "SRC_IMC25_FISHING_SMISHING": 11343,
+          "SRC_MENDELEY_SMISHING_2022": 4095,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 230,
+          "SRC_UCI_SMS_SPAM_2011": 187
+        }
+      },
+      "train_contrastive": {
+        "total_records": 16215,
+        "label_distribution": {
+          "MALICIOUS": 11152,
+          "BENIGN": 3894,
+          "SUSPICIOUS_SPAM": 1169
+        },
+        "source_distribution": {
+          "SRC_IMC25_FISHING_SMISHING": 11343,
+          "SRC_MENDELEY_SMISHING_2022": 4095,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 230,
+          "SRC_UCI_SMS_SPAM_2011": 187,
+          "SRC_CONTRASTIVE_PAIRS_V1": 360
+        }
+      },
+      "train_expanded_v2": {
+        "total_records": 16935,
+        "label_distribution": {
+          "MALICIOUS": 11512,
+          "BENIGN": 4254,
+          "SUSPICIOUS_SPAM": 1169
+        },
+        "source_distribution": {
+          "SRC_IMC25_FISHING_SMISHING": 11343,
+          "SRC_MENDELEY_SMISHING_2022": 4095,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 230,
+          "SRC_UCI_SMS_SPAM_2011": 187,
+          "SRC_CONTRASTIVE_PAIRS_V1": 360,
+          "SRC_ERROR_DRIVEN_EXPANSION_V1": 720
+        }
+      },
+      "val": {
+        "total_records": 3397,
+        "label_distribution": {
+          "BENIGN": 807,
+          "MALICIOUS": 2316,
+          "SUSPICIOUS_SPAM": 274
+        },
+        "source_distribution": {
+          "SRC_MENDELEY_SMISHING_2022": 894,
+          "SRC_IMC25_FISHING_SMISHING": 2396,
+          "SRC_UCI_SMS_SPAM_2011": 43,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 64
+        }
+      },
+      "test": {
+        "total_records": 2264,
+        "label_distribution": {
+          "BENIGN": 520,
+          "MALICIOUS": 1556,
+          "SUSPICIOUS_SPAM": 188
+        },
+        "source_distribution": {
+          "SRC_MENDELEY_SMISHING_2022": 568,
+          "SRC_IMC25_FISHING_SMISHING": 1649,
+          "SRC_UCI_SMS_SPAM_2011": 27,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 20
+        }
+      },
+      "ood": {
+        "total_records": 1132,
+        "label_distribution": {
+          "MALICIOUS": 794,
+          "BENIGN": 255,
+          "SUSPICIOUS_SPAM": 83
+        },
+        "source_distribution": {
+          "SRC_IMC25_FISHING_SMISHING": 818,
+          "SRC_MENDELEY_SMISHING_2022": 274,
+          "SRC_UCI_SMS_SPAM_2011": 17,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 23
+        }
+      },
+      "train_expanded_v3": {
+        "total_records": 16725,
+        "label_distribution": {
+          "MALICIOUS": 11247,
+          "BENIGN": 4309,
+          "SUSPICIOUS_SPAM": 1169
+        },
+        "source_distribution": {
+          "SRC_IMC25_FISHING_SMISHING": 11343,
+          "SRC_MENDELEY_SMISHING_2022": 4095,
+          "SRC_CURATED_HARD_NEGATIVES_V1": 230,
+          "SRC_UCI_SMS_SPAM_2011": 187,
+          "SRC_SYNTHETIC_HARD_NEGATIVES_V2": 320,
+          "SRC_ADV_PAIR_LEGIT": 275,
+          "SRC_ADV_PAIR_MALICIOUS": 275
+        }
+      }
+    },
+    "overlap_checks": {
+      "train_vs_val": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      },
+      "train_vs_test": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      },
+      "train_vs_ood": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      },
+      "val_vs_test": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      },
+      "val_vs_ood": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      },
+      "test_vs_ood": {
+        "exact_text_overlap": 0,
+        "normalized_text_overlap": 0,
+        "message_id_overlap": 0,
+        "template_cluster_overlap": 0
+      }
+    },
+    "contamination_checks": {
+      "test": {
+        "synthetic_source_id_count": 0,
+        "synthetic_source_type_count": 0,
+        "status": "CLEAN"
+      },
+      "ood": {
+        "synthetic_source_id_count": 0,
+        "synthetic_source_type_count": 0,
+        "status": "CLEAN"
+      },
+      "val": {
+        "synthetic_source_type_count": 0,
+        "status": "CLEAN"
+      }
+    },
+    "training_data_lineage": {
+      "train_texts_not_in_contrastive": 0,
+      "contrastive_texts_not_in_expanded_v2": 0,
+      "expanded_v2_unique_texts": 36,
+      "lineage_valid": true
+    },
+    "eval_data_in_training": {
+      "test_texts_in_train_expanded_v2": 0,
+      "ood_texts_in_train_expanded_v2": 0,
+      "val_texts_in_train_expanded_v2": 0,
+      "status": "CLEAN"
+    }
+  },
+  "preprocessing_leakage": {
+    "tfidf_fit": {
+      "code_path": "evaluate_histgbm.py:97 - tfidf.fit_transform(train_texts)",
+      "vocabulary_size": 2000,
+      "assessment": "PASS - Code shows fit_transform called on train_texts only. transform() used for val/test/ood."
+    },
+    "scaler_fit": {
+      "code_path": "evaluate_histgbm.py:103-104 - scaler.fit_transform(X_tr)",
+      "n_features_seen": 2070,
+      "assessment": "PASS - Code shows fit_transform called on X_tr only. transform() used for val/test/ood."
+    },
+    "threshold_selection": {
+      "training_script_threshold": 0.75,
+      "final_eval_threshold": 0.85,
+      "champion_config_threshold": 0.85,
+      "discrepancy": "YES - evaluate_histgbm.py saved champion with t=0.75, but final_eval.py uses t=0.85",
+      "assessment": "CONCERN - Cannot verify from artifacts alone whether 0.85 was selected using VAL, TEST, or OOD. The previous conversation context shows threshold sweeps were run on VAL within train_tfidf_mlp.py, but the specific selection of 0.85 vs 0.80 vs 0.90 is not documented in the code.",
+      "recommendation": "DOCUMENT_THRESHOLD_SELECTION_METHODOLOGY"
+    },
+    "calibration": {
+      "calibration_used": false,
+      "assessment": "PASS - No calibration layer applied."
+    },
+    "model_fit": {
+      "code_path": "evaluate_histgbm.py:107-108 - clf.fit(X_tr, y_tr)",
+      "training_data": "train_expanded_v2.jsonl",
+      "assessment": "PASS - Model fitted on training data only."
+    }
+  },
+  "reproduction": {
+    "val": {
+      "benign_fpr": 0.01734820322180917,
+      "benign_fpr_fraction": "14/807",
+      "malicious_recall": 0.8117443868739206,
+      "malicious_recall_fraction": "1880/2316",
+      "macro_f1": 0.7797022346615886,
+      "confusion_matrix": [
+        [
+          793,
+          4,
+          10
+        ],
+        [
+          14,
+          216,
+          44
+        ],
+        [
+          157,
+          279,
+          1880
+        ]
+      ]
+    },
+    "test": {
+      "benign_fpr": 0.0019230769230769232,
+      "benign_fpr_fraction": "1/520",
+      "malicious_recall": 0.8431876606683805,
+      "malicious_recall_fraction": "1312/1556",
+      "macro_f1": 0.8072548836858906,
+      "confusion_matrix": [
+        [
+          519,
+          1,
+          0
+        ],
+        [
+          13,
+          149,
+          26
+        ],
+        [
+          91,
+          153,
+          1312
+        ]
+      ]
+    },
+    "ood": {
+      "benign_fpr": 0.0,
+      "benign_fpr_fraction": "0/255",
+      "malicious_recall": 0.8375314861460957,
+      "malicious_recall_fraction": "665/794",
+      "macro_f1": 0.79006139258219,
+      "confusion_matrix": [
+        [
+          255,
+          0,
+          0
+        ],
+        [
+          5,
+          64,
+          14
+        ],
+        [
+          48,
+          81,
+          665
+        ]
+      ]
+    }
+  },
+  "frozen_evaluation": {
+    "val": {
+      "samples": 3397,
+      "confusion_matrix": [
+        [
+          793,
+          4,
+          10
+        ],
+        [
+          14,
+          216,
+          44
+        ],
+        [
+          157,
+          279,
+          1880
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "BENIGN",
+        "SUSPICIOUS_SPAM",
+        "MALICIOUS"
+      ],
+      "benign_to_suspicious_fpr": "4/807 = 0.004957",
+      "benign_to_malicious_fpr": "10/807 = 0.012392",
+      "benign_any_non_benign_fpr": "14/807 = 0.017348",
+      "malicious_recall": "1880/2316 = 0.811744",
+      "malicious_precision": "1880/1934 = 0.972079",
+      "macro_f1": 0.7797022346615886,
+      "accuracy": "2889/3397 = 0.850456"
+    },
+    "test": {
+      "samples": 2264,
+      "confusion_matrix": [
+        [
+          519,
+          1,
+          0
+        ],
+        [
+          13,
+          149,
+          26
+        ],
+        [
+          91,
+          153,
+          1312
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "BENIGN",
+        "SUSPICIOUS_SPAM",
+        "MALICIOUS"
+      ],
+      "benign_to_suspicious_fpr": "1/520 = 0.001923",
+      "benign_to_malicious_fpr": "0/520 = 0.000000",
+      "benign_any_non_benign_fpr": "1/520 = 0.001923",
+      "malicious_recall": "1312/1556 = 0.843188",
+      "malicious_precision": "1312/1338 = 0.980568",
+      "macro_f1": 0.8072548836858906,
+      "accuracy": "1980/2264 = 0.874558"
+    },
+    "ood": {
+      "samples": 1132,
+      "confusion_matrix": [
+        [
+          255,
+          0,
+          0
+        ],
+        [
+          5,
+          64,
+          14
+        ],
+        [
+          48,
+          81,
+          665
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "BENIGN",
+        "SUSPICIOUS_SPAM",
+        "MALICIOUS"
+      ],
+      "benign_to_suspicious_fpr": "0/255 = 0.000000",
+      "benign_to_malicious_fpr": "0/255 = 0.000000",
+      "benign_any_non_benign_fpr": "0/255 = 0.000000",
+      "malicious_recall": "665/794 = 0.837531",
+      "malicious_precision": "665/679 = 0.979381",
+      "macro_f1": 0.79006139258219,
+      "accuracy": "984/1132 = 0.869258"
+    }
+  },
+  "hard_negative_metrics": {
+    "total_hard_negative_benign_records": 41,
+    "original_label_fpr": {
+      "false_positives": 10,
+      "denominator": 41,
+      "fpr": "10/41 = 0.2439"
+    },
+    "verified_benign_fpr": {
+      "verified_benign_count": 16,
+      "false_positives_among_verified_benign": 10,
+      "denominator": 16,
+      "fpr": "10/16 = 0.6250"
+    },
+    "conservative_fpr": {
+      "conservative_benign_count": 41,
+      "false_positives_among_conservative": 10,
+      "denominator": 41,
+      "fpr": "10/41 = 0.2439"
+    },
+    "adjudication_summary": {
+      "VERIFIED_BENIGN": 16,
+      "VERIFIED_MALICIOUS": 0,
+      "AMBIGUOUS": 0,
+      "INSUFFICIENT_EVIDENCE": 25
+    }
+  },
+  "hard_negative_taxonomy": {
+    "LEGIT_AUTHENTICATION": {
+      "total": 5,
+      "verified_benign": 5,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 0,
+      "false_positives": 0,
+      "original_fpr": "0/5"
+    },
+    "LEGIT_DELIVERY": {
+      "total": 10,
+      "verified_benign": 0,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 10,
+      "false_positives": 0,
+      "original_fpr": "0/10"
+    },
+    "LEGIT_ELECTRICITY": {
+      "total": 15,
+      "verified_benign": 10,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 5,
+      "false_positives": 10,
+      "original_fpr": "10/15"
+    },
+    "LEGIT_JOB_OFFER": {
+      "total": 1,
+      "verified_benign": 1,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 0,
+      "false_positives": 0,
+      "original_fpr": "0/1"
+    },
+    "LEGIT_KYC": {
+      "total": 10,
+      "verified_benign": 0,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 10,
+      "false_positives": 0,
+      "original_fpr": "0/10"
+    }
+  },
+  "hard_negative_label_corrections": [],
+  "adversarial": {
+    "error": "No module named 'model_training'"
+  },
+  "source_holdout": {
+    "SRC_IMC25_FISHING_SMISHING": {
+      "N": 4863,
+      "benign_count": 0,
+      "malicious_count": 4481,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "3763/4481 = 0.8398",
+      "macro_f1": 0.47473458162753834,
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          21,
+          286,
+          75
+        ],
+        [
+          285,
+          433,
+          3763
+        ]
+      ]
+    },
+    "SRC_MENDELEY_SMISHING_2022": {
+      "N": 1736,
+      "benign_count": 1442,
+      "malicious_count": 150,
+      "benign_fpr": "4/1442 = 0.0028",
+      "malicious_recall": "60/150 = 0.4000",
+      "macro_f1": 0.7498515867261529,
+      "confusion_matrix": [
+        [
+          1438,
+          4,
+          0
+        ],
+        [
+          10,
+          125,
+          9
+        ],
+        [
+          11,
+          79,
+          60
+        ]
+      ]
+    },
+    "SRC_CURATED_HARD_NEGATIVES_V1": {
+      "N": 107,
+      "benign_count": 72,
+      "malicious_count": 35,
+      "benign_fpr": "10/72 = 0.1389",
+      "malicious_recall": "34/35 = 0.9714",
+      "macro_f1": 0.5953775426664148,
+      "confusion_matrix": [
+        [
+          62,
+          0,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          34
+        ]
+      ]
+    },
+    "SRC_UCI_SMS_SPAM_2011": {
+      "N": 87,
+      "benign_count": 68,
+      "malicious_count": 0,
+      "benign_fpr": "1/68 = 0.0147",
+      "malicious_recall": "0/1 = 0.0000",
+      "macro_f1": 0.9663312693498451,
+      "confusion_matrix": [
+        [
+          67,
+          1,
+          0
+        ],
+        [
+          1,
+          18,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "language": {
+    "en": {
+      "N": 6764,
+      "benign_fpr": "15/1576 = 0.0095",
+      "malicious_recall": "3842/4645 = 0.8271",
+      "status": "EVALUATED"
+    },
+    "hinglish": {
+      "N": 24,
+      "status": "INSUFFICIENT_SAMPLE_SIZE"
+    },
+    "UNKNOWN": {
+      "N": 5,
+      "status": "INSUFFICIENT_SAMPLE_SIZE"
+    }
+  },
+  "sender": {
+    "UNKNOWN": {
+      "N": 6624,
+      "benign_fpr": "15/1531 = 0.0098",
+      "malicious_recall": "3757/4558 = 0.8243"
+    },
+    "ALPHANUMERIC_HEADER": {
+      "N": 134,
+      "benign_fpr": "0/51 = 0.0000",
+      "malicious_recall": "66/73 = 0.9041"
+    },
+    "PHONE_NUMBER": {
+      "N": 35,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "34/35 = 0.9714"
+    }
+  },
+  "threat_vectors": {
+    "CREDENTIAL_REQUEST": {
+      "N": 2302,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "1626/2302 = 0.7063"
+    },
+    "BANK_KYC_SUSPENSION": {
+      "N": 1948,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "1855/1948 = 0.9523"
+    },
+    "NONE": {
+      "N": 1582,
+      "benign_fpr": "15/1582 = 0.0095",
+      "malicious_recall": "0/1 = 0.0000"
+    },
+    "COMMERCIAL_SPAM": {
+      "N": 545,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "0/1 = 0.0000"
+    },
+    "DELIVERY_SCAM": {
+      "N": 393,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "354/393 = 0.9008"
+    },
+    "APK_MALWARE_DROPPER": {
+      "N": 61,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "50/54 = 0.9259"
+    },
+    "OTP_DISCLOSURE_REQUEST": {
+      "N": 20,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "20/20 = 1.0000"
+    },
+    "ELECTRICITY_DISCONNECTION_SCAM": {
+      "N": 11,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "11/11 = 1.0000"
+    },
+    "PAYMENT_SCAM": {
+      "N": 10,
+      "benign_fpr": "0/1 = 0.0000",
+      "malicious_recall": "10/10 = 1.0000"
+    },
+    "PART_TIME_JOB_SCAM": {
+      "N": 2,
+      "status": "INSUFFICIENT_SAMPLE_SIZE"
+    },
+    "TRAFFIC_CHALLAN_PHISHING": {
+      "N": 1,
+      "status": "INSUFFICIENT_SAMPLE_SIZE"
+    }
+  },
+  "resource_benchmark": {
+    "model_size_bytes": 1540970,
+    "tfidf_size_bytes": 78323,
+    "scaler_size_bytes": 50126,
+    "total_size_bytes": 1669419,
+    "total_size_kb": "1630.29",
+    "deterministic_features": 70,
+    "tfidf_vocabulary_size": 2000,
+    "total_input_features": 2070,
+    "batch_latency_ms_per_message": {
+      "median": "0.0402",
+      "p95": "0.0878",
+      "p99": "0.0968"
+    },
+    "single_message_latency_ms": {
+      "median": "10.3865",
+      "p95": "16.5421",
+      "p99": "24.7812"
+    },
+    "gpu_used": false,
+    "note": "CPU inference only. Intended Android deployment is CPU/on-device."
+  },
+  "reproducibility": {
+    "predictions_identical": true,
+    "probabilities_identical": true,
+    "max_probability_difference": 0.0
+  },
+  "final_decision": {
+    "decision": "DATASET_LABEL_AUDIT_REQUIRED",
+    "reason": "Gates A/B pass but verified-benign HN FPR (62.50%) exceeds 1%.",
+    "gate_a_test": {
+      "fpr": 0.0019230769230769232,
+      "recall": 0.8431876606683805,
+      "pass": true
+    },
+    "gate_b_ood": {
+      "fpr": 0.0,
+      "recall": 0.8375314861460957,
+      "pass": true
+    },
+    "gate_c_verified_hn": {
+      "fpr": 0.625,
+      "pass": false
+    },
+    "gate_c_conservative_hn": {
+      "fpr": 0.24390243902439024
+    }
+  }
+}

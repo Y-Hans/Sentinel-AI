@@ -1,0 +1,8 @@
+{
+  "test_split": {"n": 50511, "domain_disjoint": true},
+  "hard_source": {"n": 2800, "protected_from_fit": true},
+  "best_safe_hard_source_experiment": "v4_weight160_extra40",
+  "best_safe_hard_source_benign_fpr": 0.12404287901990811,
+  "best_safe_hard_source_malicious_recall": 0.9678953626634959,
+  "ood": "unavailable"
+}

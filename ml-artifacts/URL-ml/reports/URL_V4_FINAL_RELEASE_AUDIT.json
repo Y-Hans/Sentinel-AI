@@ -1,0 +1,12 @@
+{
+  "campaign": "URL-ML V4",
+  "decision": "NOT_READY",
+  "promotion": false,
+  "champion_preserved": true,
+  "ood": "OOD_UNAVAILABLE",
+  "threshold_selection": "validation_only",
+  "best_clean_test": {"benign_fpr": 0.007129, "malicious_recall": 0.99525},
+  "best_safe_hard_source": {"experiment_id": "v4_weight160_extra40", "benign_fpr": 0.124043, "malicious_recall": 0.967895},
+  "release_gate_failure": "hard-source benign FPR remains above 1%",
+  "registry": "URL_V4_EXPERIMENT_REGISTRY.json"
+}

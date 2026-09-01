@@ -1,0 +1,29 @@
+{
+  "campaign": "URL-ML V5",
+  "decision": "DATA_REQUIRED",
+  "promotion": false,
+  "candidate": "model/challengers/v5_hgb92_rem160",
+  "threshold": 0.055,
+  "metrics": {
+    "test_benign_fpr": 0.010602127737359704,
+    "test_malicious_recall": 0.9952068399689092,
+    "hard_source_benign_fpr": 0.26901480347115875,
+    "hard_source_malicious_recall": 0.9631391200951248,
+    "adversarial_malicious_recall": 0.9969230769230769,
+    "model_bundle_bytes": 700927,
+    "model_latency_ms_per_url_development_host": 0.615
+  },
+  "gates": {"test_fpr": false, "test_recall": true, "hard_fpr": false, "hard_recall": true, "adversarial_recall": true, "size": true},
+  "hashes": {
+    "champion_model": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a",
+    "hard_dataset": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+    "cleaned_dataset": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+    "remediation_v3": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+    "candidate_model": "1b8b85ebf7a956047fa4baf1d0e9ca7cdfef286a8afaf49199e210d7ac372ed1"
+  },
+  "threshold_selection": "validation_only",
+  "protected_data_used_for_fit": false,
+  "independent_reproduction": "exact repeated inference agreement; not promoted",
+  "tests": {"python_compile": "pass", "existing_tflite_smoke": "pass", "pytest": "unavailable_no_pytest_module"},
+  "remaining_blocker": "new adjudicated source-diverse benign data"
+}

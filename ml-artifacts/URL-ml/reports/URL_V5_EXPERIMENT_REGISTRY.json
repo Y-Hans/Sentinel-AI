@@ -1,0 +1,191 @@
+{
+  "campaign": "URL-ML V5",
+  "protocol": {
+    "train_source": "cleaned_dataset.csv only",
+    "threshold_selection": "validation_only",
+    "protected_evaluation": [
+      "hard_dataset.csv",
+      "URL_REMEDIATION_ADVERSARIAL_PREDICTIONS.csv"
+    ],
+    "frozen_champion_untouched": true,
+    "champion_sha256": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a"
+  },
+  "experiments": [
+    {
+      "campaign": "URL-ML V5",
+      "experiment_id": "v5_hgb92_rem40",
+      "architecture": "HistGradientBoostingClassifier",
+      "families": [
+        "host",
+        "path",
+        "query",
+        "interactions"
+      ],
+      "feature_count": 92,
+      "feature_schema_sha256": "1e7cf3348d3d7fb30d375630f980594eb0dfa1cdd8e310ce77f649168d114528",
+      "seed": 42,
+      "remediation_weight": 40.0,
+      "threshold": 0.054,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "remediation_rows": 3430,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009728056599602034,
+        "malicious_recall": 0.9892739273927392,
+        "roc_auc": 0.9964191546835426,
+        "confusion_matrix": [
+          [
+            26874,
+            264
+          ],
+          [
+            182,
+            16786
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.010565568676196395,
+        "malicious_recall": 0.9957250194317299,
+        "roc_auc": 0.9986360358608681,
+        "confusion_matrix": [
+          [
+            27064,
+            289
+          ],
+          [
+            99,
+            23059
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.3113833588565595,
+        "malicious_recall": 0.9643281807372176,
+        "roc_auc": 0.9499623373084012,
+        "confusion_matrix": [
+          [
+            1349,
+            610
+          ],
+          [
+            30,
+            811
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9958974358974358,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            16,
+            3884
+          ]
+        ]
+      },
+      "fit_seconds": 77.4941286000003,
+      "artifact": "model/challengers/v5_hgb92_rem40",
+      "model_size_bytes": 702719
+    },
+    {
+      "campaign": "URL-ML V5",
+      "experiment_id": "v5_hgb92_rem160",
+      "architecture": "HistGradientBoostingClassifier",
+      "families": [
+        "host",
+        "path",
+        "query",
+        "interactions"
+      ],
+      "feature_count": 92,
+      "feature_schema_sha256": "1e7cf3348d3d7fb30d375630f980594eb0dfa1cdd8e310ce77f649168d114528",
+      "seed": 42,
+      "remediation_weight": 160.0,
+      "threshold": 0.055,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "remediation_rows": 3430,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009801753998083867,
+        "malicious_recall": 0.9881541725601132,
+        "roc_auc": 0.9958748914909179,
+        "confusion_matrix": [
+          [
+            26872,
+            266
+          ],
+          [
+            201,
+            16767
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.010602127737359704,
+        "malicious_recall": 0.9952068399689092,
+        "roc_auc": 0.9983984469556739,
+        "confusion_matrix": [
+          [
+            27063,
+            290
+          ],
+          [
+            111,
+            23047
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.26901480347115875,
+        "malicious_recall": 0.9631391200951248,
+        "roc_auc": 0.947652197030808,
+        "confusion_matrix": [
+          [
+            1432,
+            527
+          ],
+          [
+            31,
+            810
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9969230769230769,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            12,
+            3888
+          ]
+        ]
+      },
+      "fit_seconds": 76.71687519999978,
+      "artifact": "model/challengers/v5_hgb92_rem160",
+      "model_size_bytes": 700927
+    }
+  ]
+}

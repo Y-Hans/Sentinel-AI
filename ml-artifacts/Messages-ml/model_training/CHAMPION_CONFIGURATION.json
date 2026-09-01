@@ -1,0 +1,7 @@
+{
+  "architecture": "HistGradientBoostingClassifier + TF-IDF",
+  "threshold_non_benign": 0.85,
+  "max_depth": 5,
+  "max_iter": 200,
+  "l2_regularization": 0
+}

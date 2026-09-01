@@ -1,26 +1,17 @@
 # Future Scope
 
-## Improved ML Models
+## Multilingual & Regional Scam Detection
+- Expand lexical and TF-IDF vocabulary banks to include regional Indian languages (Hindi, Marathi, Tamil, Telugu, Bengali, Gujarati) and transliterated Hinglish.
+- Integrate lightweight on-device character n-gram models for script-mixed phishing attacks.
 
-- Evaluate lightweight deep-learning and sequence models for complex URL patterns.
-- Expand multilingual scam-text detection for Indian languages and transliterated text.
-- Compare candidate models by accuracy, size, and on-device latency.
+## Advanced Browser Extensions
+- Port the pure-Kotlin tree evaluation engine and feature extractors to WebAssembly / Kotlin Multiplatform for Chrome, Edge, and Firefox browser extensions.
+- Provide real-time page DOM and form action analysis before credential submission.
 
-## Browser Integration
+## Cross-Platform Mobile & Desktop
+- Expand shared Kotlin Multiplatform (`core`) library to iOS and desktop clients.
+- Implement platform-specific intent interception and notification hooks while preserving the exact same `RiskFusionEngine` and ML models.
 
-- Add link scanning for Chrome, Edge, and Firefox.
-- Warn before navigation and show the signals behind each decision.
-- Reuse consistent risk scores and decisions across Android and browsers.
-
-## Cross-Platform Support
-
-- Add iOS and desktop clients where platform APIs permit.
-- Share detection logic and decision formats across clients.
-- Keep permissions and data handling platform-specific.
-
-## Enhanced Detection Signals
-
-- Add domain-age, certificate, and redirect-chain checks.
-- Detect lookalike domains, brand impersonation, and internationalized-domain abuse.
-- Extract links from QR codes and supported documents.
-- Integrate time-bounded threat-intelligence signals with source confidence.
+## Offline Threat Intelligence Sync
+- Implement privacy-preserving Bloom filters for known malicious domain and sender hash lists.
+- Support scheduled delta updates over metered connections without transmitting telemetry or scan logs.

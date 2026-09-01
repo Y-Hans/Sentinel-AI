@@ -1,0 +1,711 @@
+{
+  "dataset_integrity": {
+    "TRAIN_INTERSECT_VALIDATION_TEXT": 0,
+    "TRAIN_INTERSECT_VALIDATION_TEMPLATE": 0,
+    "TRAIN_INTERSECT_VALIDATION_ID": 0,
+    "TRAIN_INTERSECT_TEST_TEXT": 0,
+    "TRAIN_INTERSECT_TEST_TEMPLATE": 0,
+    "TRAIN_INTERSECT_TEST_ID": 0,
+    "TRAIN_INTERSECT_OOD_TEXT": 0,
+    "TRAIN_INTERSECT_OOD_TEMPLATE": 0,
+    "TRAIN_INTERSECT_OOD_ID": 0,
+    "VALIDATION_INTERSECT_TEST_TEXT": 0,
+    "VALIDATION_INTERSECT_TEST_TEMPLATE": 0,
+    "VALIDATION_INTERSECT_TEST_ID": 0,
+    "VALIDATION_INTERSECT_OOD_TEXT": 0,
+    "VALIDATION_INTERSECT_OOD_TEMPLATE": 0,
+    "VALIDATION_INTERSECT_OOD_ID": 0,
+    "TEST_INTERSECT_OOD_TEXT": 0,
+    "TEST_INTERSECT_OOD_TEMPLATE": 0,
+    "TEST_INTERSECT_OOD_ID": 0
+  },
+  "model_comparison_validation": {
+    "ML_ONLY": {
+      "accuracy": 0.6682366794230203,
+      "macro_f1": 0.6106916466927521,
+      "malicious_precision": 0.941747572815534,
+      "malicious_recall": 0.5863557858376511,
+      "benign_fpr": 0.04337050805452292,
+      "fp_over_n": "35/807",
+      "sample_count": 3397
+    },
+    "RULES_ONLY": {
+      "accuracy": 0.23991757433029143,
+      "macro_f1": 0.1305418209935877,
+      "malicious_precision": 0.8888888888888888,
+      "malicious_recall": 0.0034542314335060447,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/807",
+      "sample_count": 3397
+    },
+    "HYBRID": {
+      "accuracy": 0.6649985281130409,
+      "macro_f1": 0.6075109171017496,
+      "malicious_precision": 0.9406838799720866,
+      "malicious_recall": 0.5820379965457686,
+      "benign_fpr": 0.04337050805452292,
+      "fp_over_n": "35/807",
+      "sample_count": 3397
+    }
+  },
+  "threshold_analysis": {
+    "0.1": {
+      "accuracy": 0.8272004710038269,
+      "macro_f1": 0.5817993787700603,
+      "malicious_precision": 0.8159709618874773,
+      "malicious_recall": 0.9706390328151986,
+      "benign_fpr": 0.31722428748451054,
+      "fp_over_n": "256/807",
+      "sample_count": 3397
+    },
+    "0.2": {
+      "accuracy": 0.8354430379746836,
+      "macro_f1": 0.6476147097075313,
+      "malicious_precision": 0.8667486674866749,
+      "malicious_recall": 0.9127806563039723,
+      "benign_fpr": 0.1449814126394052,
+      "fp_over_n": "117/807",
+      "sample_count": 3397
+    },
+    "0.3": {
+      "accuracy": 0.7936414483367678,
+      "macro_f1": 0.6711253844131507,
+      "malicious_precision": 0.9076773566569485,
+      "malicious_recall": 0.8065630397236615,
+      "benign_fpr": 0.07930607187112763,
+      "fp_over_n": "64/807",
+      "sample_count": 3397
+    },
+    "0.4": {
+      "accuracy": 0.7256402708272005,
+      "macro_f1": 0.6406873033641738,
+      "malicious_precision": 0.9327036599763873,
+      "malicious_recall": 0.6822107081174439,
+      "benign_fpr": 0.048327137546468404,
+      "fp_over_n": "39/807",
+      "sample_count": 3397
+    },
+    "0.5": {
+      "accuracy": 0.6399764498086546,
+      "macro_f1": 0.5936490055972367,
+      "malicious_precision": 0.9478063540090772,
+      "malicious_recall": 0.5410189982728842,
+      "benign_fpr": 0.03717472118959108,
+      "fp_over_n": "30/807",
+      "sample_count": 3397
+    },
+    "0.6": {
+      "accuracy": 0.5678539888136591,
+      "macro_f1": 0.5511978970625587,
+      "malicious_precision": 0.9704724409448819,
+      "malicious_recall": 0.42573402417962003,
+      "benign_fpr": 0.0161090458488228,
+      "fp_over_n": "13/807",
+      "sample_count": 3397
+    },
+    "0.7": {
+      "accuracy": 0.5231086252575802,
+      "macro_f1": 0.5223971645248587,
+      "malicious_precision": 0.9775147928994082,
+      "malicious_recall": 0.35664939550949915,
+      "benign_fpr": 0.012391573729863693,
+      "fp_over_n": "10/807",
+      "sample_count": 3397
+    },
+    "0.8": {
+      "accuracy": 0.5022078304386223,
+      "macro_f1": 0.5082493368395241,
+      "malicious_precision": 0.9817232375979112,
+      "malicious_recall": 0.32469775474956825,
+      "benign_fpr": 0.011152416356877323,
+      "fp_over_n": "9/807",
+      "sample_count": 3397
+    },
+    "0.9": {
+      "accuracy": 0.4874889608478069,
+      "macro_f1": 0.49701888080861356,
+      "malicious_precision": 0.9873060648801129,
+      "malicious_recall": 0.3022452504317789,
+      "benign_fpr": 0.006195786864931847,
+      "fp_over_n": "5/807",
+      "sample_count": 3397
+    }
+  },
+  "otp_audit": {
+    "legitimate_authentication_otp": {
+      "ML_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/10",
+        "sample_count": 20
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.5,
+        "macro_f1": 0.3333333333333333,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/10",
+        "sample_count": 20
+      },
+      "HYBRID": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/10",
+        "sample_count": 20
+      }
+    },
+    "legitimate_delivery_otp": {
+      "sample_count": 0
+    },
+    "protective_otp_warning": {
+      "ML_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 12
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 12
+      },
+      "HYBRID": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 12
+      }
+    },
+    "reverse_otp_theft": {
+      "ML_ONLY": {
+        "accuracy": 0.6666666666666666,
+        "macro_f1": 0.4,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.6666666666666666,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 3
+      },
+      "RULES_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 3
+      },
+      "HYBRID": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 3
+      }
+    },
+    "ambiguous_otp": {
+      "ML_ONLY": {
+        "accuracy": 0.518796992481203,
+        "macro_f1": 0.4985790001108022,
+        "malicious_precision": 0.7960526315789473,
+        "malicious_recall": 0.4336917562724014,
+        "benign_fpr": 0.5,
+        "fp_over_n": "11/22",
+        "sample_count": 399
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.05513784461152882,
+        "macro_f1": 0.03483768804433888,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/22",
+        "sample_count": 399
+      },
+      "HYBRID": {
+        "accuracy": 0.518796992481203,
+        "macro_f1": 0.4985790001108022,
+        "malicious_precision": 0.7960526315789473,
+        "malicious_recall": 0.4336917562724014,
+        "benign_fpr": 0.5,
+        "fp_over_n": "11/22",
+        "sample_count": 399
+      }
+    }
+  },
+  "hard_negative_audit": {
+    "ML_ONLY": {
+      "accuracy": 0.6818181818181818,
+      "macro_f1": 0.2702702702702703,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.22727272727272727,
+      "fp_over_n": "5/22",
+      "sample_count": 22
+    },
+    "RULES_ONLY": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.0,
+      "fp_over_n": "0/22",
+      "sample_count": 22
+    },
+    "HYBRID": {
+      "accuracy": 0.6818181818181818,
+      "macro_f1": 0.2702702702702703,
+      "malicious_precision": 0.0,
+      "malicious_recall": 0.0,
+      "benign_fpr": 0.22727272727272727,
+      "fp_over_n": "5/22",
+      "sample_count": 22
+    }
+  },
+  "threat_vector_audit": {
+    "NONE": {
+      "ML_ONLY": {
+        "accuracy": 0.8921933085501859,
+        "macro_f1": 0.3143418467583497,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.04337050805452292,
+        "fp_over_n": "35/807",
+        "sample_count": 807
+      },
+      "RULES_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/807",
+        "sample_count": 807
+      },
+      "HYBRID": {
+        "accuracy": 0.8921933085501859,
+        "macro_f1": 0.3143418467583497,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.04337050805452292,
+        "fp_over_n": "35/807",
+        "sample_count": 807
+      }
+    },
+    "BANK_KYC_SUSPENSION": {
+      "ML_ONLY": {
+        "accuracy": 0.7476828012358393,
+        "macro_f1": 0.2852091926929876,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.7476828012358393,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 971
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.004119464469618949,
+        "macro_f1": 0.0041025641025641026,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.004119464469618949,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 971
+      },
+      "HYBRID": {
+        "accuracy": 0.7425334706488157,
+        "macro_f1": 0.2840819542947202,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.7425334706488157,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 971
+      }
+    },
+    "CREDENTIAL_REQUEST": {
+      "ML_ONLY": {
+        "accuracy": 0.46965699208443273,
+        "macro_f1": 0.2130460801915021,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.46965699208443273,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 1137
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.002638522427440633,
+        "macro_f1": 0.002631578947368421,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.002638522427440633,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 1137
+      },
+      "HYBRID": {
+        "accuracy": 0.465259454705365,
+        "macro_f1": 0.2116846738695478,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.465259454705365,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 1137
+      }
+    },
+    "COMMERCIAL_SPAM": {
+      "ML_ONLY": {
+        "accuracy": 0.7007299270072993,
+        "macro_f1": 0.27467811158798283,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 274
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 274
+      },
+      "HYBRID": {
+        "accuracy": 0.6970802919708029,
+        "macro_f1": 0.2738351254480287,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 274
+      }
+    },
+    "DELIVERY_SCAM": {
+      "ML_ONLY": {
+        "accuracy": 0.4117647058823529,
+        "macro_f1": 0.19444444444444445,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.4117647058823529,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 187
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 187
+      },
+      "HYBRID": {
+        "accuracy": 0.4117647058823529,
+        "macro_f1": 0.19444444444444445,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.4117647058823529,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 187
+      }
+    },
+    "APK_MALWARE_DROPPER": {
+      "ML_ONLY": {
+        "accuracy": 0.5862068965517241,
+        "macro_f1": 0.3509803921568628,
+        "malicious_precision": 0.9333333333333333,
+        "malicious_recall": 0.56,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 29
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 29
+      },
+      "HYBRID": {
+        "accuracy": 0.5862068965517241,
+        "macro_f1": 0.3509803921568628,
+        "malicious_precision": 0.9333333333333333,
+        "malicious_recall": 0.56,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 29
+      }
+    },
+    "OTP_DISCLOSURE_REQUEST": {
+      "ML_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "HYBRID": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      }
+    },
+    "PAYMENT_SCAM": {
+      "ML_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "HYBRID": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      }
+    },
+    "PART_TIME_JOB_SCAM": {
+      "sample_count": 1,
+      "status": "INSUFFICIENT SAMPLE SIZE"
+    },
+    "TRAFFIC_CHALLAN_PHISHING": {
+      "sample_count": 1,
+      "status": "INSUFFICIENT SAMPLE SIZE"
+    },
+    "ELECTRICITY_DISCONNECTION_SCAM": {
+      "ML_ONLY": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      },
+      "HYBRID": {
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "malicious_precision": 1.0,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 10
+      }
+    }
+  },
+  "source_audit": {
+    "SRC_MENDELEY_SMISHING_2022": {
+      "ML_ONLY": {
+        "accuracy": 0.831096196868009,
+        "macro_f1": 0.5628875888723961,
+        "malicious_precision": 0.4222222222222222,
+        "malicious_recall": 0.2111111111111111,
+        "benign_fpr": 0.02452316076294278,
+        "fp_over_n": "18/734",
+        "sample_count": 894
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.8210290827740492,
+        "macro_f1": 0.30057330057330056,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/734",
+        "sample_count": 894
+      },
+      "HYBRID": {
+        "accuracy": 0.831096196868009,
+        "macro_f1": 0.5628875888723961,
+        "malicious_precision": 0.4222222222222222,
+        "malicious_recall": 0.2111111111111111,
+        "benign_fpr": 0.02452316076294278,
+        "fp_over_n": "18/734",
+        "sample_count": 894
+      }
+    },
+    "SRC_IMC25_FISHING_SMISHING": {
+      "ML_ONLY": {
+        "accuracy": 0.6026711185308848,
+        "macro_f1": 0.3345052430591791,
+        "malicious_precision": 0.969786293294031,
+        "malicious_recall": 0.5973672265093055,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 2396
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.002921535893155259,
+        "macro_f1": 0.0021106588270767375,
+        "malicious_precision": 0.875,
+        "malicious_recall": 0.0031774852473899226,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 2396
+      },
+      "HYBRID": {
+        "accuracy": 0.5980801335559266,
+        "macro_f1": 0.3327451637638232,
+        "malicious_precision": 0.9688427299703264,
+        "malicious_recall": 0.5928279618701771,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/0",
+        "sample_count": 2396
+      }
+    },
+    "SRC_UCI_SMS_SPAM_2011": {
+      "ML_ONLY": {
+        "accuracy": 0.813953488372093,
+        "macro_f1": 0.534269902085994,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.03125,
+        "fp_over_n": "1/32",
+        "sample_count": 43
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.7441860465116279,
+        "macro_f1": 0.4266666666666667,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/32",
+        "sample_count": 43
+      },
+      "HYBRID": {
+        "accuracy": 0.813953488372093,
+        "macro_f1": 0.534269902085994,
+        "malicious_precision": 0.0,
+        "malicious_recall": 0.0,
+        "benign_fpr": 0.03125,
+        "fp_over_n": "1/32",
+        "sample_count": 43
+      }
+    },
+    "SRC_CURATED_HARD_NEGATIVES_V1": {
+      "ML_ONLY": {
+        "accuracy": 0.75,
+        "macro_f1": 0.7497556207233627,
+        "malicious_precision": 0.5897435897435898,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.3902439024390244,
+        "fp_over_n": "16/41",
+        "sample_count": 64
+      },
+      "RULES_ONLY": {
+        "accuracy": 0.65625,
+        "macro_f1": 0.4358974358974359,
+        "malicious_precision": 1.0,
+        "malicious_recall": 0.043478260869565216,
+        "benign_fpr": 0.0,
+        "fp_over_n": "0/41",
+        "sample_count": 64
+      },
+      "HYBRID": {
+        "accuracy": 0.75,
+        "macro_f1": 0.7497556207233627,
+        "malicious_precision": 0.5897435897435898,
+        "malicious_recall": 1.0,
+        "benign_fpr": 0.3902439024390244,
+        "fp_over_n": "16/41",
+        "sample_count": 64
+      }
+    }
+  },
+  "test_ood_evaluation": {
+    "TEST_ML_ONLY": {
+      "accuracy": 0.6709363957597173,
+      "macro_f1": 0.6246689763595721,
+      "malicious_precision": 0.9521785334750266,
+      "malicious_recall": 0.5758354755784062,
+      "benign_fpr": 0.03076923076923077,
+      "fp_over_n": "16/520",
+      "sample_count": 2264
+    },
+    "TEST_HYBRID": {
+      "accuracy": 0.6665194346289752,
+      "macro_f1": 0.6206809580436973,
+      "malicious_precision": 0.9526372443487621,
+      "malicious_recall": 0.5687660668380463,
+      "benign_fpr": 0.028846153846153848,
+      "fp_over_n": "15/520",
+      "sample_count": 2264
+    },
+    "OOD_ML_ONLY": {
+      "accuracy": 0.666077738515901,
+      "macro_f1": 0.6070650543096172,
+      "malicious_precision": 0.9602510460251046,
+      "malicious_recall": 0.5780856423173804,
+      "benign_fpr": 0.0196078431372549,
+      "fp_over_n": "5/255",
+      "sample_count": 1132
+    },
+    "OOD_HYBRID": {
+      "accuracy": 0.6607773851590106,
+      "macro_f1": 0.6022776731094169,
+      "malicious_precision": 0.9597457627118644,
+      "malicious_recall": 0.570528967254408,
+      "benign_fpr": 0.0196078431372549,
+      "fp_over_n": "5/255",
+      "sample_count": 1132
+    }
+  }
+}

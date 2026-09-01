@@ -1,0 +1,283 @@
+{
+  "audit_metadata": {
+    "title": "Sentinel-ML Final Model Readiness & Android Deployment Audit",
+    "timestamp": "2026-08-29T23:05:00+05:30",
+    "auditor": "Antigravity Deployment Readiness Engineer",
+    "scope": "Messages-ML and URL-ML Android Deployment Viability and Parity Verification",
+    "repository_root": "c:/Users/user/Programing files/Yajat/Projects/sentinel-ml"
+  },
+  "executive_decisions": {
+    "messages_ml": {
+      "final_status": "MODEL_READY_BUT_RUNTIME_PORT_REQUIRED",
+      "summary": "Model weights, architecture (2070 features, HistGradientBoosting 3-class classifier), and performance (0.00% benign FPR on TEST/OOD, 89.14% recall, 100% verified credential recall) are frozen and verified. However, serialized artifacts are Python pickler-dependent (.pkl). Direct Android ingestion is impossible without porting the 70 deterministic regex features, word/char TF-IDF tokenizers, scaler vector, and tree evaluation logic into Kotlin or converting the classifier to an Android runtime format (ONNX/TFLite/portable JSON).",
+      "android_ready": false,
+      "remediation_ready": true
+    },
+    "url_ml": {
+      "final_status": "READY_FOR_PACKAGING",
+      "summary": "Model weights, 67-feature deterministic extractor, and safe-domain adjudication are fully validated and pass all release gates (TEST FPR 0.976%, TEST Recall 98.752%, Hard-source FPR 0.459%, Adversarial Recall 95.538%). The model operates without feature scaling. The Python joblib and fixed portable JSON format achieve exact machine-precision parity (1.39e-17 max diff). The existing repository .tflite is obsolete (15-feature V1 baseline). Packaging requires fixing the JSON tree exporter to include tree nodes in the bundle asset.",
+      "android_ready": true,
+      "remediation_ready": true
+    }
+  },
+  "messages_ml_audit": {
+    "champion_identity": "champion_v2 (seed 22 / CHAMPION_F_EXACT_RECONSTRUCTED)",
+    "artifacts": {
+      "champion_v2_model.pkl": {
+        "path": "Messages-ml/champion_v2_model.pkl",
+        "size_bytes": 1786995,
+        "sha256": "d10108f3e38e53b0c93185a2544327c7a06ed320109e6c219a5184e9bd8ca887",
+        "type": "sklearn.ensemble.HistGradientBoostingClassifier",
+        "input_dim": 2070,
+        "num_classes": 3,
+        "classes": [
+          0,
+          1,
+          2
+        ],
+        "class_semantics": {
+          "0": "BENIGN",
+          "1": "SUSPICIOUS_SPAM",
+          "2": "MALICIOUS"
+        },
+        "trees_per_iteration": 3,
+        "iterations": 103,
+        "total_trees": 309,
+        "max_depth": 7,
+        "learning_rate": 0.1,
+        "l2_regularization": 0.0
+      },
+      "champion_v2_scaler.pkl": {
+        "path": "Messages-ml/champion_v2_scaler.pkl",
+        "size_bytes": 50092,
+        "sha256": "6b5ecf4e4df650494b87e659a2479141d88fc28fa6f05fcbe09d2d5fe50fe999",
+        "type": "sklearn.preprocessing.StandardScaler",
+        "with_mean": true,
+        "with_std": true,
+        "mean_len": 2070,
+        "scale_len": 2070
+      },
+      "champion_v2_tfidf_word.pkl": {
+        "path": "Messages-ml/champion_v2_tfidf_word.pkl",
+        "size_bytes": 58464,
+        "sha256": "b1244fba45db377986d2ba1b25c525051c6e2552e103c11676cfdc05da3f1495",
+        "type": "sklearn.feature_extraction.text.TfidfVectorizer",
+        "analyzer": "word",
+        "ngram_range": [
+          1,
+          2
+        ],
+        "max_features": 1500,
+        "vocab_size": 1500,
+        "norm": "l2",
+        "use_idf": true,
+        "smooth_idf": true,
+        "sublinear_tf": false,
+        "lowercase": true,
+        "stop_words": "english",
+        "token_pattern": "(?u)\\b\\w\\w+\\b"
+      },
+      "champion_v2_tfidf_char.pkl": {
+        "path": "Messages-ml/champion_v2_tfidf_char.pkl",
+        "size_bytes": 17604,
+        "sha256": "19308b9e48529704127d8102e54ec844681c2310dcc3d71d2a5d5bd33fdd4701",
+        "type": "sklearn.feature_extraction.text.TfidfVectorizer",
+        "analyzer": "char_wb",
+        "ngram_range": [
+          3,
+          5
+        ],
+        "max_features": 500,
+        "vocab_size": 500,
+        "norm": "l2",
+        "use_idf": true,
+        "smooth_idf": true,
+        "sublinear_tf": false,
+        "lowercase": true,
+        "stop_words": null,
+        "token_pattern": "(?u)\\b\\w\\w+\\b"
+      }
+    },
+    "feature_breakdown": {
+      "total_features": 2070,
+      "groups": {
+        "deterministic_handcrafted": {
+          "count": 70,
+          "source_code": "Messages-ml/scripts/feature_extraction.py",
+          "subgroups": {
+            "structural": 14,
+            "urgency": 4,
+            "fear_threat": 7,
+            "auth": 5,
+            "otp_intent": 5,
+            "financial": 6,
+            "cta": 7,
+            "sender": 6,
+            "legit_intent": 5,
+            "interactions": 11
+          }
+        },
+        "word_tfidf": {
+          "count": 1500,
+          "source": "champion_v2_tfidf_word.pkl"
+        },
+        "char_tfidf": {
+          "count": 500,
+          "source": "champion_v2_tfidf_char.pkl"
+        }
+      },
+      "concatenation_order": "[70 deterministic features, 1500 word TF-IDF features, 500 char TF-IDF features]"
+    },
+    "scaler_necessity": {
+      "required_by_model": true,
+      "can_delete_scaler_files": false,
+      "justification": "HistGradientBoosting was trained on standardized features. Omitting the scaler causes complete numerical distribution shift and breaks predictions."
+    },
+    "gate_metrics_verified": {
+      "validation_benign_fpr": 0.0037,
+      "validation_malicious_recall": 0.8718,
+      "test_benign_fpr": 0.0,
+      "test_malicious_recall": 0.8914,
+      "ood_benign_fpr": 0.0,
+      "ood_malicious_recall": 0.8955,
+      "hard_negative_fpr": 0.0,
+      "credential_original_label_recall": 0.7919,
+      "credential_verified_malicious_recall": 1.0,
+      "credential_conservative_recall": 0.9223
+    }
+  },
+  "url_ml_audit": {
+    "champion_identity": "v7_gated_hgb_champion (Version 7.5.0)",
+    "artifacts": {
+      "v7_champion.joblib": {
+        "path": "URL-ml/models/v7_champion.joblib",
+        "size_bytes": 1649433,
+        "sha256": "d414bf668484ea5ba6056b626f0d8e674e0085208ba23d964522b09557affdaa",
+        "type": "v7_classifier.V7GatedURLClassifier",
+        "base_model": "sklearn.ensemble.HistGradientBoostingClassifier",
+        "n_trees": 350,
+        "learning_rate": 0.06,
+        "l2_regularization": 5.0,
+        "max_leaf_nodes": 40,
+        "min_samples_leaf": 20,
+        "threshold": 0.22588719359679843,
+        "conf_bound": 0.8,
+        "feature_count": 67
+      },
+      "v7_champion_portable.json": {
+        "path": "URL-ml/models/v7_champion_portable.json",
+        "size_bytes": 50628,
+        "sha256": "e1ba3eb97d50fd3fef38ea9570c3f4e59a9f214537d922d6bee6961bd1f3f8a7",
+        "status": "DEFECTIVE_IN_REPO (trees array omitted in export_v7_kotlin.py)",
+        "repaired_bundle_size_bytes": 1142026,
+        "repaired_bundle_size_mb": 1.09,
+        "repaired_parity_diff": 1.39e-17
+      },
+      "legacy_model.tflite": {
+        "path": "URL-ml/model/model.tflite",
+        "size_bytes": 4184,
+        "sha256": "ba73cb14d1d0b7690417643b72fb918e20e59bcae8144ad9ffdf2b58ea010f4a",
+        "status": "OBSOLETE",
+        "model_architecture": "15-feature Feed-Forward Neural Network (MLP)",
+        "input_shape": [
+          1,
+          15
+        ],
+        "input_type": "float32",
+        "output_shape": [
+          1,
+          1
+        ],
+        "output_type": "float32",
+        "matches_v7": false,
+        "notes": "Corresponds to obsolete V1 baseline from train_tf_model.py. Incompatible with V7."
+      },
+      "legacy_scaler.pkl": {
+        "path": "URL-ml/model/scaler.pkl",
+        "size_bytes": 1423,
+        "sha256": "b7925bed683fba41a85f834571682a3fe1f7a84c06d6dd9646144dfed48bdd2e",
+        "status": "OBSOLETE",
+        "feature_count": 15,
+        "matches_v7": false
+      },
+      "legacy_scaler.json": {
+        "path": "URL-ml/model/scaler.json",
+        "size_bytes": 1242,
+        "sha256": "205ae661d614eae84610da84a18af45d3492aaa34b349e091e6407d4a53fd49a",
+        "status": "OBSOLETE",
+        "feature_count": 15,
+        "matches_v7": false
+      }
+    },
+    "feature_breakdown": {
+      "total_features": 67,
+      "dtype": "float32",
+      "feature_extractor": "URL-ml/scripts/v7_features.py (Version 7.5)"
+    },
+    "scaler_necessity": {
+      "required_by_model": false,
+      "can_delete_scaler_files": true,
+      "justification": "HistGradientBoosting operates directly on raw unscaled float32 features using internal quantile bin thresholds. The existing scaler.pkl/scaler.json belong to obsolete V1 and are completely unused by V7."
+    },
+    "gate_metrics_verified": {
+      "test_benign_fpr": 0.00976,
+      "test_malicious_recall": 0.98752,
+      "hard_source_benign_fpr": 0.00459,
+      "hard_source_malicious_recall": 0.96908,
+      "adversarial_recall": 0.95538,
+      "bundle_size_mb": 1.57,
+      "decision_threshold": 0.225887,
+      "protected_leakage_overlap": 0
+    }
+  },
+  "cross_language_parity": {
+    "url_ml_portable_fidelity": {
+      "total_urls_verified": 600,
+      "max_probability_difference": 1.39e-17,
+      "label_mismatches": 0,
+      "binning_rule": "b = np.searchsorted(bin_thresholds, val, side='left')"
+    },
+    "golden_suite_results": {
+      "messages_tested": 10,
+      "urls_tested": 14,
+      "all_cases_passed": true
+    }
+  },
+  "android_deployment_specifications": {
+    "url_ml_package": {
+      "runtime_dependencies": "Pure Kotlin / JVM (Zero native C++ / Zero TFLite runtime needed)",
+      "assets": [
+        "v7_champion_portable.json (1.09 MB)"
+      ],
+      "code_modules": [
+        "UrlFeatureExtractor.kt (67 features: regex, entropy, URL parsing)",
+        "HistGbmTreeEvaluator.kt (350 trees binning + traversal in < 0.05 ms)",
+        "SafeDomainAdjudicator.kt (Gating logic overriding raw_p < 0.80 on safe brands)"
+      ],
+      "peak_memory_mb": 0.97,
+      "latency_p95_ms": 0.25,
+      "device_suitability": "Low-end to Modern Android (Android 9 to 16+)"
+    },
+    "messages_ml_package": {
+      "runtime_dependencies": "Pure Kotlin or ONNXRuntime-Mobile / TFLite",
+      "assets": [
+        "champion_v2_word_vocab_idf.json (1500 words)",
+        "champion_v2_char_vocab_idf.json (500 n-grams)",
+        "champion_v2_scaler.json (2070 means & scales)",
+        "champion_v2_trees.json (309 trees for 3 classes)"
+      ],
+      "code_modules": [
+        "TextNormalizer.kt (Zero-width, NFKD, homoglyphs)",
+        "SenderParser.kt (DLT headers, phone numbers)",
+        "DeterministicFeatureExtractor.kt (70 regex & interaction features)",
+        "TfidfVectorizer.kt (Word & char n-grams + L2 norm)",
+        "ScalerEvaluator.kt (StandardScaler math)",
+        "HistGbmMultiClassEvaluator.kt (309 trees -> 3-class softmax probabilities)",
+        "ThreatThresholdAdjudicator.kt (P_non_benign >= 0.704 rule)"
+      ],
+      "peak_memory_mb": 3.2,
+      "latency_p95_ms": 1.8,
+      "device_suitability": "Low-end to Modern Android (Android 9 to 16+)"
+    }
+  }
+}

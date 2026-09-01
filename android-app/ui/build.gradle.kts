@@ -58,6 +58,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation("org.robolectric:robolectric:4.12.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

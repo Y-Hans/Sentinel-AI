@@ -5,10 +5,10 @@ import com.sentinel.ai.core.data.local.ThreatDao
 import com.sentinel.ai.core.data.local.ThreatRecordEntity
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.event.ThreatJournal
+import com.sentinel.ai.core.fusion.DefaultRiskFusionEngine
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
-import com.sentinel.ai.ml.MLInferenceEngine
 import com.sentinel.ai.protection.intent.file.FileScanner
 import com.sentinel.ai.protection.intent.heuristic.LinkHeuristicRiskEngine
 import com.sentinel.ai.protection.intent.link.LinkProtectionAgent
@@ -49,7 +49,7 @@ class IntentThreatAnalyzerImplTest {
 
     @Test
     fun `supported URL local result is returned and persisted`() = runTest(testDispatcher) {
-        val local = mockEvidence(35f, RiskLevel.YELLOW, target = "https://example.xyz")
+        val local = mockEvidence(30f, RiskLevel.GREEN, target = "https://example.xyz")
         var scannedUrl: String? = null
         val analyzer = analyzer(
             linkScanner = object : LinkScanner {
@@ -58,14 +58,15 @@ class IntentThreatAnalyzerImplTest {
                     return local
                 }
             },
-            mlScoreToReturn = null
+            mlScoreToReturn = 0f
         )
 
         val result = analyzer.analyze(UrlPayload("https://example.xyz"))
 
         assertEquals("https://example.xyz", scannedUrl)
-        assertEquals(35f, result.riskScore, 0.01f) // ML is null here
+        assertEquals(35f, result.riskScore, 0.01f) // 30 peak + 5 corroboration
         assertEquals(RiskLevel.GREEN, result.riskLevel) // Because 35f < 40f
+        assertEquals(ProtectionDecision.ALLOW, result.decision)
 
         // Verify persisted to ThreatJournal / FakeThreatDao exactly once
         assertEquals(1, fakeDao.persistedRecords.size)
@@ -85,7 +86,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = object : LinkScanner {
                 override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = error("Link scanner should not run")
             },
-            mlScoreToReturn = null,
+            mlScoreToReturn = 0f,
             fileScanner = object : FileScanner {
                 override suspend fun scan(uri: Uri): List<com.sentinel.ai.core.evidence.ThreatEvidence> {
                     assertEquals(fakeUri, uri)
@@ -107,7 +108,7 @@ class IntentThreatAnalyzerImplTest {
     fun `invalid URL returns a controlled explainable result and persists`() = runTest(testDispatcher) {
         val analyzer = analyzer(
             linkScanner = LinkProtectionAgent(LinkHeuristicRiskEngine()),
-            mlScoreToReturn = null
+            mlScoreToReturn = 0f
         )
 
         val result = analyzer.analyze(UrlPayload("://broken"))
@@ -123,7 +124,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = object : LinkScanner {
                 override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = awaitCancellation()
             },
-            mlScoreToReturn = null
+            mlScoreToReturn = 0f
         )
         val result = async {
             analyzer.analyze(UrlPayload("https://example.com"))
@@ -145,7 +146,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = object : LinkScanner {
                 override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = local
             },
-            mlScoreToReturn = null
+            mlScoreToReturn = 0f
         )
 
         try {
@@ -181,7 +182,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = object : LinkScanner {
                 override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = local
             },
-            mlScoreToReturn = 0.5f
+            mlScoreToReturn = 50f
         )
         val result = analyzer.analyze(UrlPayload("https://example.com"))
         
@@ -199,7 +200,7 @@ class IntentThreatAnalyzerImplTest {
             linkScanner = object : LinkScanner {
                 override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = local
             },
-            mlScoreToReturn = 1.0f
+            mlScoreToReturn = 100f
         )
         val result = analyzer.analyze(UrlPayload("https://example.com"))
         
@@ -214,7 +215,7 @@ class IntentThreatAnalyzerImplTest {
     fun `multiple scans persist distinct records without overwriting`() = runTest(testDispatcher) {
         val analyzer = analyzer(
             linkScanner = LinkProtectionAgent(LinkHeuristicRiskEngine()),
-            mlScoreToReturn = null
+            mlScoreToReturn = 0f
         )
 
         val result1 = analyzer.analyze(UrlPayload("https://safe-example.com"))
@@ -226,6 +227,69 @@ class IntentThreatAnalyzerImplTest {
         assertTrue(fakeDao.persistedRecords.containsKey("${result2.id}|${ThreatRecordEntity.TYPE_SCAN_RESULT}"))
     }
 
+    @Test
+    fun `URL ML runtime exception produces explicit CRITICAL ML-unavailable evidence and forces BLOCK`() = runTest(testDispatcher) {
+        val analyzer = analyzer(
+            linkScanner = object : LinkScanner {
+                override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = emptyList()
+            },
+            mlScoreToReturn = null // Simulates RuntimeException in UrlScanner.scan
+        )
+
+        val result = analyzer.analyze(UrlPayload("https://example.com"))
+
+        assertEquals(RiskLevel.CRITICAL, result.riskLevel)
+        assertEquals(ProtectionDecision.BLOCK, result.decision)
+        assertTrue("Risk score must be at least 90 for CRITICAL", result.riskScore >= 90f)
+        assertTrue(result.explanation.contains("URL threat model could not be evaluated"))
+        assertEquals(1, fakeDao.persistedRecords.size)
+        val persisted = fakeDao.persistedRecords.values.first()
+        assertEquals(RiskLevel.CRITICAL.name, persisted.riskLevel)
+    }
+
+    @Test
+    fun `URL ML failure preserves heuristic evidence alongside critical failure evidence`() = runTest(testDispatcher) {
+        val local = mockEvidence(50f, RiskLevel.YELLOW)
+        val analyzer = analyzer(
+            linkScanner = object : LinkScanner {
+                override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = local
+            },
+            mlScoreToReturn = null // Simulates RuntimeException in UrlScanner.scan
+        )
+
+        val result = analyzer.analyze(UrlPayload("https://example.com"))
+
+        assertEquals(RiskLevel.CRITICAL, result.riskLevel)
+        assertEquals(ProtectionDecision.BLOCK, result.decision)
+        assertTrue(result.explanation.contains("Local signal"))
+        assertTrue(result.explanation.contains("URL threat model could not be evaluated"))
+    }
+
+    @Test
+    fun `URL ML missing asset or malformed model exception cannot produce unauthorized ALLOW`() = runTest(testDispatcher) {
+        val fakeUrlScanner = io.mockk.mockk<com.sentinel.ai.core.ml.url.UrlScanner>()
+        io.mockk.every { fakeUrlScanner.scan(any()) } throws java.io.FileNotFoundException("v7_champion_portable.json not found")
+
+        val analyzer = IntentThreatAnalyzerImpl(
+            linkScanner = object : LinkScanner {
+                override suspend fun scan(url: String): List<com.sentinel.ai.core.evidence.ThreatEvidence> = emptyList()
+            },
+            fileScanner = object : FileScanner {
+                override suspend fun scan(uri: Uri): List<com.sentinel.ai.core.evidence.ThreatEvidence> = error("File scanner should not run")
+            },
+            threatEventBus = ThreatEventBus(),
+            urlScanner = fakeUrlScanner,
+            threatJournal = ThreatJournal,
+            riskFusionEngine = DefaultRiskFusionEngine()
+        )
+
+        val result = analyzer.analyze(UrlPayload("https://example.com"))
+
+        // Security invariant: ML failure MUST NOT allow the request
+        assertEquals(ProtectionDecision.BLOCK, result.decision)
+        assertEquals(RiskLevel.CRITICAL, result.riskLevel)
+    }
+
     private fun analyzer(
         linkScanner: LinkScanner,
         mlScoreToReturn: Float?,
@@ -233,19 +297,29 @@ class IntentThreatAnalyzerImplTest {
             override suspend fun scan(uri: Uri): List<com.sentinel.ai.core.evidence.ThreatEvidence> = error("File scanner should not run")
         }
     ): IntentThreatAnalyzerImpl {
-        val fakeMlEngine = object : MLInferenceEngine {
-            override fun predict(features: FloatArray): Float {
-                if (mlScoreToReturn == null) throw RuntimeException("Simulated ML failure")
-                return mlScoreToReturn
-            }
+        val fakeUrlScanner = io.mockk.mockk<com.sentinel.ai.core.ml.url.UrlScanner>()
+        if (mlScoreToReturn == null) {
+            io.mockk.every { fakeUrlScanner.scan(any()) } throws RuntimeException("Simulated ML failure")
+        } else {
+            val prob = (mlScoreToReturn / 100f).coerceIn(0f, 1f)
+            val isMal = prob >= 0.22588723f
+            val label = if (isMal) "MALICIOUS" else "BENIGN"
+            io.mockk.every { fakeUrlScanner.scan(any()) } returns com.sentinel.ai.core.ml.url.UrlScanResult(
+                label = label,
+                probability = prob,
+                isMalicious = isMal,
+                rawProbability = prob,
+                isSafeBrandGated = false
+            )
         }
-        
+
         return IntentThreatAnalyzerImpl(
             linkScanner = linkScanner,
             fileScanner = fileScanner,
             threatEventBus = ThreatEventBus(),
-            mlInferenceEngine = fakeMlEngine,
-            threatJournal = ThreatJournal
+            urlScanner = fakeUrlScanner,
+            threatJournal = ThreatJournal,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
     }
 

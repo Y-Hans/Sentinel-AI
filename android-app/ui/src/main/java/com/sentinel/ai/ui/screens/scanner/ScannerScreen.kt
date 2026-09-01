@@ -1,10 +1,5 @@
 package com.sentinel.ai.ui.screens.scanner
 
-import android.content.Context
-import android.content.ComponentName
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +8,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -29,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -92,19 +88,17 @@ fun ScannerContent(
 
         ScanPhase.Scanning -> LiveScanContent(
             scanType = uiState.scanType,
+            currentTip = uiState.currentTip,
             modifier = modifier
         )
 
         ScanPhase.Result -> {
             val scanResult = uiState.scanResult ?: return
-            val context = LocalContext.current
             val onScanAgain: () -> Unit = {
                 onAction(ScannerUiAction.ClearResult)
             }
             val onOpenUrl: () -> Unit = {
-                if (launchBrowser(context, uiState.scanInput.trim())) {
-                    onScanAgain()
-                }
+                onAction(ScannerUiAction.OpenResult)
             }
             when (uiState.scanType) {
                 LINK -> UrlScanResultContent(
@@ -140,38 +134,6 @@ fun ScannerContent(
         }
     }
 }
-
-private fun launchBrowser(context: Context, url: String): Boolean {
-    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-        setPackage(CHROME_PACKAGE)
-    }
-    return runCatching {
-        context.startActivity(browserIntent)
-        true
-    }.getOrElse {
-        runCatching {
-            browserIntent.setPackage(null)
-            val handlers = context.packageManager.queryIntentActivities(
-                browserIntent,
-                PackageManager.MATCH_DEFAULT_ONLY
-            )
-            if (handlers.none { it.activityInfo.packageName != context.packageName }) {
-                return false
-            }
-            val sentinelComponents = handlers
-                .filter { it.activityInfo.packageName == context.packageName }
-                .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
-                .toTypedArray()
-            val chooser = Intent.createChooser(browserIntent, "Open with").apply {
-                putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, sentinelComponents)
-            }
-            context.startActivity(chooser)
-            true
-        }.getOrDefault(false)
-    }
-}
-
-private const val CHROME_PACKAGE = "com.android.chrome"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -281,6 +243,7 @@ internal fun ScanInputContent(
 @Composable
 internal fun LiveScanContent(
     scanType: ScanType,
+    currentTip: String? = null,
     modifier: Modifier = Modifier
 ) {
     val steps = scanStepsFor(scanType)
@@ -343,6 +306,33 @@ internal fun LiveScanContent(
                     state = state
                 )
             }
+        }
+
+        if (currentTip != null) {
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.weight(1f))
+            androidx.compose.material3.Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        androidx.compose.material.icons.Icons.Filled.Radar,
+                        contentDescription = "Security Tip",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Tip: $currentTip",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(SentinelSpacing.MD))
         }
     }
 }

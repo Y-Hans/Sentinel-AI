@@ -1,0 +1,159 @@
+{
+  "audit_timestamp": "2026-08-29T22:25:00Z",
+  "release_status": "RELEASE_APPROVED",
+  "declaration": "MODEL_READY_FOR_PACKAGING",
+  "model_name": "v7_gated_hgb_champion",
+  "version": "7.5.0",
+  "architecture": "HistGradientBoostingClassifier + Safe-Domain Gated Adjudicator",
+  "feature_representation": "V7.5 (67 deterministic domain-independent & context-aware URL features)",
+  "decision_threshold": 0.22588719359679843,
+  "confidence_bound": 0.8,
+  "release_gates": {
+    "test_benign_fpr": {
+      "value": 0.009761269330603591,
+      "target": "<= 0.0100 (1.000%)",
+      "passed": true
+    },
+    "test_malicious_recall": {
+      "value": 0.9875205112704033,
+      "target": ">= 0.9800 (98.000%)",
+      "passed": true
+    },
+    "hard_benign_fpr": {
+      "value": 0.004594180704441042,
+      "target": "<= 0.0100 (1.000%)",
+      "passed": true
+    },
+    "hard_malicious_recall": {
+      "value": 0.9690844233055886,
+      "target": ">= 0.9500 (95.000%)",
+      "passed": true
+    },
+    "adversarial_recall": {
+      "value": 0.9553846153846154,
+      "target": ">= 0.9500 (95.000%)",
+      "passed": true
+    },
+    "model_bundle_size": {
+      "value_bytes": 1649433,
+      "value_mb": 1.5730218887329102,
+      "target": "<= 10.00 MB",
+      "passed": true
+    }
+  },
+  "all_gates_satisfied": true,
+  "metrics_breakdown": {
+    "test_split": {
+      "total_samples": 50511,
+      "benign_samples": 27353,
+      "malicious_samples": 23158,
+      "true_negatives": 27086,
+      "false_positives": 267,
+      "false_negatives": 289,
+      "true_positives": 22869,
+      "fpr": 0.009761269330603591,
+      "recall": 0.9875205112704033,
+      "precision": 0.9884595435684648,
+      "accuracy": 0.9889924966838907,
+      "roc_auc": 0.9976070998865004
+    },
+    "hard_split": {
+      "total_samples": 2800,
+      "benign_samples": 1959,
+      "malicious_samples": 841,
+      "true_negatives": 1950,
+      "false_positives": 9,
+      "false_negatives": 26,
+      "true_positives": 815,
+      "fpr": 0.004594180704441042,
+      "recall": 0.9690844233055886,
+      "precision": 0.9890776699029126,
+      "accuracy": 0.9875,
+      "roc_auc": 0.9970452541063259
+    },
+    "adversarial_split": {
+      "total_samples": 3900,
+      "detected_samples": 3726,
+      "overall_recall": 0.9553846153846154,
+      "by_attack_family": {
+        "case_manipulation": {
+          "total": 300,
+          "detected": 242,
+          "recall": 0.8066666666666666
+        },
+        "double_encoding": {
+          "total": 300,
+          "detected": 300,
+          "recall": 1.0
+        },
+        "homoglyph_like": {
+          "total": 300,
+          "detected": 294,
+          "recall": 0.98
+        },
+        "ip_style": {
+          "total": 300,
+          "detected": 300,
+          "recall": 1.0
+        },
+        "misleading_subdomain": {
+          "total": 300,
+          "detected": 296,
+          "recall": 0.9866666666666667
+        },
+        "nested_url": {
+          "total": 300,
+          "detected": 243,
+          "recall": 0.81
+        },
+        "path_manipulation": {
+          "total": 300,
+          "detected": 287,
+          "recall": 0.9566666666666667
+        },
+        "percent_encoding": {
+          "total": 300,
+          "detected": 300,
+          "recall": 1.0
+        },
+        "punycode_like": {
+          "total": 300,
+          "detected": 295,
+          "recall": 0.9833333333333333
+        },
+        "query_manipulation": {
+          "total": 300,
+          "detected": 292,
+          "recall": 0.9733333333333334
+        },
+        "separator_insert": {
+          "total": 300,
+          "detected": 287,
+          "recall": 0.9566666666666667
+        },
+        "subdomain_manipulation": {
+          "total": 300,
+          "detected": 291,
+          "recall": 0.97
+        },
+        "unusual_port": {
+          "total": 300,
+          "detected": 299,
+          "recall": 0.9966666666666667
+        }
+      }
+    }
+  },
+  "provenance_hashes": {
+    "datasets": {
+      "cleaned_dataset.csv": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "v7_structural_benign.csv": "4a34e661060c35ae26d3417b28ed2ada074d8b017bee528b5f7e2d5bcf722e6b",
+      "hard_dataset.csv": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "URL_REMEDIATION_ADVERSARIAL_PREDICTIONS.csv": "a729e2cd9978f1b9632ed19079c957933ee2ca0d9c54853b1dc5321ce12cff5a"
+    },
+    "models": {
+      "v7_champion.joblib": "d414bf668484ea5ba6056b626f0d8e674e0085208ba23d964522b09557affdaa",
+      "v7_champion_portable.json": "e1ba3eb97d50fd3fef38ea9570c3f4e59a9f214537d922d6bee6961bd1f3f8a7"
+    }
+  }
+}

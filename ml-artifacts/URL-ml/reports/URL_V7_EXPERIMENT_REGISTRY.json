@@ -1,0 +1,758 @@
+{
+  "campaign": "URL-ML V7",
+  "protocol": {
+    "train_source": "cleaned_dataset.csv + v7_structural_benign.csv (15k domains)",
+    "threshold_selection": "validation_only",
+    "protected_evaluation": [
+      "hard_dataset.csv",
+      "URL_REMEDIATION_ADVERSARIAL_PREDICTIONS.csv"
+    ],
+    "frozen_champion_untouched": true,
+    "champion_sha256": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a"
+  },
+  "generated_at": "2026-08-29T14:44:41.264384+00:00",
+  "experiments": [
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_et_compact_w1",
+      "name": "ExtraTrees Compact (80 Trees, Depth 16, W=1)",
+      "hypothesis": "Refined normalization + 15k-domain structural corpus prevents path false positives within <=10MB bundle",
+      "architecture": "ExtraTreesClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 1.0,
+      "threshold": 0.5162418709354677,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.0098754513965657,
+        "malicious_recall": 0.8262611975483263,
+        "roc_auc": 0.9676178547705376,
+        "confusion_matrix": [
+          [
+            26870,
+            268
+          ],
+          [
+            2948,
+            14020
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.009432237780133806,
+        "malicious_recall": 0.8365143794800932,
+        "roc_auc": 0.9830092150020011,
+        "confusion_matrix": [
+          [
+            27095,
+            258
+          ],
+          [
+            3786,
+            19372
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.0010209290454313426,
+        "malicious_recall": 0.9048751486325802,
+        "roc_auc": 0.992858959441439,
+        "confusion_matrix": [
+          [
+            1957,
+            2
+          ],
+          [
+            80,
+            761
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.8884615384615384,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            435,
+            3465
+          ]
+        ]
+      },
+      "fit_seconds": 34.44829650000065,
+      "artifact": "model/challengers/v7_et_compact_w1",
+      "model_size_bytes": 6904680,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": true,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": false,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_et_compact_w3",
+      "name": "ExtraTrees Compact (80 Trees, Depth 16, W=3)",
+      "hypothesis": "3x sample weight on 48k structural benigns eliminates residual hard-source shift",
+      "architecture": "ExtraTreesClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 3.0,
+      "threshold": 0.5742128564282141,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009985997494288452,
+        "malicious_recall": 0.7830622347949081,
+        "roc_auc": 0.9295741581635817,
+        "confusion_matrix": [
+          [
+            26867,
+            271
+          ],
+          [
+            3681,
+            13287
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.008956969985010785,
+        "malicious_recall": 0.8119440366180154,
+        "roc_auc": 0.9654814887239955,
+        "confusion_matrix": [
+          [
+            27108,
+            245
+          ],
+          [
+            4355,
+            18803
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.0010209290454313426,
+        "malicious_recall": 0.7633769322235434,
+        "roc_auc": 0.9890137837560598,
+        "confusion_matrix": [
+          [
+            1957,
+            2
+          ],
+          [
+            199,
+            642
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.7497435897435898,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            976,
+            2924
+          ]
+        ]
+      },
+      "fit_seconds": 33.60536469999897,
+      "artifact": "model/challengers/v7_et_compact_w3",
+      "model_size_bytes": 6791400,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": true,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": false,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_et_compact_w5",
+      "name": "ExtraTrees Compact (80 Trees, Depth 16, W=5)",
+      "hypothesis": "5x sample weight further drives down hard-source FPR while monitoring TEST recall",
+      "architecture": "ExtraTreesClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 5.0,
+      "threshold": 0.641179339669835,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009985997494288452,
+        "malicious_recall": 0.7578382838283828,
+        "roc_auc": 0.9043398136400924,
+        "confusion_matrix": [
+          [
+            26867,
+            271
+          ],
+          [
+            4109,
+            12859
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.009432237780133806,
+        "malicious_recall": 0.7773555574747387,
+        "roc_auc": 0.952258141974296,
+        "confusion_matrix": [
+          [
+            27095,
+            258
+          ],
+          [
+            5156,
+            18002
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.0010209290454313426,
+        "malicious_recall": 0.667063020214031,
+        "roc_auc": 0.991478095245032,
+        "confusion_matrix": [
+          [
+            1957,
+            2
+          ],
+          [
+            280,
+            561
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.7225641025641025,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            1082,
+            2818
+          ]
+        ]
+      },
+      "fit_seconds": 33.280700199999046,
+      "artifact": "model/challengers/v7_et_compact_w5",
+      "model_size_bytes": 6750280,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": true,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": false,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_hgb_reg_w1",
+      "name": "HistGradientBoosting Regularized (W=1)",
+      "hypothesis": "Refined features + L2 regularized HGB achieves smooth non-linear separation on continuous threat features",
+      "architecture": "HistGradientBoostingClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 1.0,
+      "threshold": 0.24787618809404705,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009949148795047534,
+        "malicious_recall": 0.9513201320132013,
+        "roc_auc": 0.9923944365118107,
+        "confusion_matrix": [
+          [
+            26868,
+            270
+          ],
+          [
+            826,
+            16142
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.009615033085950353,
+        "malicious_recall": 0.9775887382330081,
+        "roc_auc": 0.9975366347351677,
+        "confusion_matrix": [
+          [
+            27090,
+            263
+          ],
+          [
+            519,
+            22639
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.17713118938233793,
+        "malicious_recall": 0.9607609988109393,
+        "roc_auc": 0.9474682841290449,
+        "confusion_matrix": [
+          [
+            1612,
+            347
+          ],
+          [
+            33,
+            808
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9733333333333334,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            104,
+            3796
+          ]
+        ]
+      },
+      "fit_seconds": 61.8415015999999,
+      "artifact": "model/challengers/v7_hgb_reg_w1",
+      "model_size_bytes": 1109255,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": false,
+        "hard_recall_pass": true,
+        "adversarial_recall_pass": true,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_hgb_reg_w3",
+      "name": "HistGradientBoosting Regularized (W=3)",
+      "hypothesis": "3x weighted HGB balances clean TEST recall and hard-source false positives in a ~1MB bundle",
+      "architecture": "HistGradientBoostingClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 3.0,
+      "threshold": 0.29885067533766885,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.0098754513965657,
+        "malicious_recall": 0.9389438943894389,
+        "roc_auc": 0.9899858295816631,
+        "confusion_matrix": [
+          [
+            26870,
+            268
+          ],
+          [
+            1036,
+            15932
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.009030088107337403,
+        "malicious_recall": 0.9464979704637706,
+        "roc_auc": 0.9965419229548997,
+        "confusion_matrix": [
+          [
+            27106,
+            247
+          ],
+          [
+            1239,
+            21919
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.13935681470137826,
+        "malicious_recall": 0.9262782401902497,
+        "roc_auc": 0.9391327201689328,
+        "confusion_matrix": [
+          [
+            1686,
+            273
+          ],
+          [
+            62,
+            779
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9620512820512821,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            148,
+            3752
+          ]
+        ]
+      },
+      "fit_seconds": 50.762549000000945,
+      "artifact": "model/challengers/v7_hgb_reg_w3",
+      "model_size_bytes": 1109559,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": false,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": true,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_rf_compact_w3",
+      "name": "RandomForest Compact (80 Trees, Depth 16, W=3)",
+      "hypothesis": "RandomForest bootstrap aggregation provides alternative split variance reduction vs ExtraTrees",
+      "architecture": "RandomForestClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 3.0,
+      "threshold": 0.67966008004002,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009949148795047534,
+        "malicious_recall": 0.8719354078264969,
+        "roc_auc": 0.9671890054478743,
+        "confusion_matrix": [
+          [
+            26868,
+            270
+          ],
+          [
+            2173,
+            14795
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.00921288341315395,
+        "malicious_recall": 0.882459625183522,
+        "roc_auc": 0.9829270360483615,
+        "confusion_matrix": [
+          [
+            27101,
+            252
+          ],
+          [
+            2722,
+            20436
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.019908116385911178,
+        "malicious_recall": 0.6135552913198573,
+        "roc_auc": 0.9630092278146717,
+        "confusion_matrix": [
+          [
+            1920,
+            39
+          ],
+          [
+            325,
+            516
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9128205128205128,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            340,
+            3560
+          ]
+        ]
+      },
+      "fit_seconds": 16.425118799999836,
+      "artifact": "model/challengers/v7_rf_compact_w3",
+      "model_size_bytes": 12065976,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": false,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": false,
+        "bundle_size_pass": false,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_mlp_dense_w1",
+      "name": "Compact Neural MLP (W=1)",
+      "hypothesis": "Smooth continuous neural boundaries on StandardScaled features prevent sharp split artifacts",
+      "architecture": "MLPClassifier",
+      "feature_count": 53,
+      "feature_schema_sha256": "852bd096b106b49bdd41a98605a119b6dc28993ebfd272e68880e2bacbad2b54",
+      "seed": 42,
+      "structural_weight": 1.0,
+      "threshold": 0.10194922461230617,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "structural_dataset_sha256": "f67c2f86692e68c368210191ba173d75988b96ccc9f808971230f3a1e39f152e",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "structural_rows": 48290,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009949148795047534,
+        "malicious_recall": 0.9471357850070722,
+        "roc_auc": 0.9777983383877379,
+        "confusion_matrix": [
+          [
+            26868,
+            270
+          ],
+          [
+            897,
+            16071
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.010419332431543159,
+        "malicious_recall": 0.9846273426029881,
+        "roc_auc": 0.997038193502839,
+        "confusion_matrix": [
+          [
+            27068,
+            285
+          ],
+          [
+            356,
+            22802
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.0816743236345074,
+        "malicious_recall": 0.9476813317479191,
+        "roc_auc": 0.9680058317992083,
+        "confusion_matrix": [
+          [
+            1799,
+            160
+          ],
+          [
+            44,
+            797
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9158974358974359,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            328,
+            3572
+          ]
+        ]
+      },
+      "fit_seconds": 78.85061630000018,
+      "artifact": "model/challengers/v7_mlp_dense_w1",
+      "model_size_bytes": 220945,
+      "gates": {
+        "test_fpr_pass": false,
+        "test_recall_pass": true,
+        "hard_fpr_pass": false,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": false,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V7",
+      "experiment_id": "v7_hybrid_blend_et_hgb",
+      "name": "Hybrid Blend (Compact ExtraTrees + Regularized HGB)",
+      "hypothesis": "Equal blend of compact ExtraTrees and regularized HGB provides stable joint operating point under 8 MB bundle size",
+      "architecture": "Ensemble(ExtraTrees+HistGradientBoosting)",
+      "feature_count": 53,
+      "threshold": 0.4267866433216609,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009985997494288452,
+        "malicious_recall": 0.9220297029702971,
+        "roc_auc": 0.9715023695920018,
+        "confusion_matrix": [
+          [
+            26867,
+            271
+          ],
+          [
+            1323,
+            15645
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.00870105655686762,
+        "malicious_recall": 0.9323775801019086,
+        "roc_auc": 0.9911586035666218,
+        "confusion_matrix": [
+          [
+            27115,
+            238
+          ],
+          [
+            1566,
+            21592
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.11281265952016335,
+        "malicious_recall": 0.9084423305588585,
+        "roc_auc": 0.9731256513581936,
+        "confusion_matrix": [
+          [
+            1738,
+            221
+          ],
+          [
+            77,
+            764
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9574358974358974,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            166,
+            3734
+          ]
+        ]
+      },
+      "model_size_bytes": 7905675,
+      "gates": {
+        "test_fpr_pass": true,
+        "test_recall_pass": false,
+        "hard_fpr_pass": false,
+        "hard_recall_pass": false,
+        "adversarial_recall_pass": true,
+        "bundle_size_pass": true,
+        "all_gates_pass": false
+      },
+      "promotion_status": "challenger_only"
+    }
+  ]
+}

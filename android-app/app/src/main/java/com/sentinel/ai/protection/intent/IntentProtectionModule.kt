@@ -41,10 +41,4 @@ abstract class IntentProtectionModule {
     abstract fun bindScanRepository(
         repository: IntentScanRepository
     ): ScanRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindMLInferenceEngine(
-        engine: com.sentinel.ai.ml.MLInferenceManager
-    ): com.sentinel.ai.ml.MLInferenceEngine
 }

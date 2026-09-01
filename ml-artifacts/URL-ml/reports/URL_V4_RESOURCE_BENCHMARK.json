@@ -1,0 +1,7 @@
+{
+  "experiment_id": "v4_weight40_extra40",
+  "model_size_bytes": 4762912,
+  "inference_ms_per_url_development_host": 0.01494,
+  "total_inference_target_ms": 10.0,
+  "android_compatible_preprocessing": true
+}

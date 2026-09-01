@@ -1,0 +1,296 @@
+{
+  "campaign": "URL-ML V6",
+  "protocol": {
+    "train_source": "cleaned_dataset.csv + remediation_v3 + explicitly synthetic domain-disjoint benign rows",
+    "threshold_selection": "validation_only",
+    "protected_evaluation": [
+      "hard_dataset.csv",
+      "URL_REMEDIATION_ADVERSARIAL_PREDICTIONS.csv"
+    ],
+    "frozen_champion_untouched": true,
+    "champion_sha256": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a"
+  },
+  "generated_at": "2026-08-29T13:57:06.361947+00:00",
+  "experiments": [
+    {
+      "campaign": "URL-ML V6",
+      "experiment_id": "v6_et_rem3_syn1_w20",
+      "hypothesis": "domain-disjoint benign structural coverage can reduce source-shift false positives",
+      "architecture": "ExtraTreesClassifier",
+      "feature_count": 92,
+      "feature_schema_sha256": "1e7cf3348d3d7fb30d375630f980594eb0dfa1cdd8e310ce77f649168d114528",
+      "seed": 42,
+      "remediation_weight": 20.0,
+      "synthetic_weight": 1.0,
+      "threshold": 0.20600000000000002,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "synthetic_sha256": "ea6849ac51ae18bb2442ba4f36ced17aa4752fe8405e1b8d06c03208ff4e663b",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "remediation_rows": 3430,
+      "synthetic_rows": 400,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009985997494288452,
+        "malicious_recall": 0.9894507307873645,
+        "roc_auc": 0.9980986957228302,
+        "confusion_matrix": [
+          [
+            26867,
+            271
+          ],
+          [
+            179,
+            16789
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.008042993455928052,
+        "malicious_recall": 0.9939545729337594,
+        "roc_auc": 0.9988378155776881,
+        "confusion_matrix": [
+          [
+            27133,
+            220
+          ],
+          [
+            140,
+            23018
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.36957631444614597,
+        "malicious_recall": 0.9714625445897741,
+        "roc_auc": 0.9687511949786316,
+        "confusion_matrix": [
+          [
+            1235,
+            724
+          ],
+          [
+            24,
+            817
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9935897435897436,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            25,
+            3875
+          ]
+        ]
+      },
+      "fit_seconds": 55.61107339999944,
+      "artifact": "model/challengers/v6_et_rem3_syn1_w20",
+      "model_size_bytes": 16603552,
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V6",
+      "experiment_id": "v6_hgb_rem3_syn1_w20",
+      "hypothesis": "domain-disjoint benign structural coverage can reduce source-shift false positives",
+      "architecture": "HistGradientBoostingClassifier",
+      "feature_count": 92,
+      "feature_schema_sha256": "1e7cf3348d3d7fb30d375630f980594eb0dfa1cdd8e310ce77f649168d114528",
+      "seed": 42,
+      "remediation_weight": 20.0,
+      "synthetic_weight": 1.0,
+      "threshold": 0.052000000000000005,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "synthetic_sha256": "ea6849ac51ae18bb2442ba4f36ced17aa4752fe8405e1b8d06c03208ff4e663b",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "remediation_rows": 3430,
+      "synthetic_rows": 400,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009470115704915617,
+        "malicious_recall": 0.9904526166902404,
+        "roc_auc": 0.9975497623788783,
+        "confusion_matrix": [
+          [
+            26881,
+            257
+          ],
+          [
+            162,
+            16806
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.010163419003399992,
+        "malicious_recall": 0.9957682010536316,
+        "roc_auc": 0.9987342431480422,
+        "confusion_matrix": [
+          [
+            27075,
+            278
+          ],
+          [
+            98,
+            23060
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.366513527309852,
+        "malicious_recall": 0.9750297265160524,
+        "roc_auc": 0.9545929364092309,
+        "confusion_matrix": [
+          [
+            1241,
+            718
+          ],
+          [
+            21,
+            820
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9966666666666667,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            13,
+            3887
+          ]
+        ]
+      },
+      "fit_seconds": 90.9415452000012,
+      "artifact": "model/challengers/v6_hgb_rem3_syn1_w20",
+      "model_size_bytes": 921407,
+      "promotion_status": "challenger_only"
+    },
+    {
+      "campaign": "URL-ML V6",
+      "experiment_id": "v6_et_rem3_syn2_w10",
+      "hypothesis": "domain-disjoint benign structural coverage can reduce source-shift false positives",
+      "architecture": "ExtraTreesClassifier",
+      "feature_count": 92,
+      "feature_schema_sha256": "1e7cf3348d3d7fb30d375630f980594eb0dfa1cdd8e310ce77f649168d114528",
+      "seed": 43,
+      "remediation_weight": 10.0,
+      "synthetic_weight": 2.0,
+      "threshold": 0.17500000000000002,
+      "source_dataset_sha256": "6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256": "0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "synthetic_sha256": "ea6849ac51ae18bb2442ba4f36ced17aa4752fe8405e1b8d06c03208ff4e663b",
+      "hard_dataset_sha256": "fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "train_rows": 141178,
+      "remediation_rows": 3430,
+      "synthetic_rows": 400,
+      "validation": {
+        "n": 44106,
+        "benign_fpr": 0.009728056599602034,
+        "malicious_recall": 0.9923974540311173,
+        "roc_auc": 0.9982146579365305,
+        "confusion_matrix": [
+          [
+            26874,
+            264
+          ],
+          [
+            129,
+            16839
+          ]
+        ]
+      },
+      "test": {
+        "n": 50511,
+        "benign_fpr": 0.008042993455928052,
+        "malicious_recall": 0.9949909318594007,
+        "roc_auc": 0.9989397698607889,
+        "confusion_matrix": [
+          [
+            27133,
+            220
+          ],
+          [
+            116,
+            23042
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_fpr": 0.46911689637570186,
+        "malicious_recall": 0.9726516052318668,
+        "roc_auc": 0.9651548783352423,
+        "confusion_matrix": [
+          [
+            1040,
+            919
+          ],
+          [
+            23,
+            818
+          ]
+        ]
+      },
+      "adversarial": {
+        "n": 3900,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9935897435897436,
+        "roc_auc": NaN,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            25,
+            3875
+          ]
+        ]
+      },
+      "fit_seconds": 57.965676600000734,
+      "artifact": "model/challengers/v6_et_rem3_syn2_w10",
+      "model_size_bytes": 16161792,
+      "promotion_status": "challenger_only"
+    },
+    {
+      "experiment_id":"v6_char_tfidf_logreg",
+      "hypothesis":"normalized character morphology can provide domain-independent separation missed by scalar structural features",
+      "architecture":"TfidfVectorizer(char 2-5)+LogisticRegression",
+      "feature_count":60000,
+      "seed":42,
+      "threshold":0.0785,
+      "source_dataset_sha256":"6c71c39dd0291b8ef58b31610ac892cd6fe2186876908d42a7b24dcbf06caf2f",
+      "remediation_sha256":"0f8da3fba16a33e6bbf9217cb6d24308cf28c2ab8b0988aeacbb39d21fad527e",
+      "hard_dataset_sha256":"fc0966ed0deaea81496d5a3f384b8cdbdcd2019a2c58cbea153f6f0728ef177f",
+      "validation":{"benign_fpr":0.008917385216301865,"malicious_recall":0.9956977840641207,"roc_auc":0.9986135774635231},
+      "test":{"benign_fpr":0.007860198150111505,"malicious_recall":0.996631833491666,"roc_auc":0.9990159506214545},
+      "hard_source_holdout":{"benign_fpr":0.6983154670750383,"malicious_recall":1.0,"roc_auc":0.8833822250304852},
+      "adversarial":{"malicious_recall":0.9958974358974358},
+      "model_size_bytes":2523835,
+      "artifact":"model/challengers/v6_char_tfidf_logreg",
+      "promotion_status":"challenger_only",
+      "reproduction_status":"independent serialized inference exact"
+    }
+  ]
+}

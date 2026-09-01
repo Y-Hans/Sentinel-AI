@@ -6,6 +6,7 @@ import com.sentinel.ai.core.data.local.ThreatRecordEntity
 import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.event.ThreatJournal
+import com.sentinel.ai.core.fusion.DefaultRiskFusionEngine
 import com.sentinel.ai.core.model.ProtectionDecision
 import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
@@ -54,7 +55,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
         val emitted = async(start = CoroutineStart.UNDISPATCHED) { bus.events.first() }
 
@@ -83,7 +85,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         coordinator.onWhatsAppNotification(
@@ -113,7 +116,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         assertEquals(0, bus.events.replayCache.size)
@@ -158,7 +162,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         val job = async(start = CoroutineStart.UNDISPATCHED) {
@@ -195,7 +200,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         // 1. Elevated BLOCK (Critical)
@@ -238,7 +244,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         // Benign notification from known contact
@@ -266,7 +273,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         try {
@@ -297,7 +305,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         coordinator.onWhatsAppNotification(
@@ -322,7 +331,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
         val events = mutableListOf<ThreatEvent>()
         val collector = launch(start = CoroutineStart.UNDISPATCHED) {
@@ -354,7 +364,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = bus,
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
         val events = mutableListOf<ThreatEvent>()
         val collector = launch(start = CoroutineStart.UNDISPATCHED) {
@@ -390,7 +401,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         val count = 10
@@ -422,7 +434,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         // 5 copies of message A from Sender A and 5 copies of message B from Sender B
@@ -455,7 +468,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         // Persist 3 distinct notifications
@@ -496,7 +510,8 @@ class WhatsAppAgentCoordinatorTest {
             builder = WhatsAppEventBuilder(),
             threatEventBus = ThreatEventBus(),
             threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
         )
 
         // 1. Same sender, different messages -> NOT duplicate

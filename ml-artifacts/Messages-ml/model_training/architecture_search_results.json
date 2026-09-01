@@ -1,0 +1,65 @@
+[
+  {
+    "model_name": "1_Improved_LR",
+    "train_time": 0.7201766967773438,
+    "macro_f1": 0.6098606589654904,
+    "malicious_recall": 0.5643350604490501,
+    "benign_fpr": 0.0322180916976456,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.0008435249328613281
+  },
+  {
+    "model_name": "2_HistGBM_Light",
+    "train_time": 6.816530466079712,
+    "macro_f1": 0.6824287304564192,
+    "malicious_recall": 0.9525043177892919,
+    "benign_fpr": 0.08674101610904585,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.03970026969909668
+  },
+  {
+    "model_name": "3_MLP_32_16",
+    "train_time": 2.404446840286255,
+    "macro_f1": 0.6852181367383117,
+    "malicious_recall": 0.9546632124352331,
+    "benign_fpr": 0.10285006195786865,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.002332448959350586
+  },
+  {
+    "model_name": "3_MLP_64_32",
+    "train_time": 5.689112901687622,
+    "macro_f1": 0.6839359597723839,
+    "malicious_recall": 0.9598445595854922,
+    "benign_fpr": 0.11771995043370508,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.002641916275024414
+  },
+  {
+    "model_name": "4_LR_NGram",
+    "train_time": 5.113847494125366,
+    "macro_f1": 0.689765373884735,
+    "malicious_recall": 0.7171848013816926,
+    "benign_fpr": 0.03965303593556382,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.0011827945709228516
+  },
+  {
+    "model_name": "4_GBM_NGram",
+    "train_time": 4.028522253036499,
+    "macro_f1": 0.7363087503351272,
+    "malicious_recall": 0.959412780656304,
+    "benign_fpr": 0.06319702602230483,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.0505833625793457
+  },
+  {
+    "model_name": "5_MLP_NGram",
+    "train_time": 4.104879140853882,
+    "macro_f1": 0.7431158391240058,
+    "malicious_recall": 0.9503454231433506,
+    "benign_fpr": 0.09541511771995044,
+    "hard_negative_fpr": 0.2682926829268293,
+    "inference_time": 0.003447294235229492
+  }
+]

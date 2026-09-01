@@ -1,0 +1,19 @@
+{
+  "decision": "BOTH_REQUIRED",
+  "finalist": "challenger_hardsource_v3_extra40",
+  "threshold": 0.459,
+  "test": {
+    "benign_fpr": 0.009628105247684845,
+    "malicious_recall": 0.8939646137722705
+  },
+  "hard_source": {
+    "benign_fpr": 0.05666156202143951,
+    "malicious_recall": 0.9702734839476813,
+    "roc_auc": 0.9880107604221864
+  },
+  "model_size_bytes": 4817785,
+  "independent_reproduction": true,
+  "ood": "OOD_UNAVAILABLE",
+  "promotion": false,
+  "full_audit": "URL_FINAL_RELEASE_AUDIT_V2.json"
+}

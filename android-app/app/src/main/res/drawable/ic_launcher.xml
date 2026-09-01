@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="@color/sentinel_launcher_background"
-        android:pathData="M54,4A50,50 0,1 0,54,104A50,50 0,1 0,54,4" />
-    <path
-        android:fillColor="@color/sentinel_launcher_accent"
-        android:pathData="M54,16L86,29V51C86,70 73,86 54,95C35,86 22,70 22,51V29L54,16Z" />
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M39,53L49,63L70,42"
-        android:strokeColor="@color/sentinel_launcher_check"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="7" />
-</vector>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/logo"
+    android:gravity="center" />

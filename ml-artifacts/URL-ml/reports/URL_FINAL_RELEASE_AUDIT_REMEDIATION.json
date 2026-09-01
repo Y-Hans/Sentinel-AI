@@ -1,0 +1,344 @@
+{
+  "generated_at": "2026-08-29T11:27:29.327572+00:00",
+  "decision": "MODEL_REMEDIATION_REQUIRED",
+  "frozen_champion": {
+    "artifact": "model/champion/model.joblib",
+    "sha256": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a",
+    "untouched": true
+  },
+  "finalist": {
+    "artifact": "model/challengers/challenger_hardsource_v2_extra40/model.joblib",
+    "sha256": "7538d7f3974348123e7984c6b73547f98361fc9799065d80aa88fe407fbdb8b3",
+    "threshold": 0.4525,
+    "test": {
+      "n": 43433,
+      "benign_n": 27212,
+      "malicious_n": 16221,
+      "benign_fpr": 0.010767308540349846,
+      "malicious_recall": 0.9243573145921953,
+      "confusion_matrix": [
+        [
+          26919,
+          293
+        ],
+        [
+          1227,
+          14994
+        ]
+      ]
+    },
+    "hard_source_holdout": {
+      "n": 2800,
+      "benign_n": 1959,
+      "malicious_n": 841,
+      "benign_fpr": 0.1669218989280245,
+      "malicious_recall": 0.9690844233055886,
+      "confusion_matrix": [
+        [
+          1632,
+          327
+        ],
+        [
+          26,
+          815
+        ]
+      ]
+    },
+    "adversarial": {
+      "case_manipulation": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9166666666666666,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            25,
+            275
+          ]
+        ]
+      },
+      "double_encoding": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ]
+      },
+      "homoglyph_like": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.92,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            24,
+            276
+          ]
+        ]
+      },
+      "ip_style": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ]
+      },
+      "misleading_subdomain": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ]
+      },
+      "nested_url": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9866666666666667,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            4,
+            296
+          ]
+        ]
+      },
+      "path_manipulation": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9166666666666666,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            25,
+            275
+          ]
+        ]
+      },
+      "percent_encoding": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ]
+      },
+      "punycode_like": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9733333333333334,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            8,
+            292
+          ]
+        ]
+      },
+      "query_manipulation": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9666666666666667,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            10,
+            290
+          ]
+        ]
+      },
+      "separator_insert": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.92,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            24,
+            276
+          ]
+        ]
+      },
+      "subdomain_manipulation": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.97,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            9,
+            291
+          ]
+        ]
+      },
+      "unusual_port": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9633333333333334,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            11,
+            289
+          ]
+        ]
+      }
+    },
+    "source_holdout": {
+      "n": 2800,
+      "domains": 688,
+      "registrable_domains": 688,
+      "benign": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.1669218989280245,
+        "malicious_recall": 0.9690844233055886,
+        "confusion_matrix": [
+          [
+            1632,
+            327
+          ],
+          [
+            26,
+            815
+          ]
+        ]
+      },
+      "unseen_source_protocol": "fit on original train plus remediation only; hard source excluded"
+    },
+    "resource": {
+      "model_file_bytes": 4824825,
+      "benchmark_n": 2000,
+      "preprocessing_ms_per_url": 3.3043012000000545,
+      "inference_ms_per_url": 0.01023510000004535,
+      "total_ms_per_url": 3.3145363000001
+    },
+    "independent_reproduction": {
+      "fit_seconds": 5.807467000000088,
+      "model_sha256": "73602de6579250cab18cf8d553130202e607145201ea9d21a2659dec9ff9ec8f",
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.010767308540349846,
+        "malicious_recall": 0.9243573145921953,
+        "confusion_matrix": [
+          [
+            26919,
+            293
+          ],
+          [
+            1227,
+            14994
+          ]
+        ]
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.1669218989280245,
+        "malicious_recall": 0.9690844233055886,
+        "confusion_matrix": [
+          [
+            1632,
+            327
+          ],
+          [
+            26,
+            815
+          ]
+        ]
+      },
+      "metrics_match_saved": true
+    },
+    "ood": {
+      "status": "not_available",
+      "reason": "repository contains no separate URL-ML OOD file; TEST and hard-source were not repurposed as OOD"
+    }
+  }
+}

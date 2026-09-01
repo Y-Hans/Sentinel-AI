@@ -1,0 +1,2164 @@
+{
+  "decision": "BOTH_REQUIRED",
+  "generated_at": "2026-08-29T11:41:23.982722+00:00",
+  "frozen_champion": {
+    "artifact": "model/champion/model.joblib",
+    "sha256": "bd412cae0749e18ee85ca3cb069ca1de7f67c9ea37f4f59d9ea0adb8bffbac2a",
+    "untouched": true
+  },
+  "finalist": {
+    "artifact": "model/challengers/challenger_hardsource_v3_extra40/model.joblib",
+    "sha256": "e1538d1252db822c422cb10e314dec8d5947392251537c131990ec2f80d66ec0",
+    "threshold": 0.459,
+    "test": {
+      "n": 43433,
+      "benign_n": 27212,
+      "malicious_n": 16221,
+      "benign_fpr": 0.009628105247684845,
+      "malicious_recall": 0.8939646137722705,
+      "confusion_matrix": [
+        [
+          26950,
+          262
+        ],
+        [
+          1720,
+          14501
+        ]
+      ]
+    },
+    "hard_source": {
+      "n": 2800,
+      "benign_n": 1959,
+      "malicious_n": 841,
+      "benign_fpr": 0.05666156202143951,
+      "malicious_recall": 0.9702734839476813,
+      "confusion_matrix": [
+        [
+          1848,
+          111
+        ],
+        [
+          25,
+          816
+        ]
+      ]
+    },
+    "hard_source_per_tld": {
+      "107": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "108": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "109": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "110": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "113": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "115": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "12": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "127": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "129": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "13": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "133": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "134": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "135": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "137": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "142": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "145": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "150": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "152": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "154": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "157": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "158": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "159": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "160": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "161": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "162": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "163": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "164": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "170": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "171": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "174": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "177": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "178": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "181": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "183": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "184": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "185": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "186": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "188": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "190": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "192": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "194": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "200": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "207": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "212": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "22": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "222": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "223": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "224": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "227": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "23": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "230": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "232": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "233": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "235": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "236": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "240": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "244": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "246": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "249": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "25": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "253": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "29": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "31": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "33": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "37": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "39": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "4": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "40": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "41": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "42": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "47": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "49": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "50": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "52": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "53": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "65": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "76": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "79": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "80": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "81": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "83": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "88": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "91": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "92": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "97": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "98": {
+        "n": 1,
+        "benign_n": 0,
+        "malicious_n": 1,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      "biz": {
+        "n": 2,
+        "benign_n": 0,
+        "malicious_n": 2,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "cf": {
+        "n": 43,
+        "benign_n": 0,
+        "malicious_n": 43,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            43
+          ]
+        ]
+      },
+      "click": {
+        "n": 45,
+        "benign_n": 0,
+        "malicious_n": 45,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            45
+          ]
+        ]
+      },
+      "club": {
+        "n": 32,
+        "benign_n": 0,
+        "malicious_n": 32,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            32
+          ]
+        ]
+      },
+      "co": {
+        "n": 22,
+        "benign_n": 0,
+        "malicious_n": 22,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            22
+          ]
+        ]
+      },
+      "com": {
+        "n": 1655,
+        "benign_n": 1487,
+        "malicious_n": 168,
+        "benign_fpr": 0.04640215198386012,
+        "malicious_recall": 0.8511904761904762,
+        "confusion_matrix": [
+          [
+            1418,
+            69
+          ],
+          [
+            25,
+            143
+          ]
+        ]
+      },
+      "edu": {
+        "n": 78,
+        "benign_n": 78,
+        "malicious_n": 0,
+        "benign_fpr": 0.0641025641025641,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            73,
+            5
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "eu": {
+        "n": 15,
+        "benign_n": 15,
+        "malicious_n": 0,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "gov": {
+        "n": 115,
+        "benign_n": 115,
+        "malicious_n": 0,
+        "benign_fpr": 0.10434782608695652,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            103,
+            12
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "gq": {
+        "n": 43,
+        "benign_n": 0,
+        "malicious_n": 43,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            43
+          ]
+        ]
+      },
+      "info": {
+        "n": 17,
+        "benign_n": 0,
+        "malicious_n": 17,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            17
+          ]
+        ]
+      },
+      "int": {
+        "n": 20,
+        "benign_n": 20,
+        "malicious_n": 0,
+        "benign_fpr": 0.05,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            19,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "io": {
+        "n": 8,
+        "benign_n": 8,
+        "malicious_n": 0,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            8,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "loan": {
+        "n": 21,
+        "benign_n": 0,
+        "malicious_n": 21,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            21
+          ]
+        ]
+      },
+      "men": {
+        "n": 38,
+        "benign_n": 0,
+        "malicious_n": 38,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            38
+          ]
+        ]
+      },
+      "ml": {
+        "n": 50,
+        "benign_n": 0,
+        "malicious_n": 50,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            50
+          ]
+        ]
+      },
+      "net": {
+        "n": 33,
+        "benign_n": 0,
+        "malicious_n": 33,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            33
+          ]
+        ]
+      },
+      "online": {
+        "n": 21,
+        "benign_n": 0,
+        "malicious_n": 21,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            21
+          ]
+        ]
+      },
+      "org": {
+        "n": 149,
+        "benign_n": 149,
+        "malicious_n": 0,
+        "benign_fpr": 0.040268456375838924,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            143,
+            6
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "so": {
+        "n": 22,
+        "benign_n": 22,
+        "malicious_n": 0,
+        "benign_fpr": 0.09090909090909091,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            20,
+            2
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "tk": {
+        "n": 34,
+        "benign_n": 0,
+        "malicious_n": 34,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            34
+          ]
+        ]
+      },
+      "top": {
+        "n": 53,
+        "benign_n": 0,
+        "malicious_n": 53,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            53
+          ]
+        ]
+      },
+      "tv": {
+        "n": 20,
+        "benign_n": 20,
+        "malicious_n": 0,
+        "benign_fpr": 0.35,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            13,
+            7
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "uk": {
+        "n": 34,
+        "benign_n": 34,
+        "malicious_n": 0,
+        "benign_fpr": 0.20588235294117646,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            27,
+            7
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "us": {
+        "n": 11,
+        "benign_n": 11,
+        "malicious_n": 0,
+        "benign_fpr": 0.18181818181818182,
+        "malicious_recall": 0.0,
+        "confusion_matrix": [
+          [
+            9,
+            2
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "win": {
+        "n": 24,
+        "benign_n": 0,
+        "malicious_n": 24,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            24
+          ]
+        ]
+      },
+      "work": {
+        "n": 43,
+        "benign_n": 0,
+        "malicious_n": 43,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            43
+          ]
+        ]
+      },
+      "xyz": {
+        "n": 46,
+        "benign_n": 0,
+        "malicious_n": 46,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            46
+          ]
+        ]
+      }
+    },
+    "source_holdout": {
+      "source": "hard",
+      "n": 2800,
+      "registrable_domains": 688,
+      "protocol": "fit on original train plus remediation v3; hard source excluded"
+    },
+    "adversarial": {
+      "extra_subdomain": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9566666666666667,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            13,
+            287
+          ]
+        ]
+      },
+      "mixed_case": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.8933333333333333,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            32,
+            268
+          ]
+        ]
+      },
+      "nested_url": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.98,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            6,
+            294
+          ]
+        ]
+      },
+      "percent_encoding": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 1.0,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ]
+      },
+      "query_randomization": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.9666666666666667,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            10,
+            290
+          ]
+        ]
+      },
+      "separator_insert": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.8933333333333333,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            32,
+            268
+          ]
+        ]
+      },
+      "trailing_dot": {
+        "n": 300,
+        "benign_n": 0,
+        "malicious_n": 300,
+        "benign_fpr": 0.0,
+        "malicious_recall": 0.8966666666666666,
+        "confusion_matrix": [
+          [
+            0,
+            0
+          ],
+          [
+            31,
+            269
+          ]
+        ]
+      }
+    },
+    "resource": {
+      "model_file_bytes": 4817785,
+      "benchmark_n": 2000,
+      "preprocessing_ms_per_url": 3.4084428999999545,
+      "inference_ms_per_url": 0.01253139999994346,
+      "total_ms_per_url": 3.420974299999898
+    },
+    "independent_reproduction": {
+      "model_sha256": "0c413a1e63a8a18e0d8865be896558d8cb6d1a5b3fb73faa69c95ba055bebef7",
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.009628105247684845,
+        "malicious_recall": 0.8939646137722705,
+        "confusion_matrix": [
+          [
+            26950,
+            262
+          ],
+          [
+            1720,
+            14501
+          ]
+        ]
+      },
+      "hard_source": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.05666156202143951,
+        "malicious_recall": 0.9702734839476813,
+        "confusion_matrix": [
+          [
+            1848,
+            111
+          ],
+          [
+            25,
+            816
+          ]
+        ]
+      },
+      "prediction_agreement": true
+    },
+    "ood": {
+      "status": "not_available",
+      "reason": "no separate URL-ML OOD artifact exists; no held-out rows were repurposed"
+    }
+  }
+}

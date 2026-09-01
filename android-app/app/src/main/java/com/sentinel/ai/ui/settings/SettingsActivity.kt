@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -26,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -38,14 +40,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import com.sentinel.ai.core.feature.FeatureManager
+import com.sentinel.ai.core.browser.BrowserOption
+import com.sentinel.ai.core.browser.BrowserSelectionPolicy
+import com.sentinel.ai.core.preferences.BrowserPreferenceRepository
 import com.sentinel.ai.ui.theme.SentinelTheme
 import com.sentinel.ai.ui.theme.rememberThemeMode
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SettingsActivity : ComponentActivity() {
     private var state by mutableStateOf(FeatureState())
     private var showDefaultBrowserDialog by mutableStateOf(false)
     private var awaitingNotificationAccess = false
     private var awaitingDefaultBrowser = false
+    private var showBrowserSelectionDialog by mutableStateOf(false)
+    private var browserPreference by mutableStateOf(BrowserPreferenceRepository.ASK_EVERY_TIME)
+
+    @Inject lateinit var browserPreferenceRepository: BrowserPreferenceRepository
+    @Inject lateinit var browserSelectionPolicy: BrowserSelectionPolicy
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,13 +69,15 @@ class SettingsActivity : ComponentActivity() {
             SentinelTheme(mode = themeMode.value) {
                 FeatureSettingsScreen(
                     state = state,
+                    currentBrowserPreference = browserPreference,
                     onBack = ::finish,
                     onNotificationChanged = ::setNotificationEnabled,
                     onClickChanged = ::setClickEnabled,
                     onTextChanged = {
                         FeatureManager.setTextEnabled(it)
                         refreshState()
-                    }
+                    },
+                    onChangeBrowserPreference = { showBrowserSelectionDialog = true }
                 )
                 if (showDefaultBrowserDialog) {
                     AlertDialog(
@@ -78,6 +93,20 @@ class SettingsActivity : ComponentActivity() {
                         },
                         dismissButton = {
                             TextButton(onClick = { showDefaultBrowserDialog = false }) { Text("Cancel") }
+                        }
+                    )
+                }
+                if (showBrowserSelectionDialog) {
+                    BrowserSelectionDialog(
+                        browsers = browserSelectionPolicy.availableBrowsers(this@SettingsActivity),
+                        currentPreference = browserPreference,
+                        onDismiss = { showBrowserSelectionDialog = false },
+                        onSelect = { packageName ->
+                            browserPreferenceRepository.setPreferredBrowser(
+                                packageName.takeUnless { it == BrowserPreferenceRepository.ASK_EVERY_TIME }
+                            )
+                            showBrowserSelectionDialog = false
+                            refreshState()
                         }
                     )
                 }
@@ -129,6 +158,7 @@ class SettingsActivity : ComponentActivity() {
             clickEnabled = FeatureManager.isClickEnabled(),
             textEnabled = FeatureManager.isTextEnabled()
         )
+        browserPreference = browserPreferenceRepository.getRawPreference()
     }
 
     private fun hasNotificationAccess(): Boolean =
@@ -182,10 +212,12 @@ private data class FeatureState(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun FeatureSettingsScreen(
     state: FeatureState,
+    currentBrowserPreference: String,
     onBack: () -> Unit,
     onNotificationChanged: (Boolean) -> Unit,
     onClickChanged: (Boolean) -> Unit,
-    onTextChanged: (Boolean) -> Unit
+    onTextChanged: (Boolean) -> Unit,
+    onChangeBrowserPreference: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -204,7 +236,61 @@ private fun FeatureSettingsScreen(
             FeatureToggle("Notification Protection", "Detect scams from incoming messages", "Requires notification access", state.notificationEnabled, onNotificationChanged)
             FeatureToggle("Click Protection", "Scan links before opening", "Requires Sentinel as the default browser", state.clickEnabled, onClickChanged)
             FeatureToggle("Text Selection", "Analyze selected text", null, state.textEnabled, onTextChanged)
+            Spacer(Modifier.height(16.dp))
+            Text("Preferences", style = MaterialTheme.typography.titleLarge)
+            Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onChangeBrowserPreference)) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Preferred Browser", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        if (currentBrowserPreference == BrowserPreferenceRepository.ASK_EVERY_TIME) "Ask every time" else currentBrowserPreference,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun BrowserSelectionDialog(
+    browsers: List<BrowserOption>,
+    currentPreference: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Preferred Browser") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                BrowserChoice(
+                    label = "Ask every time",
+                    selected = currentPreference == BrowserPreferenceRepository.ASK_EVERY_TIME,
+                    onClick = { onSelect(BrowserPreferenceRepository.ASK_EVERY_TIME) }
+                )
+                browsers.forEach { browser ->
+                    BrowserChoice(
+                        label = browser.label,
+                        selected = currentPreference == browser.packageName,
+                        onClick = { onSelect(browser.packageName) }
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
+}
+
+@Composable
+private fun BrowserChoice(label: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Text(label, modifier = Modifier.padding(start = 8.dp))
     }
 }
 

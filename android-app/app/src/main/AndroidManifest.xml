@@ -2,7 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
-        <package android:name="com.android.chrome" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -94,7 +103,7 @@
         <activity
             android:name="com.sentinel.ai.protection.intent.ScanLoadingActivity"
             android:exported="false"
-            android:theme="@style/Theme.SentinelAI" />
+            android:theme="@style/Theme.SentinelAI.ScanOverlay" />
 
         <activity
             android:name="com.sentinel.ai.warning.ScamWarningActivity"

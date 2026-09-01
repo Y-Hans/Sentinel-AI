@@ -1,0 +1,17 @@
+{
+  "phase": "final_representation_remediation",
+  "experiments": [
+    "challenger_hardsource_v3_extra40",
+    "challenger_hardsource_v3_extra40_w2",
+    "challenger_source_invariant_v3_logistic",
+    "challenger_source_invariant_v3_sgd",
+    "challenger_hybrid_v4_extra_logistic"
+  ],
+  "strongest": "challenger_hardsource_v3_extra40",
+  "strongest_test_benign_fpr": 0.009628105247684845,
+  "strongest_test_malicious_recall": 0.8939646137722705,
+  "strongest_hard_source_fpr": 0.05666156202143951,
+  "strongest_hard_source_malicious_recall": 0.9702734839476813,
+  "broad_grid_run": false,
+  "decision": "BOTH_REQUIRED"
+}

@@ -1,0 +1,1015 @@
+{
+  "audit_timestamp": "2026-08-26T17:55:18.174271+00:00",
+  "total_hard_negative_benign_records": 41,
+  "metrics": {
+    "original_label_fpr": {
+      "fp": 10,
+      "total": 41,
+      "fpr": 0.24390243902439024
+    },
+    "verified_benign_fpr": {
+      "fp": 10,
+      "total": 16,
+      "fpr": 0.625
+    },
+    "conservative_fpr": {
+      "fp": 10,
+      "total": 41,
+      "fpr": 0.24390243902439024
+    }
+  },
+  "adjudication_summary": {
+    "VERIFIED_BENIGN": 16,
+    "VERIFIED_MALICIOUS": 0,
+    "AMBIGUOUS": 0,
+    "INSUFFICIENT_EVIDENCE": 25
+  },
+  "taxonomy": {
+    "LEGIT_AUTHENTICATION": {
+      "total": 5,
+      "verified_benign": 5,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 0,
+      "false_positives": 0
+    },
+    "LEGIT_DELIVERY": {
+      "total": 10,
+      "verified_benign": 0,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 10,
+      "false_positives": 0
+    },
+    "LEGIT_ELECTRICITY": {
+      "total": 15,
+      "verified_benign": 10,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 5,
+      "false_positives": 10
+    },
+    "LEGIT_JOB_OFFER": {
+      "total": 1,
+      "verified_benign": 1,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 0,
+      "false_positives": 0
+    },
+    "LEGIT_KYC": {
+      "total": 10,
+      "verified_benign": 0,
+      "verified_malicious": 0,
+      "ambiguous": 0,
+      "insufficient": 10,
+      "false_positives": 0
+    }
+  },
+  "adjudications": [
+    {
+      "index": 0,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006049",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Income Tax Department: Non-filing of ITR for AY <NUM_CODE>-<NUM> may attract late fee under Section 234F. File return on official portal incometax.gov.in.",
+      "sender_header": "AD-INCOMET",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.4363058797768369,
+        "SUSPICIOUS_SPAM": 0.05033244191626998,
+        "MALICIOUS": 0.513361678306893
+      },
+      "prob_non_benign": 0.563694120223163,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_JOB_OFFER"
+    },
+    {
+      "index": 1,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006061",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "BESCOM Power Update: Scheduled power shutdown for feeder maintenance in your area on <DATE> from <TIME> to <TIME>. Inconvenience regretted.",
+      "sender_header": "AD-BESCOM",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9128276410609862,
+        "SUSPICIOUS_SPAM": 0.04887096615477438,
+        "MALICIOUS": 0.03830139278423936
+      },
+      "prob_non_benign": 0.08717235893901373,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 2,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006062",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "BESCOM Power Update: Scheduled power shutdown for feeder maintenance in your area on <DATE> from <TIME> to <TIME>. Inconvenience regretted.",
+      "sender_header": "AD-BESCOM",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9128276410609862,
+        "SUSPICIOUS_SPAM": 0.04887096615477438,
+        "MALICIOUS": 0.03830139278423936
+      },
+      "prob_non_benign": 0.08717235893901373,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 3,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006063",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "BESCOM Power Update: Scheduled power shutdown for feeder maintenance in your area on <DATE> from <TIME> to <TIME>. Inconvenience regretted.",
+      "sender_header": "AD-BESCOM",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9128276410609862,
+        "SUSPICIOUS_SPAM": 0.04887096615477438,
+        "MALICIOUS": 0.03830139278423936
+      },
+      "prob_non_benign": 0.08717235893901373,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 4,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006064",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "BESCOM Power Update: Scheduled power shutdown for feeder maintenance in your area on <DATE> from <TIME> to <TIME>. Inconvenience regretted.",
+      "sender_header": "AD-BESCOM",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9128276410609862,
+        "SUSPICIOUS_SPAM": 0.04887096615477438,
+        "MALICIOUS": 0.03830139278423936
+      },
+      "prob_non_benign": 0.08717235893901373,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 5,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006065",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "BESCOM Power Update: Scheduled power shutdown for feeder maintenance in your area on <DATE> from <TIME> to <TIME>. Inconvenience regretted.",
+      "sender_header": "AD-BESCOM",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9128276410609862,
+        "SUSPICIOUS_SPAM": 0.04887096615477438,
+        "MALICIOUS": 0.03830139278423936
+      },
+      "prob_non_benign": 0.08717235893901373,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 6,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006076",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 7,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006077",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 8,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006078",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 9,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006079",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 10,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006080",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 11,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006081",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 12,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006082",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 13,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006083",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 14,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006084",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 15,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006085",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "MSEDCL: Consumer No <NUM_CODE>, bill amount <AMOUNT> is due on <DATE>. Pay promptly through Mahavitaran official app.",
+      "sender_header": "AX-MAHADIS",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "MALICIOUS",
+      "predicted_probabilities": {
+        "BENIGN": 0.011989493595291452,
+        "SUSPICIOUS_SPAM": 0.2403791737170909,
+        "MALICIOUS": 0.7476313326876176
+      },
+      "prob_non_benign": 0.9880105064047084,
+      "primary_type": "SERVICE_UPDATE",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": true,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_ELECTRICITY"
+    },
+    {
+      "index": 16,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005942",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 17,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005943",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 18,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005944",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 19,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005945",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 20,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005946",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 21,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005947",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 22,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005948",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 23,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005949",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 24,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005950",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 25,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005951",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "Flipkart: Your order will be delivered today by Manoj. Share verification code <NUM_CODE> at the time of delivery.",
+      "sender_header": "AD-FLPKRT",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.24709560437350156,
+        "SUSPICIOUS_SPAM": 0.0026463231749382916,
+        "MALICIOUS": 0.7502580724515602
+      },
+      "prob_non_benign": 0.7529043956264985,
+      "primary_type": "DELIVERY",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_DELIVERY"
+    },
+    {
+      "index": 26,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006044",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "UIDAI Notification: Your Aadhaar authentication was performed on <DATE> via Biometric at Telecom Partner. If unauthorized, lock Aadhaar at resident.uidai.gov.in.",
+      "sender_header": "AD-UIDAIG",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9495110973589609,
+        "SUSPICIOUS_SPAM": 0.0014974342823115638,
+        "MALICIOUS": 0.04899146835872745
+      },
+      "prob_non_benign": 0.05048890264103901,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_AUTHENTICATION"
+    },
+    {
+      "index": 27,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006045",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "UIDAI Notification: Your Aadhaar authentication was performed on <DATE> via Biometric at Telecom Partner. If unauthorized, lock Aadhaar at resident.uidai.gov.in.",
+      "sender_header": "AD-UIDAIG",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9495110973589609,
+        "SUSPICIOUS_SPAM": 0.0014974342823115638,
+        "MALICIOUS": 0.04899146835872745
+      },
+      "prob_non_benign": 0.05048890264103901,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_AUTHENTICATION"
+    },
+    {
+      "index": 28,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006046",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "UIDAI Notification: Your Aadhaar authentication was performed on <DATE> via Biometric at Telecom Partner. If unauthorized, lock Aadhaar at resident.uidai.gov.in.",
+      "sender_header": "AD-UIDAIG",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9495110973589609,
+        "SUSPICIOUS_SPAM": 0.0014974342823115638,
+        "MALICIOUS": 0.04899146835872745
+      },
+      "prob_non_benign": 0.05048890264103901,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_AUTHENTICATION"
+    },
+    {
+      "index": 29,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006047",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "UIDAI Notification: Your Aadhaar authentication was performed on <DATE> via Biometric at Telecom Partner. If unauthorized, lock Aadhaar at resident.uidai.gov.in.",
+      "sender_header": "AD-UIDAIG",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9495110973589609,
+        "SUSPICIOUS_SPAM": 0.0014974342823115638,
+        "MALICIOUS": 0.04899146835872745
+      },
+      "prob_non_benign": 0.05048890264103901,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_AUTHENTICATION"
+    },
+    {
+      "index": 30,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0006048",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "UIDAI Notification: Your Aadhaar authentication was performed on <DATE> via Biometric at Telecom Partner. If unauthorized, lock Aadhaar at resident.uidai.gov.in.",
+      "sender_header": "AD-UIDAIG",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.9495110973589609,
+        "SUSPICIOUS_SPAM": 0.0014974342823115638,
+        "MALICIOUS": 0.04899146835872745
+      },
+      "prob_non_benign": 0.05048890264103901,
+      "primary_type": "GOVERNMENT_INFO",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "VERIFIED_BENIGN",
+      "adjudication_reason": "Directs to official portal/branch without suspicious behavior",
+      "hard_negative_category": "LEGIT_AUTHENTICATION"
+    },
+    {
+      "index": 31,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005852",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 32,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005853",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 33,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005854",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 34,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005855",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 35,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005856",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 36,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005857",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 37,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005858",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 38,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005859",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 39,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005860",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    },
+    {
+      "index": 40,
+      "message_id": "MSG_SRC_CURATED_HARD_NEGATIVES_V1_0005861",
+      "source_id": "SRC_CURATED_HARD_NEGATIVES_V1",
+      "raw_text": "<NUM_CODE> is the One Time Password (OTP) for adding payee on ICICI Bank NetBanking. Valid for <NUM> mins. If you did not request this, call <NUM><PHONE>.",
+      "sender_header": "VM-ICICIB",
+      "original_security_label": "BENIGN",
+      "predicted_security_label": "BENIGN",
+      "predicted_probabilities": {
+        "BENIGN": 0.7958516958155741,
+        "SUSPICIOUS_SPAM": 0.009094670108880303,
+        "MALICIOUS": 0.19505363407554555
+      },
+      "prob_non_benign": 0.20414830418442584,
+      "primary_type": "OTP_AUTH",
+      "threat_vectors": [
+        "NONE"
+      ],
+      "is_false_positive_by_original_label": false,
+      "adjudication_verdict": "INSUFFICIENT_EVIDENCE",
+      "adjudication_reason": "Cannot determine classification from message content alone",
+      "hard_negative_category": "LEGIT_KYC"
+    }
+  ],
+  "label_corrections_required": []
+}

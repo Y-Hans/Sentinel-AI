@@ -1,0 +1,233 @@
+{
+  "status": "MODEL_READY_FOR_PACKAGING",
+  "metrics": {
+    "TEST": {
+      "dataset": "TEST",
+      "samples": 2264,
+      "benign_fpr": 0.0019230769230769232,
+      "benign_to_suspicious_fpr": 0.0019230769230769232,
+      "benign_to_malicious_fpr": 0.0,
+      "malicious_recall": 0.8431876606683805,
+      "malicious_precision": 0.9805680119581465,
+      "macro_f1": 0.8072548836858906,
+      "inference_latency_ms": 0.9371007499762222,
+      "confusion_matrix": [
+        [
+          519,
+          1,
+          0
+        ],
+        [
+          13,
+          149,
+          26
+        ],
+        [
+          91,
+          153,
+          1312
+        ]
+      ]
+    },
+    "OOD": {
+      "dataset": "OOD",
+      "samples": 1132,
+      "benign_fpr": 0.0,
+      "benign_to_suspicious_fpr": 0.0,
+      "benign_to_malicious_fpr": 0.0,
+      "malicious_recall": 0.8375314861460957,
+      "malicious_precision": 0.979381443298969,
+      "macro_f1": 0.79006139258219,
+      "inference_latency_ms": 0.07312815939158517,
+      "confusion_matrix": [
+        [
+          255,
+          0,
+          0
+        ],
+        [
+          5,
+          64,
+          14
+        ],
+        [
+          48,
+          81,
+          665
+        ]
+      ]
+    },
+    "HARD_NEGATIVES": {
+      "dataset": "HARD_NEGATIVES",
+      "samples": 41,
+      "benign_fpr": 0.24390243902439024,
+      "benign_to_suspicious_fpr": 0.0,
+      "benign_to_malicious_fpr": 0.24390243902439024,
+      "malicious_recall": 0.0,
+      "malicious_precision": 0.0,
+      "macro_f1": 0.4305555555555556,
+      "inference_latency_ms": 0.14240567277117475,
+      "confusion_matrix": [
+        [
+          31,
+          0,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "SOURCES": {
+      "SRC_IMC25_FISHING_SMISHING": {
+        "dataset": "SRC_IMC25_FISHING_SMISHING",
+        "samples": 4045,
+        "benign_fpr": 0.0,
+        "benign_to_suspicious_fpr": 0.0,
+        "benign_to_malicious_fpr": 0.0,
+        "malicious_recall": 0.8392905133028755,
+        "malicious_precision": 0.980225988700565,
+        "macro_f1": 0.476036503110486,
+        "inference_latency_ms": 0.060652507692391264,
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            19,
+            242,
+            63
+          ],
+          [
+            240,
+            358,
+            3123
+          ]
+        ]
+      },
+      "SRC_MENDELEY_SMISHING_2022": {
+        "dataset": "SRC_MENDELEY_SMISHING_2022",
+        "samples": 1462,
+        "benign_fpr": 0.0032976092333058533,
+        "benign_to_suspicious_fpr": 0.0032976092333058533,
+        "benign_to_malicious_fpr": 0.0,
+        "malicious_recall": 0.359375,
+        "malicious_precision": 0.8679245283018868,
+        "macro_f1": 0.7332790756584829,
+        "inference_latency_ms": 0.08939750869688355,
+        "confusion_matrix": [
+          [
+            1209,
+            4,
+            0
+          ],
+          [
+            7,
+            107,
+            7
+          ],
+          [
+            8,
+            74,
+            46
+          ]
+        ]
+      },
+      "SRC_CURATED_HARD_NEGATIVES_V1": {
+        "dataset": "SRC_CURATED_HARD_NEGATIVES_V1",
+        "samples": 84,
+        "benign_fpr": 0.16393442622950818,
+        "benign_to_suspicious_fpr": 0.0,
+        "benign_to_malicious_fpr": 0.16393442622950818,
+        "malicious_recall": 1.0,
+        "malicious_precision": 0.696969696969697,
+        "macro_f1": 0.8660714285714286,
+        "inference_latency_ms": 0.06745826630365281,
+        "confusion_matrix": [
+          [
+            51,
+            0,
+            10
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            23
+          ]
+        ]
+      },
+      "SRC_UCI_SMS_SPAM_2011": {
+        "dataset": "SRC_UCI_SMS_SPAM_2011",
+        "samples": 70,
+        "benign_fpr": 0.018867924528301886,
+        "benign_to_suspicious_fpr": 0.018867924528301886,
+        "benign_to_malicious_fpr": 0.0,
+        "malicious_recall": 0.0,
+        "malicious_precision": 0.0,
+        "macro_f1": 0.9611542730299667,
+        "inference_latency_ms": 0.08171285901750837,
+        "confusion_matrix": [
+          [
+            52,
+            1,
+            0
+          ],
+          [
+            1,
+            16,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "LANGUAGES": {
+      "en": {
+        "dataset": "en",
+        "samples": 5635,
+        "benign_fpr": 0.011337868480725623,
+        "benign_to_suspicious_fpr": 0.003779289493575208,
+        "benign_to_malicious_fpr": 0.007558578987150416,
+        "malicious_recall": 0.8247663551401869,
+        "malicious_precision": 0.9757371007371007,
+        "macro_f1": 0.7910985972984862,
+        "inference_latency_ms": 0.055800990499853556,
+        "confusion_matrix": [
+          [
+            1308,
+            5,
+            10
+          ],
+          [
+            27,
+            364,
+            69
+          ],
+          [
+            245,
+            430,
+            3177
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "generated_at": "2026-08-29T11:17:33.023724+00:00",
+  "dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+  "experiments": {
+    "challenger_hardsource_v1_full_w1": {
+      "experiment_id": "challenger_hardsource_v1_full_w1",
+      "architecture": "RandomForestClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.2675,
+      "remediation_dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+      "remediation_rows": 980,
+      "remediation_weight": 1.0,
+      "fit_seconds": 11.275781800000004,
+      "artifact": "model/challengers/challenger_hardsource_v1_full_w1/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.00993169651098394,
+        "malicious_recall": 0.9881271201571148,
+        "confusion_matrix": [
+          [
+            26816,
+            269
+          ],
+          [
+            266,
+            22138
+          ]
+        ],
+        "roc_auc": 0.997907460978793
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.00966485374099662,
+        "malicious_recall": 0.9836015042229209,
+        "confusion_matrix": [
+          [
+            26949,
+            263
+          ],
+          [
+            266,
+            15955
+          ]
+        ],
+        "roc_auc": 0.9985081348672288
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.4175599795814191,
+        "malicious_recall": 0.9988109393579072,
+        "confusion_matrix": [
+          [
+            1141,
+            818
+          ],
+          [
+            1,
+            840
+          ]
+        ],
+        "roc_auc": 0.992561846024234
+      },
+      "serialized_model_bytes": 12931161
+    },
+    "challenger_hardsource_v1_full_w5": {
+      "experiment_id": "challenger_hardsource_v1_full_w5",
+      "architecture": "RandomForestClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.2515,
+      "remediation_dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+      "remediation_rows": 980,
+      "remediation_weight": 5.0,
+      "fit_seconds": 11.145135900000014,
+      "artifact": "model/challengers/challenger_hardsource_v1_full_w5/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.00993169651098394,
+        "malicious_recall": 0.9902695947152295,
+        "confusion_matrix": [
+          [
+            26816,
+            269
+          ],
+          [
+            218,
+            22186
+          ]
+        ],
+        "roc_auc": 0.9979495398857577
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.009995590180802587,
+        "malicious_recall": 0.9854509586338697,
+        "confusion_matrix": [
+          [
+            26940,
+            272
+          ],
+          [
+            236,
+            15985
+          ]
+        ],
+        "roc_auc": 0.9984668316087483
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.40939254721796836,
+        "malicious_recall": 0.990487514863258,
+        "confusion_matrix": [
+          [
+            1157,
+            802
+          ],
+          [
+            8,
+            833
+          ]
+        ],
+        "roc_auc": 0.9885491457154667
+      },
+      "serialized_model_bytes": 13486201
+    },
+    "challenger_hardsource_v1_full_w10": {
+      "experiment_id": "challenger_hardsource_v1_full_w10",
+      "architecture": "RandomForestClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "SuspiciousTLD",
+        "BrandImpersonationScore",
+        "HyphenCount",
+        "PathQueryLength",
+        "KnownBrandDomain",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.245,
+      "remediation_dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+      "remediation_rows": 980,
+      "remediation_weight": 10.0,
+      "fit_seconds": 11.00866760000008,
+      "artifact": "model/challengers/challenger_hardsource_v1_full_w10/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.00993169651098394,
+        "malicious_recall": 0.9904927691483664,
+        "confusion_matrix": [
+          [
+            26816,
+            269
+          ],
+          [
+            213,
+            22191
+          ]
+        ],
+        "roc_auc": 0.9977113945968865
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.01036307511392033,
+        "malicious_recall": 0.9852043647124098,
+        "confusion_matrix": [
+          [
+            26930,
+            282
+          ],
+          [
+            240,
+            15981
+          ]
+        ],
+        "roc_auc": 0.9984205771245643
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.4002041858090863,
+        "malicious_recall": 0.9845422116527943,
+        "confusion_matrix": [
+          [
+            1175,
+            784
+          ],
+          [
+            13,
+            828
+          ]
+        ],
+        "roc_auc": 0.9868338392455565
+      },
+      "serialized_model_bytes": 12917401
+    },
+    "challenger_hardsource_v1_structural_w5": {
+      "experiment_id": "challenger_hardsource_v1_structural_w5",
+      "architecture": "RandomForestClassifier",
+      "features": [
+        "URLLength",
+        "DomainLength",
+        "IsDomainIP",
+        "NoOfSubDomain",
+        "IsHTTPS",
+        "HasSuspiciousWords",
+        "SpecialCharRatio",
+        "DigitRatio",
+        "HasAtSymbol",
+        "HyphenCount",
+        "PathQueryLength",
+        "DomainVowelRatio"
+      ],
+      "seed": 42,
+      "threshold": 0.28750000000000003,
+      "remediation_dataset_sha256": "36ad0e29cfd6e35215fa86d100458c03c409eadd1878b5a0be05e827e946b344",
+      "remediation_rows": 980,
+      "remediation_weight": 5.0,
+      "fit_seconds": 11.062327099999948,
+      "artifact": "model/challengers/challenger_hardsource_v1_structural_w5/model.joblib",
+      "validation": {
+        "n": 49489,
+        "benign_n": 27085,
+        "malicious_n": 22404,
+        "benign_fpr": 0.009599409267122024,
+        "malicious_recall": 0.9917871808605606,
+        "confusion_matrix": [
+          [
+            26825,
+            260
+          ],
+          [
+            184,
+            22220
+          ]
+        ],
+        "roc_auc": 0.9977774298393469
+      },
+      "test": {
+        "n": 43433,
+        "benign_n": 27212,
+        "malicious_n": 16221,
+        "benign_fpr": 0.0094076142878142,
+        "malicious_recall": 0.9876086554466432,
+        "confusion_matrix": [
+          [
+            26956,
+            256
+          ],
+          [
+            201,
+            16020
+          ]
+        ],
+        "roc_auc": 0.9980653586803829
+      },
+      "hard_source_holdout": {
+        "n": 2800,
+        "benign_n": 1959,
+        "malicious_n": 841,
+        "benign_fpr": 0.3945890760592139,
+        "malicious_recall": 0.9833531510107015,
+        "confusion_matrix": [
+          [
+            1186,
+            773
+          ],
+          [
+            14,
+            827
+          ]
+        ],
+        "roc_auc": 0.9837124791884038
+      },
+      "serialized_model_bytes": 15497401
+    }
+  },
+  "frozen_champion_untouched": true
+}

@@ -1,0 +1,26 @@
+{
+  "FPR <= 0.05": {
+    "threshold": 0.35000000000000003,
+    "benign_fpr": 0.048327137546468404,
+    "benign_to_any_fpr": 0.09541511771995044,
+    "malicious_recall": 0.8164939550949913,
+    "malicious_precision": 0.9422022919780767,
+    "macro_f1": 0.7328246630495933
+  },
+  "FPR <= 0.03": {
+    "threshold": 0.5,
+    "benign_fpr": 0.028500619578686492,
+    "benign_to_any_fpr": 0.08426270136307311,
+    "malicious_recall": 0.7353195164075993,
+    "malicious_precision": 0.9599774520856821,
+    "macro_f1": 0.706106211369396
+  },
+  "FPR <= 0.02": {
+    "threshold": 0.62,
+    "benign_fpr": 0.01982651796778191,
+    "benign_to_any_fpr": 0.07806691449814127,
+    "malicious_recall": 0.6575993091537133,
+    "malicious_precision": 0.9706819630337795,
+    "macro_f1": 0.6762407549275903
+  }
+}

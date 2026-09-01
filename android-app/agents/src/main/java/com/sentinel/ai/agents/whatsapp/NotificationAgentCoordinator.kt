@@ -4,14 +4,10 @@ import com.sentinel.ai.core.event.ThreatEvent
 import com.sentinel.ai.core.event.ThreatEventBus
 import com.sentinel.ai.core.event.ThreatJournal
 import com.sentinel.ai.core.event.schema.EventValidator
-import com.sentinel.ai.core.event.schema.EventSchemaGson
 import com.sentinel.ai.core.event.schema.ValidationResult
-import com.sentinel.ai.core.event.schema.ScamRiskLevel
 import com.sentinel.ai.core.model.ProtectionDecision
-import com.sentinel.ai.core.model.RiskLevel
 import com.sentinel.ai.core.model.ScanResult
 import com.sentinel.ai.agents.sender.SenderClassifier
-import com.sentinel.ai.core.fusion.DefaultRiskFusionEngine
 import com.sentinel.ai.core.fusion.FusionContext
 import com.sentinel.ai.core.fusion.RiskFusionEngine
 import com.sentinel.ai.core.warning.WarningNotificationDispatcher
@@ -32,10 +28,28 @@ class NotificationAgentCoordinator @Inject constructor(
     private val threatEventBus: ThreatEventBus,
     private val threatJournal: ThreatJournal,
     private val warningDispatcher: WarningNotificationDispatcher,
-    private val threatAnalyzer: NotificationThreatAnalyzer = NotificationThreatAnalyzer(),
-    private val riskFusionEngine: RiskFusionEngine = DefaultRiskFusionEngine(),
-    private val senderClassifier: SenderClassifier = SenderClassifier()
+    private val threatAnalyzer: NotificationThreatAnalyzer,
+    private val riskFusionEngine: RiskFusionEngine,
+    private val senderClassifier: SenderClassifier
 ) {
+    // Secondary constructor for 6-arg testing without DI
+    constructor(
+        parser: NotificationParser,
+        builder: NotificationEventBuilder,
+        threatEventBus: ThreatEventBus,
+        threatJournal: ThreatJournal,
+        warningDispatcher: WarningNotificationDispatcher,
+        riskFusionEngine: RiskFusionEngine
+    ) : this(
+        parser = parser,
+        builder = builder,
+        threatEventBus = threatEventBus,
+        threatJournal = threatJournal,
+        warningDispatcher = warningDispatcher,
+        threatAnalyzer = NotificationThreatAnalyzer(),
+        riskFusionEngine = riskFusionEngine,
+        senderClassifier = SenderClassifier()
+    )
     private val _lastStatus = MutableStateFlow("IDLE")
     val lastStatus: StateFlow<String> = _lastStatus
     private val duplicateLock = Any()
@@ -78,7 +92,8 @@ class NotificationAgentCoordinator @Inject constructor(
         val evidence = threatAnalyzer.extractEvidence(
             messageText = raw.messageText.orEmpty(),
             urls = event.event.urls.orEmpty(),
-            isKnownContact = isKnownContact
+            isKnownContact = isKnownContact,
+            senderHeader = senderIdentifier ?: senderDisplayName
         )
 
         val fusionContext = FusionContext(
@@ -139,15 +154,6 @@ class NotificationAgentCoordinator @Inject constructor(
     }
 
     private fun WhatsAppRawNotificationData.deduplicationFingerprint(): String {
-        // Intentionally excludes notificationKey. The Android-assigned StatusBarNotification key
-        // identifies a *post event*, not the logical message: the same message content can arrive
-        // through more than one distinct key (e.g. an individual conversation notification and an
-        // OEM/launcher-generated re-post), and a single key can also be reused for unrelated
-        // content after a conversation notification is recycled. Keying the fingerprint on the
-        // key made the dedup filter miss real duplicates whenever the key differed, which was the
-        // true cause of duplicate ScanResults for a single WhatsApp message. Content identity
-        // (package + sender + message text) within the dedup time window is the correct notion of
-        // "the same logical message".
         return listOf(
             packageName,
             normalized.senderTitle.trim(),
@@ -179,18 +185,6 @@ class NotificationAgentCoordinator @Inject constructor(
     }
 
     private fun stableScanResultId(fingerprint: String, notificationTimestampMs: Long): String {
-        // The in-memory dedup fingerprint (package + sender + text) is deliberately time-agnostic
-        // so it can catch near-simultaneous re-posts of the same message (e.g. an individual
-        // notification and its group-summary companion). Using that same fingerprint alone as the
-        // permanent Room primary key went too far: two genuinely separate incidents - the same
-        // sender sending the same scam text again on a later, different occasion - hashed to the
-        // identical id, so Room's upsert-by-id silently overwrote the earlier record instead of
-        // adding a new one, and the threat count never incremented for repeat senders.
-        // sbn.postTime (carried through as normalized.timestampMs) uniquely identifies *this*
-        // notification instance: it stays constant if the same still-active notification is
-        // redelivered (e.g. on NotificationListenerService rebind), but differs for a message
-        // posted at a different time. Folding it into the id keeps redelivery idempotent while
-        // letting real repeat incidents persist as distinct threat records.
         val idSeed = "$fingerprint|$notificationTimestampMs"
         return UUID.nameUUIDFromBytes(idSeed.toByteArray(StandardCharsets.UTF_8)).toString()
     }

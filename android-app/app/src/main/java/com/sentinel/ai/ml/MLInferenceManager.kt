@@ -16,11 +16,7 @@ class MLInferenceManager @Inject constructor(
     @ApplicationContext context: Context
 ) : MLInferenceEngine {
 
-    private val interpreter: Interpreter
-    private val scaler: Scaler
-    private val inputByteCount: Int
-
-    init {
+    private val runtime by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         val model = context.assets.open("model.tflite").use { it.readBytes() }
         val buffer = ByteBuffer.allocateDirect(model.size).apply {
             order(ByteOrder.nativeOrder())
@@ -28,8 +24,8 @@ class MLInferenceManager @Inject constructor(
             rewind()
         }
 
-        interpreter = Interpreter(buffer)
-        scaler = Scaler(context)
+        val interpreter = Interpreter(buffer)
+        val scaler = Scaler(context)
 
         val inputTensor = interpreter.getInputTensor(0)
         val outputTensor = interpreter.getOutputTensor(0)
@@ -48,7 +44,7 @@ class MLInferenceManager @Inject constructor(
             "Expected FLOAT32 model output, found ${outputTensor.dataType()}"
         }
 
-        inputByteCount = inputTensor.numBytes()
+        val inputByteCount = inputTensor.numBytes()
         require(inputByteCount == EXPECTED_INPUT_BYTE_COUNT) {
             "Expected $EXPECTED_INPUT_BYTE_COUNT input bytes, " +
                 "found $inputByteCount"
@@ -58,10 +54,13 @@ class MLInferenceManager @Inject constructor(
             "Model ready: input=${inputTensor.shape().contentToString()}, " +
                 "output=${outputTensor.shape().contentToString()}"
         )
+
+        Runtime(interpreter, scaler, inputByteCount)
     }
 
     @Synchronized
     override fun predict(features: FloatArray): Float {
+        val (interpreter, scaler, inputByteCount) = runtime
         require(features.size == FeatureExtractor.FEATURE_COUNT) {
             "Expected ${FeatureExtractor.FEATURE_COUNT} features, received ${features.size}"
         }
@@ -90,6 +89,12 @@ class MLInferenceManager @Inject constructor(
         Log.d(TAG, "Output: $result")
         return result
     }
+
+    private data class Runtime(
+        val interpreter: Interpreter,
+        val scaler: Scaler,
+        val inputByteCount: Int
+    )
 
     private companion object {
         const val TAG = "ML_DEBUG"
