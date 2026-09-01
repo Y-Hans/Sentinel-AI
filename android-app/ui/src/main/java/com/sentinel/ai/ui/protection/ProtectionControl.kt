@@ -21,6 +21,7 @@ data class ProtectionSnapshot(
 
 object ProtectionControl {
 
+    private const val TAG = "ProtectionControl"
     private const val PREFS_NAME = "sentinel_protection"
     private const val KEY_ENABLED = "protection_enabled"
     private const val SENTINEL_GUARD_SERVICE = "com.sentinel.ai.services.SentinelGuardService"
@@ -101,13 +102,21 @@ object ProtectionControl {
     }
 
     private fun startService(context: Context, className: String) {
-        val intent = Intent().setClassName(context, className)
-        context.startService(intent)
+        runCatching {
+            val intent = Intent().setClassName(context, className)
+            context.startService(intent)
+        }.onFailure { error ->
+            android.util.Log.w(TAG, "Optional background service start skipped or restricted: $className", error)
+        }
     }
 
     private fun stopService(context: Context, className: String) {
-        val intent = Intent().setClassName(context, className)
-        context.stopService(intent)
+        runCatching {
+            val intent = Intent().setClassName(context, className)
+            context.stopService(intent)
+        }.onFailure { error ->
+            android.util.Log.w(TAG, "Optional background service stop failed: $className", error)
+        }
     }
 
     private fun preferences(context: Context): SharedPreferences {

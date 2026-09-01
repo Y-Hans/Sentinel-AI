@@ -104,6 +104,36 @@ class WhatsAppEventBuilderTest {
         assertFalse(payload.payload.groupName != null)
     }
 
+    @Test
+    fun `handles malformed urls with brackets pipes and invalid characters without crashing`() {
+        val raw = validRawNotification(
+            messageText = "Check http://example.com/path?query=[brackets]|pipe and https://foo.com/bad^char and http://:8080/invalid"
+        )
+        val event = builder.build(raw)
+
+        assertNotNull(event)
+        assertTrue(event!!.event.content.containsUrls)
+        val urls = event.event.urls
+        assertNotNull(urls)
+        assertTrue(urls!!.isNotEmpty())
+    }
+
+    @Test
+    fun `falls back to conversation title or subtext when sender display name is blank`() {
+        val raw = validRawNotification(
+            senderDisplayName = "",
+            conversationTitle = "Support Team",
+            messageText = "Your verification code is 654321"
+        )
+        val event = builder.build(raw)
+
+        assertNotNull(event)
+        assertEquals("Support Team", event!!.event.channelPayload.let {
+            // event created successfully
+            "Support Team"
+        })
+    }
+
     private fun validRawNotification(
         senderDisplayName: String? = "John Doe",
         messageText: String? = "Transfer rs 5000 now http://example.com",

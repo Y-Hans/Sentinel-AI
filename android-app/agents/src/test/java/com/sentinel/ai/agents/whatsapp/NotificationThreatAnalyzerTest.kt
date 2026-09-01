@@ -85,6 +85,42 @@ class NotificationThreatAnalyzerTest {
     }
 
     @Test
+    fun `benign OTP messages emit OTP_PRESENT and no OTP_SOLICITATION`() {
+        val benignMessages = listOf(
+            "Your Swiggy OTP is 123456. Do not share this OTP.",
+            "Never share your OTP",
+            "Your OTP is 123456",
+            "Use OTP 123456 to complete login",
+            "123456 is your verification code for Blinkit. Do not share it with anyone."
+        )
+
+        for (msg in benignMessages) {
+            val evidence = analyzer.extractEvidence(msg, emptyList(), isKnownContact = true)
+            assertTrue("Expected OTP_PRESENT for: $msg", evidence.any { it.type == EvidenceType.OTP_PRESENT })
+            assertFalse("Expected NO OTP_SOLICITATION for: $msg", evidence.any { it.type == EvidenceType.OTP_SOLICITATION })
+        }
+    }
+
+    @Test
+    fun `malicious OTP solicitation messages emit OTP_SOLICITATION with HIGH severity`() {
+        val solicitationMessages = listOf(
+            "Send me the OTP immediately.",
+            "Tell me the OTP",
+            "Forward the verification code",
+            "Share your OTP",
+            "Your account will be blocked. Send the OTP immediately."
+        )
+
+        for (msg in solicitationMessages) {
+            val evidence = analyzer.extractEvidence(msg, emptyList(), isKnownContact = true)
+            assertTrue(
+                "Expected OTP_SOLICITATION for: $msg",
+                evidence.any { it.type == EvidenceType.OTP_SOLICITATION && it.severity == EvidenceSeverity.HIGH }
+            )
+        }
+    }
+
+    @Test
     fun `asynchronously analyzes input via ThreatAnalyzer interface`() = runTest {
         val input = NotificationAnalysisInput(
             messageText = "Urgent payment required",

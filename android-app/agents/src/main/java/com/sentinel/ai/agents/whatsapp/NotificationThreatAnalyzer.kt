@@ -173,7 +173,7 @@ class NotificationThreatAnalyzer @Inject constructor(
             )
         }
 
-        if (lower.contains("verify")) {
+        if (VERIFY_REQUEST_REGEX.containsMatchIn(lower)) {
             evidenceList.add(
                 ThreatEvidence(
                     category = EvidenceCategory.MESSAGE_CONTENT,
@@ -181,8 +181,8 @@ class NotificationThreatAnalyzer @Inject constructor(
                     severity = EvidenceSeverity.MEDIUM,
                     sourceName = analyzerName,
                     confidence = 1.0f,
-                    indicatorText = "Sensitive request",
-                    explanation = "Sensitive request pattern detected"
+                    indicatorText = "Verification request",
+                    explanation = "Account or identity verification request detected"
                 )
             )
         }
@@ -215,18 +215,37 @@ class NotificationThreatAnalyzer @Inject constructor(
             )
         }
 
-        if (lower.contains("otp")) {
-            evidenceList.add(
-                ThreatEvidence(
-                    category = EvidenceCategory.MESSAGE_CONTENT,
-                    type = EvidenceType.OTP_SOLICITATION,
-                    severity = EvidenceSeverity.HIGH,
-                    sourceName = analyzerName,
-                    confidence = 1.0f,
-                    indicatorText = "Sensitive request: OTP",
-                    explanation = "Sensitive request pattern detected"
+        val hasOtpKeyword = OTP_GENERIC_REGEX.containsMatchIn(lower)
+        if (hasOtpKeyword) {
+            val hasSolicitationDemand = OTP_SOLICITATION_REGEX.containsMatchIn(lower)
+            val hasNegation = OTP_NEGATION_WARNING_REGEX.containsMatchIn(lower)
+            val isGenuineSolicitation = hasSolicitationDemand && !(hasNegation && !lower.contains("send") && !lower.contains("tell me") && !lower.contains("forward"))
+
+            if (isGenuineSolicitation) {
+                evidenceList.add(
+                    ThreatEvidence(
+                        category = EvidenceCategory.MESSAGE_CONTENT,
+                        type = EvidenceType.OTP_SOLICITATION,
+                        severity = EvidenceSeverity.HIGH,
+                        sourceName = analyzerName,
+                        confidence = 1.0f,
+                        indicatorText = "Sensitive request: OTP solicitation",
+                        explanation = "Sensitive request pattern detected: OTP solicitation"
+                    )
                 )
-            )
+            } else {
+                evidenceList.add(
+                    ThreatEvidence(
+                        category = EvidenceCategory.MESSAGE_CONTENT,
+                        type = EvidenceType.OTP_PRESENT,
+                        severity = EvidenceSeverity.LOW,
+                        sourceName = analyzerName,
+                        confidence = 1.0f,
+                        indicatorText = "Transactional OTP present",
+                        explanation = "OTP or verification code present in message"
+                    )
+                )
+            }
         }
 
         URGENCY_TERMS.firstOrNull { lower.contains(it) }?.let { term ->
@@ -257,7 +276,7 @@ class NotificationThreatAnalyzer @Inject constructor(
             )
         }
 
-        CREDENTIAL_TERMS.firstOrNull { lower.contains(it) }?.let { term ->
+        if (CREDENTIAL_HARVESTING_REGEX.containsMatchIn(lower)) {
             evidenceList.add(
                 ThreatEvidence(
                     category = EvidenceCategory.MESSAGE_CONTENT,
@@ -265,8 +284,8 @@ class NotificationThreatAnalyzer @Inject constructor(
                     severity = EvidenceSeverity.HIGH,
                     sourceName = analyzerName,
                     confidence = 1.0f,
-                    indicatorText = "Credential harvesting: $term",
-                    explanation = "Credential harvesting indicator detected: $term"
+                    indicatorText = "Credential harvesting indicator",
+                    explanation = "Explicit credential or password solicitation detected"
                 )
             )
         }
@@ -290,6 +309,31 @@ class NotificationThreatAnalyzer @Inject constructor(
     }
 
     companion object {
+        private val VERIFY_REQUEST_REGEX = Regex(
+            """\bverify\s+(?:your\s+)?(?:account|identity|details|card|kyc|profile|login|information)\b|\bverification\s+required\b""",
+            RegexOption.IGNORE_CASE
+        )
+
+        private val CREDENTIAL_HARVESTING_REGEX = Regex(
+            """\b(?:enter|send|share|tell|submit|provide|update|reset)\s+(?:your\s+)?(?:password|pin|credentials|passcode|cvv|secret\s+key|login\s+details)\b|\b(?:password|pin|credentials)\s+(?:required|needed|to\s+(?:unlock|continue|access))\b""",
+            RegexOption.IGNORE_CASE
+        )
+
+        private val OTP_SOLICITATION_REGEX = Regex(
+            """\b(?:send|share|tell|forward|provide|give|reply\s+with|message)\s+(?:(?:me|us|your|the|this|that|secret|account)\s+)*(?:otp|code|pin|password|one\s*time\s*password|verification\s*code)\b|\b(?:otp|code|pin)\s+(?:to\s+(?:cancel|stop|verify|customer\s*care|support|executive|officer|manager|number)|immediately)\b|\bverify\s+(?:(?:your|account|login)\s+)*otp\b""",
+            RegexOption.IGNORE_CASE
+        )
+
+        private val OTP_NEGATION_WARNING_REGEX = Regex(
+            """\b(never\s+(?:share|tell|disclose|give)|do\s+not\s+(?:share|disclose|give|tell|forward)|don'?t\s+(?:share|tell|disclose|give)|bank\s+never\s+asks|strictly\s+confidential|keep\s+(?:it\s+)?confidential)\b""",
+            RegexOption.IGNORE_CASE
+        )
+
+        private val OTP_GENERIC_REGEX = Regex(
+            """\b(otp|one\s*time\s*password|verification\s*code|auth\s*code|security\s*code|login\s*pin|2fa)\b""",
+            RegexOption.IGNORE_CASE
+        )
+
         private val URGENCY_TERMS = listOf(
             "immediately",
             "act now",
@@ -304,13 +348,6 @@ class NotificationThreatAnalyzer @Inject constructor(
             "wallet",
             "upi",
             "transaction"
-        )
-
-        private val CREDENTIAL_TERMS = listOf(
-            "login",
-            "password",
-            "verification code",
-            "security code"
         )
     }
 }

@@ -173,6 +173,13 @@ class SettingsActivity : ComponentActivity() {
     }
 
     private fun requestDefaultBrowser() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(RoleManager::class.java)
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_BROWSER)) {
+                val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_BROWSER)
+                if (launchSettingsIntent(intent)) return
+            }
+        }
         val opened = launchSettingsIntent(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
         if (!opened) openAppSettings()
     }

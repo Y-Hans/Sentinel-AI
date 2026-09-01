@@ -28,7 +28,13 @@ import javax.inject.Inject
 class NotificationEventBuilder @Inject constructor() {
 
     fun build(raw: WhatsAppRawNotificationData, isKnownContact: Boolean = false): MessageEvent? {
-        if (raw.senderDisplayName.isNullOrBlank() || raw.messageText.isNullOrBlank()) return null
+        if (raw.messageText.isNullOrBlank()) return null
+        val senderDisplayName = raw.senderDisplayName?.trim().takeUnless { it.isNullOrBlank() }
+            ?: raw.conversationTitle?.trim().takeUnless { it.isNullOrBlank() }
+            ?: raw.subText?.trim().takeUnless { it.isNullOrBlank() }
+            ?: return null
+
+
 
         val capturedAt = Instant.ofEpochMilli(raw.capturedAtMs).toString()
         val normalizedMessage = raw.messageText.trim()
@@ -41,12 +47,12 @@ class NotificationEventBuilder @Inject constructor() {
             urls = urls,
             isKnownContact = isKnownContact
         )
-        val senderHash = sha256Hex(raw.senderDisplayName)
+        val senderHash = sha256Hex(senderDisplayName)
         val chatHash = sha256Hex(
             buildString {
                 append(raw.packageName)
                 append(':')
-                append(raw.conversationTitle ?: raw.senderDisplayName)
+                append(raw.conversationTitle ?: senderDisplayName)
             }
         )
 
@@ -194,22 +200,39 @@ class NotificationEventBuilder @Inject constructor() {
             .sortedBy { it.range.first }
 
         matches.forEach { match ->
-            rawUrls.add(match.value.trimEnd('.', ',', ';', ':', '!', '?', ')', ']', '}', '"', '\''))
+            val cleaned = match.value.trimEnd('.', ',', ';', ':', '!', '?', ')', ']', '}', '"', '\'').trim()
+            if (cleaned.isNotEmpty()) {
+                rawUrls.add(cleaned)
+            }
         }
 
         return rawUrls.map { rawUrl ->
-            val normalizedUrl = normalizeUrl(rawUrl)
-            val parsed = URI(normalizedUrl)
-            val host = parsed.host ?: normalizedUrl.removePrefix("www.").substringBefore('/')
-            val domain = host.lowercase()
-            val tld = domain.substringAfterLast('.', "")
+            val normalizedUrl = normalizeUrl(rawUrl).take(2048)
+            val parsed = runCatching { URI(normalizedUrl) }.getOrNull()
+            val host = parsed?.host
+                ?: normalizedUrl
+                    .removePrefix("https://")
+                    .removePrefix("http://")
+                    .removePrefix("www.")
+                    .substringBefore('/')
+                    .substringBefore(':')
+                    .substringBefore('?')
+                    .substringBefore('#')
+                    .trim()
+            val domain = host.lowercase().take(253).ifEmpty { "unknown" }
+            val tld = if (domain.contains('.')) domain.substringAfterLast('.', "") else ""
+            val schemeStr = parsed?.scheme?.lowercase() ?: when {
+                normalizedUrl.startsWith("https://", ignoreCase = true) -> "https"
+                normalizedUrl.startsWith("http://", ignoreCase = true) -> "http"
+                else -> "other"
+            }
             UrlAnalysisItem(
                 urlId = UUID.randomUUID().toString(),
-                rawUrl = rawUrl,
+                rawUrl = rawUrl.take(2048),
                 normalizedUrl = normalizedUrl,
                 domain = domain,
                 tld = tld,
-                urlScheme = when (parsed.scheme?.lowercase()) {
+                urlScheme = when (schemeStr) {
                     "https" -> UrlScheme.HTTPS
                     "http" -> UrlScheme.HTTP
                     else -> UrlScheme.OTHER

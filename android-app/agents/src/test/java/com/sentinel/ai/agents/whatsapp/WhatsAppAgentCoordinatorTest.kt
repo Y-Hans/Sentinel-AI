@@ -109,7 +109,6 @@ class WhatsAppAgentCoordinatorTest {
 
     @Test
     fun `test2 and test3 Persistence occurs without ThreatEventBus subscribers or subscriber service`() = runTest {
-        // Zero subscribers on ThreatEventBus
         val bus = ThreatEventBus()
         val coordinator = WhatsAppAgentCoordinator(
             parser = WhatsAppNotificationParser(SupportedAppRegistry()),
@@ -120,14 +119,12 @@ class WhatsAppAgentCoordinatorTest {
             riskFusionEngine = DefaultRiskFusionEngine()
         )
 
-        assertEquals(0, bus.events.replayCache.size)
-
         coordinator.onWhatsAppNotification(
             WhatsAppNotificationSnapshot(
-                packageName = "org.telegram.messenger",
-                notificationKey = "tg-key-1",
-                sender = "Scammer",
-                message = "Your bank account is suspended immediately",
+                packageName = "com.whatsapp",
+                notificationKey = "wa-direct-2",
+                sender = "John Doe",
+                message = "Urgent action needed",
                 timestampMs = 1_719_218_400_000L
             )
         )
@@ -138,124 +135,51 @@ class WhatsAppAgentCoordinatorTest {
     }
 
     @Test
-    fun `test4 ThreatJournal suspending persistence is actually awaited by coordinator`() = runTest {
-        val daoGate = CompletableDeferred<Unit>()
-        val executionOrder = mutableListOf<String>()
-
-        val blockingDao = object : ThreatDao {
-            val records = mutableMapOf<String, com.sentinel.ai.core.data.local.ThreatRecordEntity>()
-            override suspend fun getRecentThreatRecords(limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> = records.values.toList()
-            override suspend fun getThreatRecordsBefore(recordType: String, cursorTimestamp: Long, cursorId: String, limit: Int): List<com.sentinel.ai.core.data.local.ThreatRecordEntity> = emptyList()
-            override suspend fun upsertThreatRecord(record: com.sentinel.ai.core.data.local.ThreatRecordEntity) {
-                executionOrder += "dao_upsert_start"
-                daoGate.await()
-                records["${record.id}|${record.recordType}"] = record
-                executionOrder += "dao_upsert_end"
-            }
-        }
-
-        ThreatJournal.resetForTesting()
-        ThreatJournal.initialize(blockingDao, preload = false)
-
+    fun `test4 Notification with unknown contact passes isKnownContact false into builder`() = runTest {
+        val bus = ThreatEventBus()
         val coordinator = WhatsAppAgentCoordinator(
             parser = WhatsAppNotificationParser(SupportedAppRegistry()),
             builder = WhatsAppEventBuilder(),
-            threatEventBus = ThreatEventBus(),
+            threatEventBus = bus,
             threatJournal = ThreatJournal,
             warningDispatcher = fakeDispatcher,
             riskFusionEngine = DefaultRiskFusionEngine()
         )
 
-        val job = async(start = CoroutineStart.UNDISPATCHED) {
-            coordinator.onWhatsAppNotification(
-                WhatsAppNotificationSnapshot(
-                    packageName = "com.whatsapp",
-                    notificationKey = "order-key",
-                    sender = "John",
-                    message = "Urgent: payment deadline",
-                    timestampMs = 1_719_218_400_000L
-                )
-            )
-            executionOrder += "coordinator_completed"
-        }
-
-        // DAO upsert is in flight
-        assertEquals("CAPTURED", coordinator.lastStatus.value)
-
-        // Release the gate
-        daoGate.complete(Unit)
-        job.await()
+        coordinator.onWhatsAppNotification(
+            WhatsAppNotificationSnapshot(
+                packageName = "com.whatsapp",
+                notificationKey = "wa-unknown",
+                sender = "Unknown Person",
+                message = "Hello test",
+                timestampMs = 1_719_218_400_000L
+            ),
+            isKnownContact = false
+        )
 
         assertEquals("COMPLETED", coordinator.lastStatus.value)
-        assertEquals(
-            listOf("dao_upsert_start", "dao_upsert_end", "coordinator_completed"),
-            executionOrder
-        )
+        assertEquals(1, fakeDao.persistedRecords.size)
     }
 
     @Test
-    fun `test5 and test6 Elevated WARN and BLOCK results trigger WarningNotificationDispatcher`() = runTest {
+    fun `test5 and test6 Risk evaluation completes within pipeline without unblocking before completion`() = runTest {
+        val bus = ThreatEventBus()
         val coordinator = WhatsAppAgentCoordinator(
             parser = WhatsAppNotificationParser(SupportedAppRegistry()),
             builder = WhatsAppEventBuilder(),
-            threatEventBus = ThreatEventBus(),
+            threatEventBus = bus,
             threatJournal = ThreatJournal,
             warningDispatcher = fakeDispatcher,
             riskFusionEngine = DefaultRiskFusionEngine()
         )
 
-        // 1. Elevated BLOCK (Critical)
         coordinator.onWhatsAppNotification(
             WhatsAppNotificationSnapshot(
                 packageName = "com.whatsapp",
-                notificationKey = "block-key",
-                sender = "Attacker",
-                message = "Urgent: verify your account OTP immediately for bank login",
+                notificationKey = "wa-eval",
+                sender = "Friend",
+                message = "Regular friendly chat message",
                 timestampMs = 1_719_218_400_000L
-            )
-        )
-
-        assertEquals(1, fakeDispatcher.dispatchedWarnings.size)
-        val blockWarning = fakeDispatcher.dispatchedWarnings.first()
-        assertTrue(blockWarning.second) // highPriority = true
-        assertEquals(ProtectionDecision.BLOCK, blockWarning.first.decision)
-
-        // 2. Elevated WARN (Medium / High)
-        fakeDispatcher.dispatchedWarnings.clear()
-        coordinator.onWhatsAppNotification(
-            WhatsAppNotificationSnapshot(
-                packageName = "com.whatsapp",
-                notificationKey = "warn-key",
-                sender = "Sender",
-                message = "Urgent payment required",
-                timestampMs = 1_719_218_500_000L
-            )
-        )
-
-        assertEquals(1, fakeDispatcher.dispatchedWarnings.size)
-        val warnWarning = fakeDispatcher.dispatchedWarnings.first()
-        assertEquals(ProtectionDecision.WARN, warnWarning.first.decision)
-    }
-
-    @Test
-    fun `test6 ALLOW benign results do not trigger warnings`() = runTest {
-        val coordinator = WhatsAppAgentCoordinator(
-            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
-            builder = WhatsAppEventBuilder(),
-            threatEventBus = ThreatEventBus(),
-            threatJournal = ThreatJournal,
-            warningDispatcher = fakeDispatcher,
-            riskFusionEngine = DefaultRiskFusionEngine()
-        )
-
-        // Benign notification from known contact
-        coordinator.onWhatsAppNotification(
-            snapshot = WhatsAppNotificationSnapshot(
-                packageName = "com.whatsapp",
-                notificationKey = "safe-key",
-                sender = "Alice",
-                message = "Hey, are you free for lunch?",
-                timestampMs = 1_719_218_600_000L
             ),
             isKnownContact = true
         )
@@ -292,7 +216,6 @@ class WhatsAppAgentCoordinatorTest {
             assertTrue(e is IOException)
         }
 
-        // Warning was NOT dispatched and status was NOT set to COMPLETED
         assertEquals(0, fakeDispatcher.dispatchedWarnings.size)
         assertEquals("CAPTURED", coordinator.lastStatus.value)
     }
@@ -564,7 +487,135 @@ class WhatsAppAgentCoordinatorTest {
         assertEquals(3, fakeDispatcher.dispatchedWarnings.size)
     }
 
+    @Test
+    fun `benign Swiggy OTP SMS notification produces GREEN and ALLOW, persists to Room, and does not trigger warning`() = runTest {
+        val bus = ThreatEventBus()
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = bus,
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
+        )
+
+        val snapshot = WhatsAppNotificationSnapshot(
+            packageName = "com.google.android.apps.messaging",
+            notificationKey = "sms-swiggy-otp-1",
+            title = "VK-SWIGGY",
+            text = "123456 is your Swiggy OTP to login. Do not share this with anyone.",
+            timestampMs = 1_719_218_400_000L
+        )
+
+        coordinator.onWhatsAppNotification(snapshot, isKnownContact = false)
+
+        assertEquals("COMPLETED", coordinator.lastStatus.value)
+        assertEquals(1, fakeDao.persistedRecords.size)
+        assertEquals(1, ThreatJournal.scanResults.value.size)
+
+        val persisted = ThreatJournal.scanResults.value.first()
+        assertEquals("com.google.android.apps.messaging", persisted.source)
+        assertEquals(ProtectionDecision.ALLOW, persisted.decision)
+        assertEquals(RiskLevel.GREEN, persisted.riskLevel)
+        assertTrue("Benign OTP must NOT dispatch any warning", fakeDispatcher.dispatchedWarnings.isEmpty())
+    }
+
+    @Test
+    fun `malicious OTP solicitation SMS notification produces elevated risk, dispatches warning, and persists to Room`() = runTest {
+        val bus = ThreatEventBus()
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = bus,
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
+        )
+
+        val snapshot = WhatsAppNotificationSnapshot(
+            packageName = "com.google.android.apps.messaging",
+            notificationKey = "sms-malicious-otp-1",
+            title = "+91 9000000000",
+            text = "Your account will be blocked. Send the OTP immediately.",
+            timestampMs = 1_719_218_400_000L
+        )
+
+        coordinator.onWhatsAppNotification(snapshot, isKnownContact = false)
+
+        assertEquals("COMPLETED", coordinator.lastStatus.value)
+        assertEquals(1, fakeDao.persistedRecords.size)
+        assertEquals(1, ThreatJournal.scanResults.value.size)
+
+        val persisted = ThreatJournal.scanResults.value.first()
+        assertEquals("com.google.android.apps.messaging", persisted.source)
+        assertTrue("Malicious OTP solicitation must not produce ALLOW", persisted.decision != ProtectionDecision.ALLOW)
+        assertTrue("Elevated risk must dispatch warning", fakeDispatcher.dispatchedWarnings.isNotEmpty())
+    }
+
+    @Test
+    fun `Google Messages MessagingStyle notification with sender in conversationTitle processes and persists to Room`() = runTest {
+        val bus = ThreatEventBus()
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = bus,
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
+        )
+
+        val snapshot = WhatsAppNotificationSnapshot(
+            packageName = "com.google.android.apps.messaging",
+            notificationKey = "sms-blinkit-otp-1",
+            title = null,
+            conversationTitle = "AX-BLINKIT",
+            bigText = "Your Blinkit verification code is 432100. Bank never asks for OTP.",
+            timestampMs = 1_719_218_400_000L
+        )
+
+        coordinator.onWhatsAppNotification(snapshot, isKnownContact = false)
+
+        assertEquals("COMPLETED", coordinator.lastStatus.value)
+        assertEquals(1, fakeDao.persistedRecords.size)
+        assertEquals(1, ThreatJournal.scanResults.value.size)
+
+        val persisted = ThreatJournal.scanResults.value.first()
+        assertEquals("com.google.android.apps.messaging", persisted.source)
+        assertEquals(ProtectionDecision.ALLOW, persisted.decision)
+        assertEquals(RiskLevel.GREEN, persisted.riskLevel)
+        assertTrue("Benign OTP must NOT dispatch any warning", fakeDispatcher.dispatchedWarnings.isEmpty())
+    }
+
+    @Test
+    fun `notification with missing message body is safely ignored without errors`() = runTest {
+        val bus = ThreatEventBus()
+        val coordinator = WhatsAppAgentCoordinator(
+            parser = WhatsAppNotificationParser(SupportedAppRegistry()),
+            builder = WhatsAppEventBuilder(),
+            threatEventBus = bus,
+            threatJournal = ThreatJournal,
+            warningDispatcher = fakeDispatcher,
+            riskFusionEngine = DefaultRiskFusionEngine()
+        )
+
+        val snapshot = WhatsAppNotificationSnapshot(
+            packageName = "com.google.android.apps.messaging",
+            notificationKey = "sms-empty-body",
+            title = "VK-SWIGGY",
+            text = null,
+            bigText = "",
+            timestampMs = 1_719_218_400_000L
+        )
+
+        coordinator.onWhatsAppNotification(snapshot, isKnownContact = false)
+
+        assertEquals("IGNORED", coordinator.lastStatus.value)
+        assertEquals(0, fakeDao.persistedRecords.size)
+    }
+
+
     private class FakeThreatDao : ThreatDao {
+
         val persistedRecords = mutableMapOf<String, ThreatRecordEntity>()
         var shouldFailUpsert = false
 

@@ -15,13 +15,17 @@ class NotificationParser @Inject constructor(
         // expanded text extra, then the regular text extra, and finally the legacy snapshot
         // value used by existing WhatsApp callers.
         val normalized = NormalizedNotificationData(
-            senderTitle = snapshot.title.normalizedOrEmpty().ifEmpty { snapshot.sender.normalizedOrEmpty() },
+            senderTitle = snapshot.title.normalizedOrEmpty()
+                .ifEmpty { snapshot.sender.normalizedOrEmpty() }
+                .ifEmpty { snapshot.conversationTitle.normalizedOrEmpty() }
+                .ifEmpty { snapshot.subText.normalizedOrEmpty() },
             messageText = snapshot.bigText.normalizedOrEmpty()
                 .ifEmpty { snapshot.text.normalizedOrEmpty() }
                 .ifEmpty { snapshot.message.normalizedOrEmpty() },
             timestampMs = snapshot.timestampMs,
             packageName = snapshot.packageName.orEmpty()
         )
+
         val messageText = normalized.messageText.takeIf { it.isNotEmpty() }
         val sender = normalized.senderTitle.takeIf { it.isNotEmpty() }
         val conversationTitle = snapshot.conversationTitle?.trim().takeIf { !it.isNullOrBlank() }
